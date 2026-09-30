@@ -35,6 +35,14 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Verificato: 300 coppie per argomento e livello senza errori; round da 8 coppie completi con tutti gli argomenti; prove nel browser di trascinamento, tocco-tocco, memory alla LIM e riepilogo. `window.__coppieTest` espone `CATS`, `buildPairs`, `P`.
 - **5 livelli**: ai livelli 4 e 5 `buildPairs` usa prima le **famiglie** `FAM[k](l)`, gruppi di coppie che si somigliano apposta (stessi numeri con operazioni diverse, simboli chimici simili, area/perimetro, V/R/I…), poi completa con `one(3)`. Attenzione a non creare ambiguità vere: ogni carta deve avere una sola compagna (es. calcare e arenaria sono entrambe sedimentarie → descrizioni diverse). Crescente: dal livello 1 al 5 distribuiti sui round.
 
+## `leve.html` (Leve e bilance) — creato il 30/09/2026
+- Richieste del docente: dettaglio grafico, **oggetti reali** come masse, **varietà** e diversi livelli. Oggetti SVG in `OBJ`: 1 bottiglia 1 L, 2 mattone, 3 zucca, 4 pesetto, 5 anguria, 10 secchio 10 L, `mys` scatola misteriosa.
+- Scena: cielo + prato, asse di legno `.beam` ruotata con la variabile CSS `--a`, fulcro di pietra; livello base = bilancia a piatti (`.stage.scale`, `.slot.pan` controruotati così restano orizzontali). Tacche = distanze 1..N.
+- Sfida `makeChallenge(l)` → `{N, left, rload, M, tray, limited, count, onlyD, mys, task, sol}`: 3 tipi per livello (vedi README). `solsK` trova le soluzioni con k oggetti; verificato: 400 sfide per livello, tutte risolvibili rispettando i vincoli.
+- Tabelloni `BD[1]`, `BD[2]`, `BD.L` (LIM) creati da `mkBoard`; trascinamento per `pointerId` con un "fantasma" nel `body` (ruotato di 180° per la squadra girata nel modo tavolo); tocco su un oggetto già piazzato = lo toglie. Successo quando momento destra = sinistra e i vincoli sono rispettati; al livello 5 poi `ask` (4 risposte: giusta, 2 vicine, ×10).
+- LIM: a turni, rubapunto dopo tempo scaduto, «Passa» o risposta sbagliata; la seconda squadra riparte dalla leva com'è.
+- Preferenze `leve-prefs`. `window.__leveTest` per le verifiche.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 

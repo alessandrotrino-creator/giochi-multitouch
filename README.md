@@ -12,7 +12,7 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, frazioni da spezzare, circuiti elettrici, leve e bilance, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, frazioni da spezzare, circuiti elettrici, linea del tempo.
 
 ## Giochi
 
@@ -22,7 +22,19 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 |---|---|---|
 | `duello.html` | **Duello a squadre** | Due squadre, la stessa domanda con 4 risposte. Tre modi di gioco: **Multitouch** (lo schermo è diviso in due e si risponde tutti insieme: vince il punto chi tocca per primo la risposta giusta; chi sbaglia resta bloccato 2 secondi); **LIM a turni** con rubapunto; **LIM con prenotazione** (pulsante grande di ogni squadra, oppure tasti A e L della tastiera). |
 | `coppie.html` | **Caccia alle coppie** | Carte da abbinare (figura–nome, operazione–risultato, grandezza–unità, strumento–che cosa misura…). **Multitouch**: ogni squadra ha le sue carte e tutti giocano insieme; si trascina una carta sulla compagna oppure si toccano una dopo l'altra, e chi finisce per primo il round prende 2 punti in più. **LIM**: un solo tabellone, a turni, con carte **scoperte** oppure **coperte** (memory). |
+| `leve.html` | **Leve e bilance** | Oggetti veri da trascinare (bottiglia d'acqua da 1 kg, mattone 2 kg, zucca 3 kg, pesetto 4 kg, anguria 5 kg, secchio d'acqua 10 kg) per mettere in equilibrio una bilancia a piatti o una leva: **peso × distanza** uguale dai due lati. **Multitouch**: ogni squadra ha la sua leva con la stessa sfida; vince il punto chi la mette per prima in equilibrio. **LIM**: una leva, a turni, con rubapunto (anche con il pulsante «Passa»). |
 
+### Leve e bilance: impostazioni
+- **Livello** (ogni livello ha 3 tipi di sfida, estratti a caso):
+  - *Base*, bilancia a piatti: stessi chili dai due lati; piatto già in parte occupato da completare; minor numero di oggetti possibile.
+  - *Medio*, leva con un oggetto a sinistra: bilancialo con un solo oggetto diverso; hai un solo tipo di oggetto e scegli la distanza; la tacca è decisa e scegli l'oggetto.
+  - *Avanzato*, due oggetti a sinistra: oggetti liberi; minor numero di oggetti; un oggetto fisso anche a destra.
+  - *Esperto*: usa tutti e soli gli oggetti dati; usa esattamente 3 oggetti; oggetti dati più un oggetto fisso a destra.
+  - *Campione*, scatole misteriose: dopo l'equilibrio bisogna dire quanto pesa la scatola (una scatola con o senza un altro oggetto, due scatole uguali, oppure gli oggetti obbligati).
+  - *Crescente*: dal base al campione, sfida dopo sfida.
+- **Sfide**: 5, 8 o 10. **Aiuto «mostra i calcoli»**: sì (si vede peso × distanza dei due lati) o no (si vede solo da che parte pende).
+- **Tempo**: per sfida (multitouch) oppure per turno (LIM). Quando nessuno ci riesce, compare una soluzione possibile.
+- A fine partita: riepilogo di tutte le sfide con una soluzione per ciascuna.
 ### Caccia alle coppie: impostazioni
 - **Coppie da cercare**:
   - *Matematica*: operazioni e risultati, frazioni-decimali-percentuali, potenze e radici, equivalenze, figure piane (disegno, nome, formula dell'area), solidi (disegno, nome, facce-vertici-spigoli, formula del volume), equazioni e soluzioni.

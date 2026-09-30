@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Leve e bilance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; la scena è un'altalena a bilico di legno su un prato */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8;
+  --sky:#DDEEFB; --sky2:#F4FAFF; --grass:#9ED17B; --grass2:#7DB85C; --wood:#C58A4A; --wood2:#9C6530; --stone:#8D96A5; --stone2:#6B7483;
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --sky:#1C2A48; --sky2:#233457; --grass:#35603A; --grass2:#2A4D2E; --wood:#A8733D; --wood2:#7C5226; --stone:#6E7787; --stone2:#555D6B; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --sky:#1C2A48; --sky2:#233457; --grass:#35603A; --grass2:#2A4D2E; --wood:#A8733D; --wood2:#7C5226; --stone:#6E7787; --stone2:#555D6B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:60px;height:60px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.lvdesc{margin:0;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.45}
+.objs{display:flex;flex-wrap:wrap;gap:10px}
+.objs .o{display:flex;flex-direction:column;align-items:center;gap:2px;width:84px;font-weight:800;font-size:.8rem;color:var(--muted);text-align:center;line-height:1.15}
+.objs .o svg{width:52px;height:52px}
+
+/* ---------- scena: cielo, prato, asse di legno e fulcro ---------- */
+.stage{flex:1;position:relative;min-height:0;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,var(--sky2),var(--sky) 62%,var(--grass) 62%,var(--grass2));border:2px solid var(--line)}
+.stage::before{content:"";position:absolute;left:8%;top:10%;width:18%;height:9%;border-radius:999px;background:var(--surface);opacity:.55;box-shadow:120% 60% 0 -2px var(--surface)}
+.beamwrap{position:absolute;left:5%;right:5%;top:52%;height:0}
+.beam{position:absolute;left:0;right:0;top:0;height:clamp(12px,2.2vh,20px);transform:translateY(-50%) rotate(var(--a,0deg));transform-origin:50% 50%;transition:transform .5s cubic-bezier(.3,1.35,.5,1);border-radius:6px;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(0,0,0,.08) 38px 40px),linear-gradient(180deg,var(--wood),var(--wood2));box-shadow:0 3px 0 rgba(0,0,0,.18)}
+.fulcrum{position:absolute;left:50%;top:52%;width:clamp(44px,7vh,72px);height:10%;transform:translateX(-50%);background:linear-gradient(180deg,var(--stone),var(--stone2));clip-path:polygon(50% 0,100% 100%,0 100%);min-height:34px}
+.slot{position:absolute;bottom:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:min(32vh,300px);min-width:40px}
+.slot .stack{display:flex;flex-direction:column-reverse;align-items:center;gap:0}
+.slot .tick{position:absolute;top:100%;margin-top:clamp(10px,2vh,18px);font-weight:800;font-size:clamp(.75rem,1.6vh,1rem);color:var(--ink);background:var(--surface);border-radius:999px;padding:0 7px;opacity:.9}
+.slot .tick::before{content:"";position:absolute;left:50%;top:-14px;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--wood2)}
+.board.hot .slot.R{background:repeating-linear-gradient(0deg,transparent 0 8px,color-mix(in srgb,var(--accent) 10%,transparent) 8px 16px);border-radius:10px 10px 0 0;outline:2px dashed color-mix(in srgb,var(--accent) 45%,transparent);outline-offset:-2px}
+.board.hot .slot.R.off{background:none;outline:none}
+.slot.R.off .tick{opacity:.35}
+.slot.over{background:color-mix(in srgb,var(--ok) 22%,transparent)!important}
+/* bilancia a piatti (livello base): i piatti pendono e restano orizzontali */
+.stage.scale .beamwrap{top:28%;left:6%;right:6%}
+.stage.scale .beam{height:clamp(8px,1.4vh,12px);background:linear-gradient(180deg,#C9CED8,#8E97A6)}
+.stage.scale .fulcrum{top:28%;width:14px;height:48%;clip-path:none;border-radius:6px 6px 0 0;background:linear-gradient(90deg,#8E97A6,#C9CED8,#8E97A6)}
+.stage.scale .fulcrum::after{content:"";position:absolute;left:50%;bottom:0;width:90px;height:14px;margin-left:-45px;border-radius:8px 8px 0 0;background:#8E97A6}
+.slot.pan{bottom:auto;top:50%;height:min(26vh,230px);transform:translateX(-50%) rotate(calc(-1 * var(--a,0deg)));transform-origin:50% 0;transition:transform .5s cubic-bezier(.3,1.35,.5,1);justify-content:flex-end}
+.slot.pan .strings{position:absolute;inset:0 0 10px 0;width:100%;height:calc(100% - 10px)}
+.slot.pan .strings path{stroke:var(--stone2);stroke-width:2;fill:none}
+.slot.pan .plate{width:118%;height:10px;border-radius:0 0 60px 60px;background:linear-gradient(180deg,#C9CED8,#8E97A6);flex:none}
+.slot.pan .stack{position:relative;z-index:1;margin-bottom:-2px;flex-direction:row;flex-wrap:wrap-reverse;justify-content:center;max-width:120%}
+.slot.pan .tick{display:none}
+.slot.pan .blk{width:clamp(38px,7vh,70px);height:clamp(38px,7vh,70px)}
+
+/* ---------- oggetti ---------- */
+.blk{position:relative;width:clamp(44px,8.5vh,84px);height:clamp(44px,8.5vh,84px);display:flex;align-items:center;justify-content:center;touch-action:none;cursor:grab;flex:none;margin-top:-6%}
+.blk svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 2px 1px rgba(0,0,0,.18))}
+.blk .kg{position:absolute;bottom:-2px;right:-4px;font-family:var(--font-title);font-weight:800;font-size:clamp(.7rem,1.6vh,.95rem);line-height:1;background:var(--surface);color:var(--ink);border:2px solid currentColor;border-radius:999px;padding:1px 5px;white-space:nowrap}
+.t1 .blk.mine .kg, .blk.mine.c1 .kg{color:var(--t1)} .t2 .blk.mine .kg, .blk.mine.c2 .kg{color:var(--t2)}
+.blk.load{cursor:default}
+.blk.load .kg{color:var(--muted)}
+.blk.load .kg{border-style:dashed}
+.blk.lift{opacity:.25}
+.blk.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-60%) scale(1.15);margin:0}
+.blk.ghost.flip{transform:translate(-50%,-40%) rotate(180deg) scale(1.15)}
+.tray{display:flex;justify-content:center;align-items:flex-end;gap:clamp(8px,1.4vw,18px);flex-wrap:wrap;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:8px 10px 10px;min-height:clamp(64px,10vh,96px)}
+.tray .blk{margin:0}
+.tray .lab{font-weight:800;color:var(--muted);font-size:.85rem;align-self:center}
+.task{font-weight:800;text-align:center;font-size:clamp(.95rem,2.2vh,1.3rem);line-height:1.25;min-height:1.3em}
+.task b{color:var(--accent)}
+.calc{text-align:center;font-weight:800;font-size:clamp(.9rem,2vh,1.2rem);min-height:1.4em;font-variant-numeric:tabular-nums;display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+.calc .ok{color:var(--ok)}
+.calc span{white-space:nowrap}
+.ask{display:none;flex-direction:column;align-items:center;gap:8px;background:var(--surface);border:3px solid var(--accent);border-radius:18px;padding:10px}
+.ask.on{display:flex}
+.ask .q{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);text-align:center}
+.ask .opts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.ask .opts button{border:3px solid var(--line);background:var(--surface-2);border-radius:14px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.1rem,3vh,1.8rem);min-width:90px;min-height:52px;padding:4px 14px}
+.ask .opts button.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.ask .opts button.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 40%)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 40%)}
+#game.table .half.t1{transform:rotate(180deg)}
+.board{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);flex:1;min-height:0;position:relative}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.8rem,6vh,4rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 26px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;max-width:92%}
+.banner small{display:block;font-family:var(--font-body);font-size:.4em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.35}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:36vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(150px,16vw,250px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.msg{text-align:center;font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+#lboard.dim{opacity:.4;pointer-events:none}
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni di Leve e bilance">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M26 58h12L32 44z" fill="#8D96A5"/><rect x="4" y="38" width="56" height="7" rx="3" fill="#C58A4A" transform="rotate(-8 32 41)"/><rect x="8" y="22" width="14" height="14" rx="3" fill="#2F6FDB" transform="rotate(-8 15 29)"/><rect x="42" y="14" width="14" height="18" rx="3" fill="#E8801F" transform="rotate(-8 49 23)"/></svg>
+      <div><h1>Leve e bilance</h1><p>Trascina gli oggetti sull'asse e porta la leva in equilibrio: peso × distanza deve essere uguale dai due lati.</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="row">
+      <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
+      <div class="field"><span>Aiuto: mostra i calcoli</span><div class="seg" id="aid"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeCF"><span>Tempo per sfida</span><div class="seg" id="timeC"></div></div>
+      <div class="field" id="timeTF"><span>Tempo per turno</span><div class="seg" id="timeT"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>Gli oggetti da usare come pesi</span><div class="objs" id="objs"></div></div>
+    <p class="note" id="rules"></p>
+    <button class="start" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Leve e bilance">
+  <div class="half t1" id="h1">
+    <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="board" id="bd1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="board" id="bd2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Leve e bilance alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpass">Passa</button> <button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="bdL"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi le sfide e una soluzione per ciascuna</summary><div class="tablewrap"><table id="recap"></table></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
+const N = x => NF.format(x);
+const sum = a => a.reduce((s,v)=>s+v, 0);
+
+/* ---------- oggetti reali con una massa facile da ricordare ---------- */
+const OBJ = {
+  1:{n:'bottiglia d\'acqua da 1 L', s:'<svg viewBox="0 0 60 60"><rect x="21" y="15" width="18" height="41" rx="7" fill="#A9DBF7" stroke="#3B82C4" stroke-width="2"/><path d="M24 15c0-4 2-6 3-7h6c1 1 3 3 3 7" fill="#A9DBF7" stroke="#3B82C4" stroke-width="2"/><rect x="25" y="4" width="10" height="6" rx="2" fill="#2F6FDB"/><rect x="21" y="30" width="18" height="10" fill="#fff" opacity=".9"/><path d="M25 22v26" stroke="#fff" stroke-width="2.5" opacity=".6" stroke-linecap="round"/></svg>'},
+  2:{n:'mattone', s:'<svg viewBox="0 0 60 60"><path d="M6 30l8-8h40l-8 8z" fill="#D9735A" stroke="#8E3B2A" stroke-width="2" stroke-linejoin="round"/><path d="M46 30l8-8v20l-8 8z" fill="#A9472F" stroke="#8E3B2A" stroke-width="2" stroke-linejoin="round"/><rect x="6" y="30" width="40" height="20" fill="#C8553D" stroke="#8E3B2A" stroke-width="2"/><circle cx="17" cy="40" r="2.5" fill="#8E3B2A"/><circle cx="26" cy="40" r="2.5" fill="#8E3B2A"/><circle cx="35" cy="40" r="2.5" fill="#8E3B2A"/></svg>'},
+  3:{n:'zucca', s:'<svg viewBox="0 0 60 60"><ellipse cx="30" cy="38" rx="25" ry="18" fill="#F08A24" stroke="#B35F0E" stroke-width="2"/><path d="M30 20v36M18 23c-5 8-5 23 0 31M42 23c5 8 5 23 0 31" stroke="#B35F0E" stroke-width="2" fill="none"/><path d="M30 21c0-7 3-10 8-11" stroke="#4E7D2A" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M38 12c5-2 9 0 10 3-4 1-8 0-10-3z" fill="#6DA63C"/></svg>'},
+  4:{n:'pesetto (kettlebell)', s:'<svg viewBox="0 0 60 60"><path d="M19 29c-1-15 23-15 22 0" stroke="#2E333D" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="30" cy="40" r="17" fill="#4A505C" stroke="#2E333D" stroke-width="2"/><path d="M20 33a12 12 0 0 1 8-7" stroke="#fff" stroke-width="3" opacity=".35" fill="none" stroke-linecap="round"/><rect x="24" y="37" width="12" height="9" rx="2" fill="#E8801F"/></svg>'},
+  5:{n:'anguria', s:'<svg viewBox="0 0 60 60"><ellipse cx="30" cy="37" rx="27" ry="19" fill="#2F8F3A" stroke="#1E5E26" stroke-width="2"/><path d="M6 32c10 5 38 5 48 0M8 42c10 5 34 5 44 0M13 24c9 4 25 4 34 0" stroke="#8ACB6F" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M29 18c0-3 1-5 3-6" stroke="#6B4A1F" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>'},
+  10:{n:'secchio d\'acqua da 10 L', s:'<svg viewBox="0 0 60 60"><path d="M12 22h36l-5 34H17z" fill="#9AAEC2" stroke="#56687B" stroke-width="2" stroke-linejoin="round"/><path d="M15 34h30M16 44h28" stroke="#56687B" stroke-width="1.5" opacity=".6"/><ellipse cx="30" cy="22" rx="18" ry="5" fill="#5FB0EA" stroke="#56687B" stroke-width="2"/><path d="M12 22C12 4 48 4 48 22" stroke="#56687B" stroke-width="2.5" fill="none"/></svg>'},
+  mys:{n:'scatola misteriosa', s:'<svg viewBox="0 0 60 60"><path d="M8 20l6-8h32l6 8z" fill="#D9B47D" stroke="#8C6A3C" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="20" width="44" height="36" rx="2" fill="#C9A26B" stroke="#8C6A3C" stroke-width="2"/><path d="M8 28h44" stroke="#8C6A3C" stroke-width="2"/><text x="30" y="51" text-anchor="middle" font-size="22" font-weight="800" font-family="Baloo 2, Nunito, sans-serif" fill="#5B3F1E">?</text></svg>'}
+};
+const blkHTML = (w, cls, extra) => `<div class="blk ${cls}" data-w="${w}" ${extra || ''}>${OBJ[w].s}<span class="kg">${w==='mys' ? '? kg' : w + ' kg'}</span></div>`;
+
+/* ---------- impostazioni ---------- */
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('leve-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('leve-prefs', JSON.stringify(P)); }catch(e){} };
+const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+const LVD = {
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dalla bilancia a piatti fino al peso misterioso.',
+  1:'Base: una bilancia a piatti. Stessi chili dai due lati; a volte il piatto di destra è già in parte occupato, a volte bisogna usare meno oggetti possibile.',
+  2:'Medio: una leva con un oggetto a sinistra. Bilancialo con un solo oggetto: a volte scegli la distanza, a volte l\'oggetto giusto per una tacca data.',
+  3:'Avanzato: due oggetti a sinistra, a distanze diverse. Oggetti liberi, oppure il minor numero possibile, oppure con un oggetto fisso anche a destra.',
+  4:'Esperto: usa tutti e soli gli oggetti dati, oppure esattamente 3 oggetti; a volte c\'è anche un oggetto fisso a destra.',
+  5:'Campione: scatole misteriose. Porta la leva in equilibrio, poi scopri quanto pesa la scatola (a volte ci sono due scatole uguali, a volte gli oggetti sono obbligati).'
+};
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim);
+  $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
+  $('#lvdesc').textContent = LVD[P.lvl];
+  $('#rules').innerHTML = (lim
+    ? 'LIM a turni: una squadra alla volta porta la leva in equilibrio; se finisce il tempo (o preme «Passa»), l\'altra squadra può <b>rubare il punto</b> partendo da dove è rimasta la leva. Basta un tocco alla volta.'
+    : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sulla sua leva, e giocano insieme. Si trascinano gli oggetti dal vassoio sull\'asse, a destra del fulcro; un oggetto già sull\'asse si sposta trascinandolo, oppure si toglie con un tocco. Vince il punto chi mette per primo la leva in equilibrio.')
+    + ' La regola: <b>peso × distanza</b> a sinistra = <b>peso × distanza</b> a destra. Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
+  seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#timeC', 'timeC', [[0,'Senza limite'],[60,'60 s'],[90,'90 s'],[120,'2 minuti']]);
+  seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#objs').innerHTML = [1,2,3,4,5,10,'mys'].map(w=>`<div class="o">${OBJ[w].s}<span>${w==='mys' ? '? kg' : w + ' kg'}</span><span>${OBJ[w].n}</span></div>`).join('');
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- sfide ----------
+   left: oggetti fissi a sinistra {d, w} (w può essere 'mys' con massa nascosta m); N: tacche per lato;
+   tray: tipi di oggetti disponibili (illimitati) oppure, se limited, l'elenco esatto da usare; sol: una soluzione in parole */
+const W = [1,2,3,4,5,10];
+const kgs = ws => ws.map(w=>`${w} kg`).join(' + ');
+/* tutte le soluzioni con esattamente k oggetti (pesi da tray, tacche 1..N, oppure solo la tacca onlyD) */
+function solsK(M, tray, N, k, onlyD){
+  const ds = onlyD ? [onlyD] : Array.from({length:N}, (_,i)=>i+1), items = [];
+  tray.forEach(w=>ds.forEach(d=>items.push([w,d])));
+  const out = [];
+  const rec = (start, left, acc)=>{ if(out.length > 200) return; if(acc.length===k){ if(left===0) out.push(acc.slice()); return; } for(let i=start; i<items.length; i++){ const [w,d] = items[i]; if(w*d <= left){ acc.push(items[i]); rec(i, left - w*d, acc); acc.pop(); } } };
+  rec(0, M, []);
+  return out;
+}
+function minCount(M, tray, N){ for(let k=1; k<=4; k++){ const s = solsK(M, tray, N, k); if(s.length) return {k, s:pick(s)}; } return null; }
+function findSol(M, tray, N){ const r = minCount(M, tray, N); return r && r.k <= 2 ? r.s : null; }
+const solTxt = (s, N) => N===1 ? `a destra ${kgs(s.map(x=>x[0]))}` : s.map(([w,d])=>`${w} kg a distanza ${d}`).join(' e ');
+const loadM = list => sum(list.map(o=>(o.w==='mys' ? o.m : o.w)*o.d));
+const twoLoads = (ws, N) => { const d1 = rnd(1,N); let d2; do{ d2 = rnd(1,N); }while(d2===d1); return [{d:d1, w:pick(ws)}, {d:d2, w:pick(ws)}]; };
+function mysOpts(m, wrongs){
+  const near = [...new Set(wrongs.map(v=>Math.round(v*10)/10))].filter(v=>v > 0 && v!==m && Math.abs(v-m) <= Math.max(3, m*0.7)).slice(0,2);
+  for(const v of [m+1, m-1, m+2, m+3]) if(near.length < 2 && v > 0 && v!==m && !near.includes(v)) near.push(v);
+  return shuffle([m, ...near, m*10]);
+}
+/* ogni livello ha 3 tipi di sfida, scelti a caso */
+function makeChallenge(l){
+  for(let g=0; g<400; g++){
+    const v = rnd(0,2);
+    const base = {l, rload:[], tray:W, count:0, onlyD:0, limited:false};
+    if(l===1){
+      const left = Array.from({length:rnd(2,3)}, ()=>({d:1, w:pick([1,2,3,4,5])})), M = loadM(left); if(M > 14 || M < 4) continue;
+      if(v===0){ const r = minCount(M, [1,2,5], 1); return {...base, N:1, left, M, tray:[1,2,5], task:'Metti sul piatto di destra <b>gli stessi chili</b> che ci sono a sinistra.', sol:solTxt(r.s, 1)}; }
+      if(v===1){ const w0 = pick([1,2,3,4,5].filter(w=>w < M)); const r = minCount(M - w0, [1,2,5], 1); return {...base, N:1, left, M, rload:[{d:1, w:w0}], tray:[1,2,5], task:'Sul piatto di destra c\'è già un oggetto: <b>aggiungi i chili che mancano</b>.', sol:`c'erano già ${w0} kg; ${solTxt(r.s, 1)}`}; }
+      const r = minCount(M, W, 1); if(r.k < 2) continue; return {...base, N:1, left, M, count:r.k, task:`Equilibra con <b>il minor numero di oggetti</b>: ne bastano ${r.k}.`, sol:solTxt(r.s, 1)};
+    }
+    if(l===2){
+      const w = pick([2,3,4,5]), d = rnd(1,4), M = w*d, left = [{d, w}];
+      if(v===0){ const s = solsK(M, W.filter(x=>x!==w), 4, 1); if(!s.length) continue; return {...base, N:4, left, M, tray:W.filter(x=>x!==w), count:1, task:'Bilancia la leva con <b>un solo oggetto diverso</b> da quello di sinistra.', sol:solTxt(pick(s), 4)}; }
+      if(v===1){ const w2s = W.filter(x=>x!==w && M % x===0 && M/x <= 4); if(!w2s.length) continue; const w2 = pick(w2s); return {...base, N:4, left, M, tray:[w2], count:1, task:`Hai solo ${OBJ[w2].n} (${w2} kg): <b>a che distanza</b> lo metti?`, sol:`${w2} kg a distanza ${M/w2}`}; }
+      const ds = [1,2,3,4].filter(x=>x!==d && M % x===0 && W.includes(M/x) && M/x!==w); if(!ds.length) continue; const d2 = pick(ds); return {...base, N:4, left, M, onlyD:d2, count:1, task:`Metti <b>un solo oggetto sulla tacca ${d2}</b>: quale serve?`, sol:`${M/d2} kg a distanza ${d2}`};
+    }
+    if(l===3){
+      const left = twoLoads([1,2,3,4,5], 5), M = loadM(left);
+      if(v===0){ const s = findSol(M, W, 5); if(!s) continue; return {...base, N:5, left, M, task:'Porta la leva in <b>equilibrio</b>: usa gli oggetti che vuoi.', sol:solTxt(s, 5)}; }
+      if(v===1){ const r = minCount(M, W, 5); if(!r) continue; return {...base, N:5, left, M, count:r.k, task:`Usa <b>il minor numero di oggetti</b>: ne ${r.k===1 ? 'basta 1' : `bastano ${r.k}`}.`, sol:solTxt(r.s, 5)}; }
+      const r0 = {d:rnd(1,5), w:pick([1,2,3])}, rest = M - r0.w*r0.d; if(rest <= 0) continue; const s = findSol(rest, W, 5); if(!s) continue;
+      return {...base, N:5, left, M, rload:[r0], task:'A destra c\'è già un <b>oggetto fisso</b>: completa l\'equilibrio.', sol:`oltre all'oggetto fisso: ${solTxt(s, 5)}`};
+    }
+    if(l===4){
+      if(v===1){ const place = Array.from({length:3}, ()=>[pick([1,2,3,4,5]), rnd(1,5)]), M = sum(place.map(([w,d])=>w*d)); const left = pick([[{d:rnd(1,5), w:pick(W)}], twoLoads(W, 5)]); if(loadM(left)!==M){ const alt = solsK(M, W, 5, 2); if(!alt.length) continue; const [[w1,d1],[w2,d2]] = pick(alt); if(d1===d2) continue; left.length = 0; left.push({d:d1, w:w1}, {d:d2, w:w2}); }
+        return {...base, N:5, left, M, count:3, task:'Usa <b>esattamente 3 oggetti</b>.', sol:solTxt(place, 5)}; }
+      const given = shuffle([1,2,3,4,5]).slice(0, rnd(2,3)), place = given.map(w=>[w, rnd(1,5)]), rload = v===2 ? [{d:rnd(1,5), w:pick([1,2,3])}] : [], M = sum(place.map(([w,d])=>w*d)) + loadM(rload);
+      const pairs = solsK(M, W.filter(w=>!given.includes(w) || true), 5, 2).filter(([[,a],[,b]])=>a!==b), singles = solsK(M, W, 5, 1);
+      const choice = singles.length && Math.random() < 0.4 ? [pick(singles)[0]] : pairs.length ? pick(pairs) : null; if(!choice) continue;
+      return {...base, N:5, left:choice.map(([w,d])=>({d, w})), M, tray:given, limited:true, rload, task:`Usa <b>tutti e soli</b> gli oggetti del vassoio${v===2 ? ' (a destra c\'è già un oggetto fisso)' : ''}.`, sol:solTxt(place, 5)};
+    }
+    /* livello 5: scatole misteriose */
+    if(v===1){ const m = rnd(2,6), d1 = rnd(1,3), d2 = rnd(d1+1,5), left = [{d:d1, w:'mys', m}, {d:d2, w:'mys', m}], M = m*(d1+d2), s = findSol(M, [1,2,3,4,5], 5); if(!s) continue;
+      return {...base, N:5, left, M, tray:[1,2,3,4,5], mys:{m, opts:mysOpts(m, [M/d2, M/d1, M/(d1*d2)])}, task:'Due <b>scatole misteriose uguali</b>: equilibra la leva, poi scopri quanto pesa ciascuna.', sol:`${solTxt(s, 5)}; ogni scatola pesa ${M} : (${d1} + ${d2}) = ${m} kg`}; }
+    if(v===2){ const given = shuffle([1,2,3,4,5]).slice(0, rnd(2,3)), place = given.map(w=>[w, rnd(1,5)]), M = sum(place.map(([w,d])=>w*d)); const md = []; for(let d=1; d<=5; d++) if(M % d===0 && M/d >= 2 && M/d <= 15) md.push(d); if(!md.length) continue; const d = pick(md), m = M/d;
+      return {...base, N:5, left:[{d, w:'mys', m}], M, tray:given, limited:true, mys:{m, opts:mysOpts(m, [M/(d+1), M - d, m+1])}, task:'Usa <b>tutti e soli</b> gli oggetti del vassoio, poi scopri quanto pesa la scatola.', sol:`${solTxt(place, 5)}; la scatola pesa ${M} : ${d} = ${m} kg`}; }
+    const m = rnd(2,9), d = rnd(1,5), left = [{d, w:'mys', m}];
+    if(Math.random() < 0.6){ let q; do{ q = rnd(1,5); }while(q===d); left.push({d:q, w:pick([1,2,3,4,5])}); }
+    const M = loadM(left), s = findSol(M, [1,2,3,4,5], 5); if(!s) continue;
+    const knownM = loadM(left.filter(o=>o.w!=='mys'));
+    return {...base, N:5, left, M, tray:[1,2,3,4,5], mys:{m, opts:mysOpts(m, [M/d, (M+knownM)/d, M - knownM])}, task:'Porta la leva in equilibrio, poi scopri <b>quanto pesa la scatola</b>.', sol:`${solTxt(s, 5)}; la scatola pesa (${M}${knownM ? ` − ${knownM}` : ''}) : ${d} = ${m} kg`};
+  }
+  return makeChallenge(Math.max(1, l-1));
+}
+
+/* ---------- tabellone (una leva con il suo vassoio) ---------- */
+const BD = {};
+let K = 0;
+function mkBoard(id){
+  const host = $('#bd'+id);
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"><div class="beamwrap"><div class="beam" id="bm${id}"></div></div><div class="fulcrum"></div></div><div class="calc" id="c${id}"></div><div class="ask" id="q${id}"></div><div class="tray" id="tr${id}"></div>`;
+  BD[id] = {id, host, right:[], tray:null, phase:'build', lock:false};
+  bindBoard(id);
+}
+const teamOf = id => id==='L' ? S.turn : id;
+function setupBoard(id){
+  const C = S.ch, b = BD[id];
+  b.right = Array.from({length:C.N+1}, ()=>[]); b.tray = C.limited ? C.tray.map(w=>({k:++K, w})) : null; b.phase = 'build'; b.lock = false;
+  const st = $('#st'+id); st.classList.toggle('scale', C.N===1);
+  let h = '';
+  ['L','R'].forEach(side=>{ for(let d=1; d<=C.N; d++){ const x = C.N===1 ? 36 : 50*d/C.N; const w = C.N===1 ? 34 : Math.min(18, 84/C.N);
+    h += `<div class="slot ${side}${C.N===1 ? ' pan' : ''}" data-side="${side}" data-d="${d}" style="left:${side==='L' ? 50-x : 50+x}%;width:${w}%">${C.N===1 ? '<svg class="strings" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 0L6 100M50 0L94 100" vector-effect="non-scaling-stroke"/></svg>' : ''}<div class="stack"></div>${C.N===1 ? '<div class="plate"></div>' : ''}<span class="tick">${d}</span></div>`; } });
+  $('#bm'+id).innerHTML = h;
+  C.left.forEach(o=>{ const sl = $('#bm'+id).querySelector(`.slot.L[data-d="${o.d}"] .stack`); sl.insertAdjacentHTML('beforeend', blkHTML(o.w, 'load')); });
+  $('#bm'+id).querySelectorAll('.slot.R').forEach(sl=>sl.classList.toggle('off', !!C.onlyD && +sl.dataset.d!==C.onlyD));
+  $('#k'+id).innerHTML = C.task;
+  $('#q'+id).classList.remove('on'); $('#q'+id).innerHTML = '';
+  update(id);
+}
+const Mleft = () => S.ch.M;
+const Mright = id => BD[id].right.reduce((s,list,d)=>s + d*sum(list.map(o=>o.w)), 0) + loadM(S.ch.rload);
+function update(id){
+  const C = S.ch, b = BD[id], team = teamOf(id);
+  const bm = $('#bm'+id);
+  b.right.forEach((list,d)=>{ if(!d) return; const st = bm.querySelector(`.slot.R[data-d="${d}"] .stack`); st.innerHTML = C.rload.filter(o=>o.d===d).map(o=>blkHTML(o.w, 'load')).join('') + list.map(o=>blkHTML(o.w, `mine c${team || 1}`, `data-k="${o.k}" data-d="${d}"`)).join(''); });
+  const tr = $('#tr'+id);
+  if(b.tray) tr.innerHTML = `<span class="lab">Da usare:</span>` + (b.tray.length ? b.tray.map(o=>blkHTML(o.w, `mine c${team || 1}`, `data-k="${o.k}"`)).join('') : '<span class="lab">tutti sull\'asse!</span>');
+  else tr.innerHTML = `<span class="lab">Vassoio:</span>` + C.tray.map(w=>blkHTML(w, `mine c${team || 1}`, 'data-src="1"')).join('');
+  const Ml = Mleft(), Mr = Mright(id), diff = Mr - Ml;
+  const ang = diff===0 ? 0 : Math.sign(diff) * Math.min(13, 2.5 + Math.abs(diff)*0.7);
+  $('#bm'+id).style.setProperty('--a', ang + 'deg');
+  const pansel = bm.querySelectorAll('.slot.pan'); pansel.forEach(p=>p.style.setProperty('--a', ang + 'deg'));
+  /* calcoli (aiuto) */
+  if(P.aid){
+    const lt = C.N===1 ? `${C.left.map(o=>o.w).join(' + ')} = ${Ml} kg` : C.left.map(o=>`${o.w==='mys' ? '?' : o.w} × ${o.d}`).join(' + ') + (C.mys ? '' : ` = ${Ml}`);
+    const rl = C.rload.map(o=>C.N===1 ? `${o.w}` : `${o.w} × ${o.d}`); b.right.forEach((list,d)=>list.forEach(o=>rl.push(C.N===1 ? `${o.w}` : `${o.w} × ${d}`)));
+    const rt = rl.length ? rl.join(' + ') + ` = ${Mr}${C.N===1 ? ' kg' : ''}` : '0';
+    $('#c'+id).innerHTML = `<span>Sinistra: ${lt}</span><span class="${diff===0 ? 'ok' : ''}">Destra: ${rt}</span>`;
+  } else $('#c'+id).innerHTML = `<span>${diff===0 && Mr ? '⚖ In equilibrio' : diff > 0 ? 'Pende a destra' : Mr ? 'Pende a sinistra' : ''}</span>`;
+  if(b.phase==='build' && diff===0 && Mr > 0 && S.playing && !S.paused){
+    if(C.limited && b.tray.length){ $('#c'+id).insertAdjacentHTML('beforeend', '<span>In equilibrio, ma devi usare tutti gli oggetti!</span>'); return; }
+    if(C.count){ const n = sum(b.right.map(l=>l.length)); if(n !== C.count){ $('#c'+id).insertAdjacentHTML('beforeend', `<span>In equilibrio, ma ${C.count===1 ? 'serve un solo oggetto' : `devi usare ${C.count} oggetti (ne hai ${n})`}!</span>`); return; } }
+    balanced(id);
+  }
+}
+function balanced(id){
+  const C = S.ch, b = BD[id];
+  beep([520, 780], 0.08);
+  if(C.mys){
+    b.phase = 'ask';
+    const q = $('#q'+id);
+    q.innerHTML = `<div class="q">Equilibrio! Quanto pesa la scatola misteriosa?</div><div class="opts">${C.mys.opts.map(v=>`<button data-v="${v}">${N(v)} kg</button>`).join('')}</div>`;
+    q.classList.add('on');
+    q.querySelectorAll('button').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); askAnswer(id, bt); }));
+    return;
+  }
+  win(id);
+}
+function askAnswer(id, bt){
+  const b = BD[id]; if(b.phase!=='ask' || b.lock || !S.playing || S.paused) return;
+  if(+bt.dataset.v === S.ch.mys.m){ bt.classList.add('right'); win(id); return; }
+  bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
+  if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+
+/* trascinamento: ogni dito porta il suo oggetto */
+const drags = new Map();
+function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase==='build' && !b.lock && (id!=='L' || S.turn); }
+function bindBoard(id){
+  const host = $('#bd'+id);
+  host.addEventListener('pointerdown', e=>{
+    const el = e.target.closest('.blk'); if(!el || el.classList.contains('load') || !canPlay(id)) return;
+    e.preventDefault();
+    const b = BD[id], w = +el.dataset.w, k = el.dataset.k ? +el.dataset.k : null, fromSlot = el.dataset.d ? +el.dataset.d : null;
+    const flip = P.layout==='table' && id===1 && P.screen==='touch';
+    const gh = document.createElement('div'); gh.className = el.className + ' ghost' + (flip ? ' flip' : ''); gh.innerHTML = el.innerHTML; gh.style.left = e.clientX + 'px'; gh.style.top = e.clientY + 'px';
+    document.body.appendChild(gh); el.classList.add('lift');
+    try{ host.setPointerCapture(e.pointerId); }catch(err){}
+    drags.set(e.pointerId, {id, w, k, fromSlot, gh, el, x0:e.clientX, y0:e.clientY, moved:false, over:null});
+    host.classList.add('hot');
+  });
+  host.addEventListener('pointermove', e=>{
+    const dr = drags.get(e.pointerId); if(!dr) return;
+    if(Math.hypot(e.clientX - dr.x0, e.clientY - dr.y0) > 8) dr.moved = true;
+    dr.gh.style.left = e.clientX + 'px'; dr.gh.style.top = e.clientY + 'px';
+    const sl = slotAt(host, e.clientX, e.clientY);
+    if(sl !== dr.over){ if(dr.over) dr.over.classList.remove('over'); if(sl) sl.classList.add('over'); dr.over = sl; }
+  });
+  const up = e=>{
+    const dr = drags.get(e.pointerId); if(!dr) return;
+    drags.delete(e.pointerId); dr.gh.remove(); dr.el.classList.remove('lift'); if(dr.over) dr.over.classList.remove('over');
+    if(![...drags.values()].some(x=>x.id===id)) host.classList.remove('hot');
+    const b = BD[id]; if(!canPlay(id) || e.type==='pointercancel'){ update(id); return; }
+    const sl = dr.moved ? slotAt(host, e.clientX, e.clientY) : null;
+    /* togli l'oggetto dalla sua posizione di partenza */
+    let obj = null;
+    if(dr.fromSlot){ const list = b.right[dr.fromSlot], i = list.findIndex(o=>o.k===dr.k); if(i >= 0) obj = list.splice(i,1)[0]; }
+    else if(b.tray){ const i = b.tray.findIndex(o=>o.k===dr.k); if(i >= 0 && sl) obj = b.tray.splice(i,1)[0]; }
+    else if(sl) obj = {k:++K, w:dr.w};
+    if(obj){
+      if(sl){ const d = +sl.dataset.d; if(b.right[d].length < 5){ b.right[d].push(obj); beep([640], 0.04); } else if(b.tray) b.tray.push(obj); }
+      else if(b.tray) b.tray.push(obj);   /* toccato o lasciato fuori: torna nel vassoio (o sparisce) */
+    }
+    update(id);
+  };
+  host.addEventListener('pointerup', up);
+  host.addEventListener('pointercancel', up);
+}
+function slotAt(host, x, y){
+  return document.elementsFromPoint(x, y).map(el=>el.closest && el.closest('.slot.R:not(.off)')).find(el=>el && host.contains(el)) || null;
+}
+
+/* ---------- partita ---------- */
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const nm = t => t===1 ? P.n1 : P.n2;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>{ d.gh.remove(); d.el.classList.remove('lift'); }); drags.clear(); document.querySelectorAll('.board.hot').forEach(b=>b.classList.remove('hot')); }
+function start(){
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.list = Array.from({length:P.num}, (_,i)=> P.lvl===0 ? 1 + Math.floor(5*i/P.num) : P.lvl);
+  Object.assign(S, {i:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextChallenge();
+}
+function nextChallenge(){
+  clearTimeout(S.next);
+  S.i++;
+  if(S.i >= S.list.length){ finish(); return; }
+  S.ch = makeChallenge(S.list[S.i]);
+  S.log.push({ch:S.ch, who:0});
+  if(P.screen==='lim') limChallenge(); else touchChallenge();
+}
+function finish(){
+  stopAll();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>A sinistra</th><th>Una soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.left.map(o=>o.w==='mys' ? `scatola ? a distanza ${o.d}` : r.ch.N===1 ? `${o.w} kg` : `${o.w} kg a distanza ${o.d}`).join(', ')}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+function win(id){
+  const team = teamOf(id);
+  S.playing = false; cancelAnimationFrame(S.raf);
+  BD[id].phase = 'done';
+  S.score[team-1]++; S.log[S.i].who = team;
+  beep([660, 880, 1100], 0.1);
+  if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Equilibrio! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3000); return; }
+  $('#s'+team).textContent = S.score[team-1];
+  banner(team, 'Equilibrio! +1', true);
+  banner(3-team, `Punto a ${nm(team)}<small>Una soluzione: ${S.ch.sol}</small>`);
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 3600);
+}
+
+/* ---------- multitouch ---------- */
+function banner(t, html, ok){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!ok); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function touchChallenge(){
+  $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
+  S.playing = false;
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1);
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(update); }, 2200);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeC){ setBar(1); return; }
+  const dur = P.timeC*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Una soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4200); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>{ $('#h'+t).classList.toggle('locked', S.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; });
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); [1,2].forEach(update); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: una leva, a turni, con rubapunto ---------- */
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#bdL').classList.toggle('dim', !S.turn); }
+function limChallenge(){
+  $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
+  S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
+  setupBoard('L'); limSides();
+  $('#lmsg').innerHTML = `Tocca a <b>${nm(S.turn)}</b>`;
+  limTimer(P.timeT);
+}
+function limTimer(sec, keep){
+  cancelAnimationFrame(S.raf);
+  if(!sec){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(!keep){ S.t0 = performance.now(); S.dur = sec*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limFail('Tempo scaduto!'); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limFail(why){
+  if(!S.playing) return;
+  beep([330, 262], 0.14);
+  const b = BD.L;
+  if(!S.stolen){
+    S.stolen = true; S.turn = 3 - S.turn; b.phase = 'build'; $('#q'+'L').classList.remove('on');
+    limSides(); update('L');
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
+    return;
+  }
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  $('#lmsg').innerHTML = `${why} Nessun punto. Una soluzione: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, 5000);
+}
+$('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#bdL').classList.toggle('dim', S.paused || !S.turn);
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; if(P.timeT) limTimer(0, true), limTimer(S.dur/1000, true); update('L'); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on')) e.preventDefault(); });
+[1,2,'L'].forEach(mkBoard);
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__leveTest = {makeChallenge, solsK, loadM, P, S, BD, update};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>
