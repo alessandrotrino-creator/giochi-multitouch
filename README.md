@@ -1,5 +1,7 @@
 # Giochi multitouch
 
+**▶ Gioca online: [alessandrotrino-creator.github.io/giochi-multitouch](https://alessandrotrino-creator.github.io/giochi-multitouch/)**
+
 Giochi a squadre per lo schermo multitouch della scuola e per la LIM, pensati per la scuola secondaria di primo grado.
 Ogni gioco è una sola pagina web: si apre con il browser, senza installare nulla, e non salva né invia dati.
 
