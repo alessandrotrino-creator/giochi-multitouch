@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Caccia alle coppie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità del Duello: due squadre (blu / arancione) su fondo chiaro, carte grandi da toccare */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8; --fig:#DCD3FA;
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; --fig:#3A2F6B;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; --fig:#3A2F6B;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:54px;height:54px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.cgroups{display:flex;flex-direction:column;gap:12px}
+.cgroup{display:flex;flex-direction:column;gap:6px}
+.ghead{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.ghead h3{font-size:1.15rem}
+.mini{border:0;background:transparent;color:var(--accent);font-weight:800;padding:4px 8px;min-height:36px;text-decoration:underline;text-underline-offset:3px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:var(--surface-2);border-radius:999px;padding:9px 16px;font-weight:800;min-height:46px}
+.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--accent);color:#fff}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.warn{color:var(--bad);font-weight:800;min-height:1.2em;margin:0;text-align:center}
+.example{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:var(--muted);font-weight:800}
+.example .card{width:120px;height:74px;flex:none;pointer-events:none}
+
+/* ---------- carte ---------- */
+.board{flex:1;display:grid;gap:clamp(6px,1.2vh,12px);min-height:0;min-width:0;position:relative}
+/* il testo si adatta alla carta: le unità cqi / cqh si riferiscono alla carta stessa */
+.card{position:relative;container-type:size;border:3px solid var(--line);background:var(--surface);border-radius:16px;font-family:var(--font-title);font-weight:700;line-height:1.12;display:flex;align-items:center;justify-content:center;text-align:center;padding:5px;min-width:0;min-height:0;overflow:hidden;box-shadow:0 4px 0 var(--line);touch-action:none;transition:transform .14s, opacity .3s, background .15s, border-color .15s}
+.card .ci{display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-width:0;font-size:min(17cqi,36cqh);overflow-wrap:anywhere}
+.card.len2 .ci{font-size:min(12cqi,26cqh)}
+.card.len3 .ci{font-family:var(--font-body);font-weight:800;font-size:min(9.3cqi,18cqh);line-height:1.18}
+.card svg{height:88%;max-width:92%;overflow:visible}
+.t1 .card{border-color:color-mix(in srgb,var(--t1) 40%,var(--line))} .t2 .card{border-color:color-mix(in srgb,var(--t2) 40%,var(--line))}
+.card.drag{z-index:5;transition:none;box-shadow:0 14px 26px rgba(0,0,0,.25);opacity:.95}
+.card.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 16%,var(--surface))}
+.card.sel1{border-color:var(--t1);background:var(--t1-soft)} .card.sel2{border-color:var(--t2);background:var(--t2-soft)}
+.card.bad{border-color:var(--bad);background:var(--bad-soft);animation:shake .35s}
+.card.cool{opacity:.55}
+.card.good{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.card.gone{opacity:0;transform:scale(.6);pointer-events:none}
+.card.miss{border-style:dashed;opacity:.8}
+.card.down .ci{visibility:hidden}
+.card.down{background:repeating-linear-gradient(45deg,var(--surface-2) 0 10px,color-mix(in srgb,var(--accent) 14%,var(--surface-2)) 10px 20px)}
+.card.down::after{content:"?";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--font-title);font-size:min(40cqh,30cqi);color:color-mix(in srgb,var(--accent) 60%,var(--muted))}
+@keyframes shake{0%,100%{translate:0}25%{translate:-8px 0}75%{translate:8px 0}}
+.fig{fill:var(--fig);stroke:currentColor;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.fig .nf{fill:none} .fig .dash{fill:none;stroke-dasharray:5 5;opacity:.7}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 .08em;font-size:.9em}
+.frac span:first-child{border-bottom:.08em solid currentColor;padding:0 .12em .04em}
+.frac span:last-child{padding:.04em .12em 0}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,14px);padding:clamp(10px,2vh,22px) clamp(10px,1.6vw,24px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 60%)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 60%)}
+#game.table .half.t1{transform:rotate(180deg)}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.team .left{display:flex;align-items:baseline;gap:10px;min-width:0}
+.team .prog{font-weight:800;color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(2rem,7vh,4.6rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 28px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;white-space:nowrap}
+.banner small{display:block;font-family:var(--font-body);font-size:.38em;font-weight:800;color:var(--muted);margin-top:4px}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:40vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(160px,18vw,270px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(8px,1.4vh,14px);padding:clamp(12px,2vh,24px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.center .top .qnum{font-size:1.35rem}
+.msg{text-align:center;font-weight:800;font-size:clamp(1.1rem,2.8vh,1.7rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.rround{margin-top:12px}
+.rround h3{font-size:1.15rem;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.rround h3 span{font-family:var(--font-body);font-size:.9rem;color:var(--muted);font-weight:800}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:8px}
+.pitem{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 10px;font-weight:700;min-width:0}
+.pitem > span{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-align:center;overflow-wrap:anywhere}
+.pitem svg{height:44px;width:auto}
+.pitem b{color:var(--muted);flex:none}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni della caccia alle coppie">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+  <div class="card0">
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="12" width="24" height="34" rx="6" fill="#2F6FDB" transform="rotate(-8 18 29)"/><rect x="34" y="18" width="24" height="34" rx="6" fill="#E8801F" transform="rotate(8 46 35)"/><path d="M22 30h20" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
+      <div><h1>Caccia alle coppie</h1><p>Trova le carte che vanno insieme: trascina una carta sulla sua compagna, oppure toccale una dopo l'altra.</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Coppie da cercare</span><div class="cgroups" id="cats"></div></div>
+    <div class="row">
+      <div class="field"><span>Difficoltà</span><div class="seg" id="lvl"></div></div>
+      <div class="field"><span>Round</span><div class="seg" id="rounds"></div></div>
+      <div class="field"><span>Coppie per round</span><div class="seg" id="npairs"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+      <div class="field" id="limF"><span>Carte alla LIM</span><div class="seg" id="limMode"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeRF"><span>Tempo per round</span><div class="seg" id="timeR"></div></div>
+      <div class="field" id="timeMF"><span>Tempo per mossa</span><div class="seg" id="timeM"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="example" id="example" aria-label="Esempio di coppia"></div>
+    <p class="note" id="rules"></p>
+    <p class="warn" id="warn"></p>
+    <button class="start" id="go">Inizia la caccia</button>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Caccia alle coppie">
+  <div class="half t1" id="h1">
+    <div class="team"><div class="left"><h2 id="g1"></h2><span class="prog" id="p1"></span></div><div class="score" id="s1">0</div></div>
+    <div class="board" id="b1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><div class="left"><h2 id="g2"></h2><span class="prog" id="p2"></span></div><div class="score" id="s2">0</div></div>
+    <div class="board" id="b2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Caccia alle coppie alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="lb"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi tutte le coppie</summary><div id="recap"></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:4});
+const N = x => NF.format(Math.round(x*10000)/10000).replace('-', '−');
+const r4 = x => Math.round(x*10000)/10000;
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const sup = (b,e) => `${b}<sup>${e}</sup>`;
+const plain = s => String(s).replace(/<[^>]+>/g, '');
+
+/* una coppia: {a, b, v}. a e b sono le due carte (HTML); v identifica il "significato" della coppia,
+   così nello stesso round non compaiono due coppie con lo stesso valore (es. 3² → 9 e √81 → 9) */
+const numP = (a, val) => ({a, b:N(val), v:'n:'+r4(val)});
+const txtP = (a, b, v) => ({a, b, v: v || 's:'+plain(b)});
+const bank = B => l => { const [a,b,v] = pick(B[l] || B[3] || B[2] || B[1]); return txtP(a, b, v); };
+
+/* ---------- disegni: figure piane e solidi ---------- */
+const svg = body => `<svg viewBox="0 0 100 100" class="fig" aria-hidden="true">${body}</svg>`;
+const FIG = {
+  'quadrato': svg('<rect x="20" y="20" width="60" height="60"/>'),
+  'rettangolo': svg('<rect x="8" y="30" width="84" height="42"/>'),
+  'triangolo': svg('<polygon points="50,14 90,84 10,84"/>'),
+  'cerchio': svg('<circle cx="50" cy="50" r="36"/><path class="nf" d="M50 50h36"/>'),
+  'trapezio': svg('<polygon points="32,26 68,26 92,78 8,78"/>'),
+  'rombo': svg('<polygon points="50,8 84,50 50,92 16,50"/>'),
+  'parallelogramma': svg('<polygon points="30,26 94,26 70,76 6,76"/>'),
+  'esagono': svg('<polygon points="50,10 85,30 85,70 50,90 15,70 15,30"/>')
+};
+const SOL = {
+  'cubo': svg('<path d="M18 38h46v46h-46z"/><path d="M18 38l16-16h46l-16 16z"/><path d="M64 38l16-16v46l-16 16z"/>'),
+  'parallelepipedo': svg('<path d="M8 48h62v34h-62z"/><path d="M8 48l16-16h62l-16 16z"/><path d="M70 48l16-16v34l-16 16z"/>'),
+  'cilindro': svg('<path d="M22 22v56a28 9 0 0 0 56 0v-56z"/><ellipse cx="50" cy="22" rx="28" ry="9"/>'),
+  'cono': svg('<path d="M50 10L20 78a30 9 0 0 0 60 0z"/><path class="dash" d="M20 78a30 9 0 0 1 60 0"/>'),
+  'sfera': svg('<circle cx="50" cy="50" r="37"/><path class="dash" d="M13 50a37 11 0 0 0 74 0"/>'),
+  'piramide': svg('<path d="M14 76h52L50 12z"/><path d="M66 76l20-16L50 12z"/><path class="dash" d="M14 76l20-16h52M34 60L50 12"/>'),
+  'prisma triangolare': svg('<path d="M10 84h40l-20-34z"/><path d="M50 84l38-22-20-34-38 22z"/><path class="dash" d="M10 84l38-22h40M48 62l20-34"/>')
+};
+const AREA = {'quadrato':'l · l', 'rettangolo':'b · h', 'triangolo':'(b · h) : 2', 'cerchio':'π · r²', 'trapezio':'(B + b) · h : 2', 'rombo':'(D · d) : 2', 'parallelogramma':'b · h'};
+const SOLF = {'cubo':'6 facce, 8 vertici, 12 spigoli', 'parallelepipedo':'6 facce, 8 vertici, 12 spigoli', 'piramide':'5 facce, 5 vertici, 8 spigoli', 'prisma triangolare':'5 facce, 6 vertici, 9 spigoli', 'cilindro':'2 basi circolari e una superficie curva', 'cono':'1 base circolare e un vertice', 'sfera':'solo una superficie curva, senza spigoli'};
+const SOLV = {'cubo':'l · l · l', 'parallelepipedo':'a · b · c', 'cilindro':'π · r² · h', 'cono':'π · r² · h : 3', 'sfera':'4/3 · π · r³', 'piramide':'A<sub>base</sub> · h : 3', 'prisma triangolare':'A<sub>base</sub> · h'};
+
+/* ---------- misure per le equivalenze ---------- */
+const UN = {
+  L:[['km',1000],['hm',100],['dam',10],['m',1],['dm',0.1],['cm',0.01],['mm',0.001]],
+  M:[['kg',1000],['hg',100],['dag',10],['g',1],['dg',0.1],['cg',0.01],['mg',0.001]],
+  C:[['hL',100],['daL',10],['L',1],['dL',0.1],['cL',0.01],['mL',0.001]],
+  A:[['km²',1e6],['m²',1],['dm²',0.01],['cm²',1e-4],['mm²',1e-6]],
+  V:[['m³',1000],['dm³',1],['L',1],['cm³',0.001],['mL',0.001]]
+};
+function equivP(l){
+  const dim = l===1 ? pick(['L','M','C']) : l===2 ? pick(['L','M','C','L','A']) : pick(['A','V','V','M']);
+  const U = UN[dim];
+  for(let g=0; g<30; g++){
+    const i = rnd(0, U.length-2), maxJump = l===1 ? 2 : l===2 ? 3 : 4, j = Math.min(U.length-1, i + rnd(1, maxJump));
+    const [u1,f1] = U[i], [u2,f2] = U[j]; if(f1===f2) continue;
+    const v1 = l===1 ? rnd(2,9) : pick([1.5, 2.5, 0.4, 3, 7, 12, 0.08, 0.6]), v2 = r4(v1*f1/f2);
+    if(v2 > 1e6 || v2 < 0.001 || Math.abs(v2*f2 - v1*f1) > 1e-9*Math.max(1, v1*f1)) continue;
+    return {a:`${N(v1)} ${u1}`, b:`${N(v2)} ${u2}`, v:`q:${dim}:${(v1*f1).toPrecision(8)}`};
+  }
+  return null;
+}
+const hm = h => { const m = Math.round(h*60), H = Math.floor(m/60), M = m % 60; return H && M ? `${H} h ${M} min` : H ? `${H} h` : `${M} min`; };
+
+/* ---------- argomenti ---------- */
+const CATS = [
+  /* ===== MATEMATICA ===== */
+  {k:'oper', g:'mat', n:'Operazioni e risultati', ex:['7 · 8','56'], one:l=>{
+    const t = rnd(0,2);
+    if(l===1){ if(t===0){ const a = rnd(2,10), b = rnd(2,10); return numP(`${a} · ${b}`, a*b); } if(t===1){ const a = rnd(2,10), b = rnd(2,10); return numP(`${a*b} : ${a}`, b); } const a = rnd(11,60), b = rnd(5,39); return numP(`${a} + ${b}`, a+b); }
+    if(l===2){ if(t===0){ const a = rnd(12,25), b = rnd(3,9); return numP(`${a} · ${b}`, a*b); } if(t===1){ const b = rnd(3,9), r = rnd(12,40); return numP(`${b*r} : ${b}`, r); } const a = rnd(120,480), b = rnd(28,99); return numP(`${a} − ${b}`, a-b); }
+    if(t===0){ const a = rnd(2,9), b = rnd(2,9); return numP(`(−${a}) · ${b}`, -a*b); }
+    if(t===1){ const a = pick([0.5, 0.25, 1.5, 0.2]), b = pick([4, 8, 12, 20, 6]); return numP(`${N(a)} · ${b}`, a*b); }
+    const a = rnd(2,20), b = rnd(2,9), c = rnd(2,9); return numP(`${a} + ${b} · ${c}`, a + b*c);
+  }},
+  {k:'fraz', g:'mat', n:'Frazioni, decimali, percentuali', ex:[frac(3,4),'0,75'], one:l=>{
+    const B = {
+      1:[[frac(1,2),'0,5',.5],[frac(1,4),'0,25',.25],[frac(3,4),'0,75',.75],[frac(1,10),'0,1',.1],[frac(1,5),'0,2',.2],[frac(2,5),'0,4',.4],[frac(3,10),'0,3',.3],[frac(1,100),'0,01',.01],[frac(7,10),'0,7',.7]],
+      2:[[frac(1,2),'50%',.5],[frac(1,4),'25%',.25],[frac(3,4),'75%',.75],[frac(1,5),'20%',.2],[frac(1,10),'10%',.1],[frac(3,5),'60%',.6],[frac(1,20),'5%',.05],[frac(2,5),'40%',.4],['0,9','90%',.9],['0,35','35%',.35]],
+      3:[[frac(3,8),'0,375',.375],[frac(5,4),'1,25',1.25],['150%','1,5',1.5],[frac(7,20),'35%',.35],[frac(1,3),'0,333…',1/3],[frac(2,3),'66,6…%',2/3],['12,5%',frac(1,8),.125],[frac(6,8),frac(3,4),.75],[frac(9,12),'0,75',.75],['0,05',frac(1,20),.05],['200%','2',2],[frac(12,5),'2,4',2.4]]
+    };
+    const [a,b,v] = pick(B[Math.min(l,3)]); return {a, b, v:'n:'+r4(v)};
+  }},
+  {k:'pot', g:'mat', n:'Potenze e radici', ex:[sup(3,2),'9'], one:l=>{
+    const t = rnd(0,1);
+    if(l===1){ const n = rnd(2,12); return t ? numP(sup(n,2), n*n) : numP(`√${n*n}`, n); }
+    if(l===2){ const t2 = rnd(0,2); if(t2===0){ const n = rnd(2,6); return numP(sup(n,3), n**3); } if(t2===1){ const e = rnd(3,10); return numP(sup(2,e), 2**e); } const n = rnd(2,5); return numP(`∛${n**3}`, n); }
+    const t3 = rnd(0,3), b = rnd(2,3), m = rnd(2,4), n = rnd(1,3);
+    if(t3===0) return {a:`${sup(b,m)} · ${sup(b,n)}`, b:sup(b,m+n), v:'n:'+b**(m+n)};
+    if(t3===1) return {a:`(${sup(b,m)})<sup>${n+1}</sup>`, b:sup(b,m*(n+1)), v:'n:'+b**(m*(n+1))};
+    if(t3===2){ const k = rnd(2,9), e = rnd(2,5); return numP(`${k} · ${sup(10,e)}`, k*10**e); }
+    const x = pick([5,7,12,20,100]); return {a:sup(x,0), b:'1', v:'n:1'};
+  }},
+  {k:'equiv', g:'mat', n:'Equivalenze', ex:['3 m','300 cm'], one:equivP},
+  {k:'figure', g:'mat', n:'Figure piane', ex:[FIG.trapezio,'trapezio'], one:l=>{
+    if(l===1){ const n = pick(Object.keys(FIG)); return {a:FIG[n], b:n, v:'fig:'+n}; }
+    const n = pick(Object.keys(AREA));
+    if(l===2) return {a:n, b:AREA[n], v:'ar:'+AREA[n]};
+    return {a:FIG[n], b:`A = ${AREA[n]}`, v:'ar:'+AREA[n]};
+  }},
+  {k:'solidi', g:'mat', n:'Solidi', ex:[SOL.cono,'cono'], one:l=>{
+    const n = pick(Object.keys(SOL));
+    if(l===1) return {a:SOL[n], b:n, v:'sol:'+n};
+    if(l===2) return {a:n, b:SOLF[n], v:'sf:'+SOLF[n]};
+    return {a:Math.random() < 0.5 ? SOL[n] : n, b:`V = ${SOLV[n]}`, v:'sv:'+n};
+  }},
+  {k:'equaz', g:'mat', n:'Equazioni e soluzioni', ex:['x + 4 = 10','x = 6'], one:l=>{
+    let x, q;
+    if(l===1){ x = rnd(1,15); const a = rnd(2,20); q = Math.random() < 0.5 ? `x + ${a} = ${x+a}` : `x − ${a} = ${x-a < 0 ? '−' + (a-x) : x-a}`; }
+    else if(l===2){ x = rnd(1,10); const a = rnd(2,6), b = rnd(1,15); q = `${a}x + ${b} = ${a*x+b}`; }
+    else { x = rnd(-6,8); const a = rnd(3,7), c = rnd(1,a-1), b = rnd(1,10), d = (a-c)*x + b; q = `${a}x + ${b} = ${c}x ${d<0 ? '−' : '+'} ${Math.abs(d)}`; }
+    return {a:q, b:`x = ${N(x)}`, v:'x:'+x};
+  }},
+
+  /* ===== SCIENZE ===== */
+  {k:'unita', g:'sci', n:'Grandezze e unità di misura', ex:['forza','newton'], one:bank({
+    1:[['forza','newton'],['energia','joule'],['potenza','watt'],['pressione','pascal'],['temperatura','grado Celsius'],['massa','kilogrammo'],['tempo','secondo'],['lunghezza','metro'],['capacità','litro']],
+    2:[['forza','N'],['energia','J'],['potenza','W'],['pressione','Pa'],['corrente elettrica','A'],['tensione elettrica','V'],['resistenza elettrica','Ω'],['velocità','m/s'],['densità','g/cm³'],['temperatura assoluta','K']],
+    3:[['s : t','velocità'],['m : V','densità'],['F : S','pressione'],['m · g','peso'],['V : R','corrente elettrica'],['V · I','potenza elettrica'],['m · g · h','energia potenziale'],['m · c · ΔT','calore'],['F · s','lavoro'],['½ · m · v²','energia cinetica']]
+  })},
+  {k:'strum', g:'sci', n:'Strumenti di misura', ex:['termometro','temperatura'], one:bank({
+    1:[['termometro','temperatura'],['bilancia','massa'],['cronometro','tempo'],['metro a nastro','lunghezza'],['dinamometro','forza'],['cilindro graduato','volume di un liquido']],
+    2:[['termometro','temperatura'],['dinamometro','forza'],['barometro','pressione dell\'aria'],['anemometro','velocità del vento'],['pluviometro','quantità di pioggia'],['igrometro','umidità dell\'aria'],['cilindro graduato','volume di un liquido'],['microscopio','oggetti piccolissimi']],
+    3:[['amperometro','corrente elettrica'],['voltmetro','tensione elettrica'],['ohmmetro','resistenza elettrica'],['sismografo','scosse dei terremoti'],['barometro','pressione dell\'aria'],['igrometro','umidità dell\'aria'],['anemometro','velocità del vento'],['telescopio','stelle e pianeti lontani']]
+  })},
+  {k:'calc', g:'sci', n:'Formule in azione', ex:['120 km in 2 h','60 km/h'], one:l=>{
+    const t = rnd(0,l===1 ? 3 : 4);
+    if(l===1){
+      if(t===0){ const v = pick([30,40,50,60,80,90]), h = rnd(2,4); return txtP(`${v*h} km in ${h} h`, `${v} km/h`); }
+      if(t===1){ const d = pick([2,3,4,5,8]), V = pick([10,20,50]); return txtP(`${d*V} g in ${V} cm³`, `${d} g/cm³`); }
+      if(t===2){ const m = pick([2,3,5,8,12,20,45]); return txtP(`peso di ${m} kg (g = 10 N/kg)`, `${m*10} N`); }
+      const c = pick([0,10,20,25,37,100]); return txtP(`${c} °C`, `${c+273} K`); }
+    if(l===2){
+      if(t===0){ const v = pick([40,60,80,90,120]), h = rnd(2,4); return txtP(`${v} km/h per ${h} h`, `${v*h} km`); }
+      if(t===1){ const d = pick([0.5,2,2.7,4,7.9]), V = pick([10,20,100]); return txtP(`d = ${N(d)} g/cm³, V = ${V} cm³: massa?`, `${N(d*V)} g`); }
+      if(t===2){ const k = pick([18,36,54,72,90,108]); return txtP(`${k} km/h`, `${N(k/3.6)} m/s`); }
+      if(t===3){ const p = pick([20,50,100,200]), S = pick([2,3,4,5]); return txtP(`${p*S} N su ${S} m²`, `${p} Pa`); }
+      const R = pick([2,3,4,6,10]), I = pick([1,2,3,5]); return txtP(`${R*I} V con ${R} Ω`, `${I} A`); }
+    if(t===0){ let v, m; do{ v = pick([60,80,90,120]); m = pick([30,45,60,90,120,150]); }while((v*m) % 60); return txtP(`${v*m/60} km a ${v} km/h`, hm(m/60)); }
+    if(t===1){ const d = pick([0.5,0.8,2,4,5]), V = pick([20,50,100,250]); return txtP(`${N(d*V)} g con d = ${N(d)} g/cm³: volume?`, `${V} cm³`); }
+    if(t===2){ const v = pick([5,10,15,20,25,30]); return txtP(`${v} m/s`, `${N(v*3.6)} km/h`); }
+    if(t===3){ const kW = pick([0.5,1,1.5,2]), h = pick([2,3,4,6]); return txtP(`${N(kW)} kW per ${h} h`, `${N(kW*h)} kWh`); }
+    const K = pick([253,263,283,300,310,373]); return txtP(`${K} K`, `${N(K-273)} °C`);
+  }},
+  {k:'materia', g:'sci', n:'Materia ed elementi', ex:['Fe','ferro'], one:bank({
+    1:[['H','idrogeno'],['O','ossigeno'],['C','carbonio'],['N','azoto'],['Fe','ferro'],['Na','sodio'],['Ca','calcio'],['K','potassio'],['Au','oro'],['Ag','argento'],['Cu','rame'],['Cl','cloro'],['He','elio'],['S','zolfo']],
+    2:[['solido → liquido','fusione'],['liquido → solido','solidificazione'],['liquido → gas','evaporazione'],['gas → liquido','condensazione'],['solido → gas','sublimazione'],['gas → solido','brinamento'],['forma e volume propri','stato solido'],['volume proprio, forma del recipiente','stato liquido'],['né forma né volume propri','stato aeriforme']],
+    3:[['H₂O','acqua'],['CO₂','anidride carbonica'],['NaCl','sale da cucina'],['O₂','ossigeno (molecola)'],['CH₄','metano'],['NH₃','ammoniaca'],['elettrone','carica negativa'],['protone','carica positiva'],['neutrone','nessuna carica'],['C₆H₁₂O₆','glucosio']]
+  })},
+  {k:'energia', g:'sci', n:'Energia ed elettricità', ex:['pannello fotovoltaico','luce → elettricità'], one:bank({
+    1:[['pila','chimica → elettrica'],['pannello fotovoltaico','luce → elettricità'],['ventilatore','elettrica → movimento'],['stufa elettrica','elettrica → calore'],['lampadina','elettrica → luce'],['turbina di una diga','movimento → elettricità'],['muscoli','chimica → movimento']],
+    2:[['energia solare','luce del Sole'],['energia eolica','vento'],['energia idroelettrica','acqua che scende'],['energia geotermica','calore interno della Terra'],['biomasse','legna e scarti vegetali'],['petrolio','resti di organismi antichi'],['energia nucleare','uranio']],
+    3:[['circuito in serie','se una lampadina si brucia, si spengono tutte'],['circuito in parallelo','ogni lampadina funziona da sola'],['conduttore','fa passare la corrente'],['isolante','non fa passare la corrente'],['interruttore','apre e chiude il circuito'],['generatore','fornisce energia al circuito'],['fusibile','si interrompe se la corrente è troppa']]
+  })},
+  {k:'viventi', g:'sci', n:'Viventi e corpo umano', ex:['cuore','apparato circolatorio'], one:bank({
+    1:[['aquila','uccello'],['pinguino','uccello'],['trota','pesce'],['squalo','pesce'],['rana','anfibio'],['salamandra','anfibio'],['lucertola','rettile'],['serpente','rettile'],['delfino','mammifero'],['pipistrello','mammifero']],
+    2:[['nucleo','contiene il DNA'],['mitocondri','producono energia'],['cloroplasti','fanno la fotosintesi'],['membrana cellulare','controlla che cosa entra ed esce'],['parete cellulare','rende rigida la cellula vegetale'],['ribosomi','producono le proteine'],['erba','produttore'],['coniglio','consumatore primario'],['fungo','decompositore']],
+    3:[['cuore','apparato circolatorio'],['polmoni','apparato respiratorio'],['stomaco','apparato digerente'],['reni','apparato escretore'],['cervello','sistema nervoso'],['femore','apparato scheletrico'],['trachea','apparato respiratorio'],['intestino','apparato digerente'],['arterie','apparato circolatorio'],['bicipite','apparato muscolare']]
+  })},
+  {k:'terra', g:'sci', n:'Terra e Universo', ex:['3° pianeta','Terra'], one:bank({
+    1:[['1° pianeta','Mercurio'],['2° pianeta','Venere'],['3° pianeta','Terra'],['4° pianeta','Marte'],['5° pianeta','Giove'],['6° pianeta','Saturno'],['7° pianeta','Urano'],['8° pianeta','Nettuno'],['stella più vicina','il Sole'],['satellite della Terra','la Luna']],
+    2:[['crosta','strato esterno della Terra'],['mantello','strato sotto la crosta'],['nucleo','centro della Terra'],['granito','roccia magmatica'],['marmo','roccia metamorfica'],['arenaria','roccia sedimentaria'],['atmosfera','involucro d\'aria'],['idrosfera','tutte le acque della Terra']],
+    3:[['rotazione della Terra','giorno e notte'],['rivoluzione della Terra','anno'],['inclinazione dell\'asse','stagioni'],['attrazione della Luna','maree'],['movimento delle placche','terremoti e vulcani'],['Luna tra Sole e Terra','eclissi di Sole'],['Terra tra Sole e Luna','eclissi di Luna'],['anno luce','distanza percorsa dalla luce in un anno']]
+  })}
+];
+
+/* ---------- livelli 4 e 5: "famiglie" di coppie che si somigliano apposta ----------
+   ogni famiglia è un gruppo di coppie facili da confondere tra loro (stessi numeri, simboli simili, formule vicine);
+   la soluzione resta una sola, ma bisogna guardare bene. */
+const T = (list) => list.map(([a,b,v])=>txtP(a, b, v));
+const FAM = {
+  oper:l=>{ if(l===4){ const a = rnd(4,9), b = rnd(4,9); return [numP(`${a} · ${b}`, a*b), numP(`${a} · ${b+1}`, a*(b+1)), numP(`${a+1} · ${b}`, (a+1)*b), numP(`${a} + ${b}`, a+b), numP(`${a*b} : ${a}`, b)]; }
+    const a = rnd(11,15), b = rnd(12,16); return [numP(`${a} · ${b}`, a*b), numP(`${a} · ${b+1}`, a*(b+1)), numP(`${a+1} · ${b}`, (a+1)*b), numP(`${a*b} : ${b}`, a), numP(`${a} · ${b} − ${a}`, a*b - a)]; },
+  fraz:l=>{ const F = l===4 ? pick([
+      [[frac(1,4),'0,25',.25],[frac(1,5),'0,2',.2],[frac(2,5),'0,4',.4],[frac(4,5),'0,8',.8],[frac(5,4),'1,25',1.25]],
+      [[frac(1,4),'25%',.25],[frac(2,5),'40%',.4],[frac(1,40),'2,5%',.025],[frac(1,25),'4%',.04],[frac(3,4),'75%',.75],[frac(3,5),'60%',.6]],
+      [[frac(3,4),'0,75',.75],[frac(4,3),'1,333…',4/3],[frac(3,8),'0,375',.375],[frac(8,3),'2,666…',8/3],[frac(7,8),'0,875',.875]]
+    ]) : pick([
+      [[frac(1,3),'0,333…',1/3],[frac(3,10),'0,3',.3],[frac(1,30),'0,0333…',1/30],[frac(3,100),'0,03',.03],[frac(33,100),'0,33',.33]],
+      [['0,5%',frac(1,200),.005],['5%',frac(1,20),.05],['50%',frac(1,2),.5],['500%','5',5]],
+      [[frac(2,3),'66,6…%',2/3],[frac(3,2),'150%',1.5],[frac(2,30),'6,66…%',2/30],[frac(6,10),'60%',.6],[frac(3,20),'15%',.15]]
+    ]); return F.map(([a,b,v])=>({a, b, v:'n:'+r4(v)})); },
+  pot:l=>{ const F = l===4 ? pick([
+      [[sup(2,3),8],[sup(3,2),9],[sup(2,4),16],[sup(4,3),64],[sup(3,4),81]],
+      [['√64',8],['∛64',4],['√81',9],['∛27',3],['√49',7],['∛8',2]],
+      [[sup(2,5),32],[sup(5,2),25],[sup(2,6),64],[sup(6,2),36],[sup(10,2),100]]
+    ]) : pick([
+      [[sup(10,3),1000],[sup(10,0),1],[sup(10,1),10],[sup(10,-1),0.1],[sup(10,-2),0.01],[sup(10,-3),0.001]],
+      [[`(−2)<sup>3</sup>`,-8],[`(−2)<sup>2</sup>`,4],[`−2<sup>2</sup>`,-4],[`(−3)<sup>2</sup>`,9],[`(−3)<sup>3</sup>`,-27]],
+      [[`${sup(2,3)} · ${sup(2,2)}`,32],[`(${sup(2,3)})<sup>2</sup>`,64],[`${sup(2,3)} + ${sup(2,2)}`,12],[`${sup(2,3)} : ${sup(2,2)}`,2],[`${sup(2,3)} − ${sup(2,2)}`,4]]
+    ]); return F.map(([a,val])=>numP(a, val)); },
+  equiv:l=>{ const d = pick([2,3,4,5,6,7,8,9]);
+    const F = l===4
+      ? [[`${d} m`,`${d*100} cm`,'L',1],[`${d} cm`,`${d*10} mm`,'L',0.01],[`${d} dm`,`${d*100} mm`,'L',0.1],[`${d} km`,`${d*1000} m`,'L',1000],[`${d} hm`,`${d*10} dam`,'L',100]]
+      : [[`${d} m²`,`${N(d*10000)} cm²`,'A',1],[`${d} dm²`,`${d*100} cm²`,'A',0.01],[`${d} m³`,`${N(d*1000)} L`,'V',1000],[`${d} dm³`,`${d} L`,'V',1],[`${d} cm³`,`${d} mL`,'V',0.001]];
+    return F.map(([a,b,dim,k])=>({a, b, v:'q:'+dim+':'+(d*k).toPrecision(8)})); },
+  figure:l=>{ const F = [['quadrato: area','l · l'],['quadrato: perimetro','4 · l'],['rettangolo: area','b · h'],['rettangolo: perimetro','2 · (b + h)'],['triangolo: area','b · h : 2'],['cerchio: area','π · r²'],['cerchio: circonferenza','2 · π · r'],['rombo: area','D · d : 2'],['trapezio: area','(B + b) · h : 2']];
+    return T(shuffle(F).slice(0, l===4 ? 5 : 6)); },
+  solidi:l=>{ if(l===4) return T(shuffle([['cubo: volume','l³'],['cubo: area totale','6 · l²'],['cilindro: volume','π · r² · h'],['cilindro: area laterale','2 · π · r · h'],['cono: volume','π · r² · h : 3'],['sfera: volume','4/3 · π · r³'],['sfera: superficie','4 · π · r²']]).slice(0,5));
+    return T(shuffle([['prisma triangolare','5 facce, 6 vertici, 9 spigoli'],['piramide quadrangolare','5 facce, 5 vertici, 8 spigoli'],['prisma quadrangolare','6 facce, 8 vertici, 12 spigoli'],['piramide pentagonale','6 facce, 6 vertici, 10 spigoli'],['prisma pentagonale','7 facce, 10 vertici, 15 spigoli'],['piramide esagonale','7 facce, 7 vertici, 12 spigoli'],['prisma esagonale','8 facce, 12 vertici, 18 spigoli']]).slice(0,5)); },
+  equaz:l=>{ const a = rnd(2,5), b = a*rnd(3,6);
+    const F = l===4
+      ? [[`x + ${a} = ${b}`, b-a],[`x − ${a} = ${b}`, b+a],[`${a}x = ${b}`, b/a],[`x : ${a} = ${b}`, b*a]]
+      : [[`${a}x + ${a} = ${b}`, (b-a)/a],[`${a}(x + ${a}) = ${b}`, b/a - a],[`${a}x − ${a} = ${b}`, (b+a)/a],[`(x + ${a}) : ${a} = ${b}`, b*a - a]];
+    return F.filter(([,x])=>Number.isInteger(x) || Number.isInteger(x*2)).map(([q,x])=>({a:q, b:`x = ${N(x)}`, v:'x:'+x})); },
+  unita:l=> l===4
+    ? T(shuffle([['s : t','velocità'],['m : V','densità'],['F : S','pressione'],['V : R','corrente elettrica'],['V · I','potenza elettrica'],['m · g','peso'],['F · s','lavoro']]).slice(0,5))
+    : T(shuffle([['m/s','velocità'],['m/s²','accelerazione'],['kg/m³','densità'],['N/m²','pressione'],['J/s','potenza'],['N · m','lavoro (energia)'],['kg · m/s²','forza']]).slice(0,5)),
+  strum:l=> l===4
+    ? T(shuffle([['barometro','pressione dell\'aria'],['igrometro','umidità dell\'aria'],['anemometro','velocità del vento'],['pluviometro','quantità di pioggia'],['termometro','temperatura'],['anemoscopio','direzione del vento']]).slice(0,5))
+    : T(shuffle([['amperometro','corrente elettrica'],['voltmetro','tensione elettrica'],['ohmmetro','resistenza elettrica'],['wattmetro','potenza elettrica'],['contatore','energia elettrica consumata'],['dinamometro','forza']]).slice(0,5)),
+  calc:l=>{ if(l===4){ let v, t; do{ v = pick([30,40,50,60,80]); t = pick([2,3,4]); }while(v % t); const s = v*t;
+      return T([[`${s} km in ${t} h`, `${v} km/h`],[`${v} km/h per ${t} h`, `${s} km`],[`${s} km a ${v} km/h`, `${t} h`],[`${v} km in ${t} h`, `${N(v/t)} km/h`]]); }
+    const R = pick([2,3,4,5,6]), I = pick([2,3,4]), V = R*I;
+    return T([[`${V} V con ${R} Ω: corrente?`, `${I} A`],[`${R} Ω con ${I} A: tensione?`, `${V} V`],[`${V} V con ${I} A: resistenza?`, `${R} Ω`],[`${V} V con ${I} A: potenza?`, `${V*I} W`]]); },
+  materia:l=> l===4
+    ? T(shuffle(pick([[['Na','sodio'],['N','azoto'],['Ne','neon'],['Ni','nichel']],[['S','zolfo'],['Si','silicio'],['Sn','stagno'],['Sr','stronzio']],[['Ag','argento'],['Au','oro'],['Al','alluminio'],['Ar','argon']],[['C','carbonio'],['Ca','calcio'],['Cl','cloro'],['Co','cobalto'],['Cu','rame']],[['P','fosforo'],['Pb','piombo'],['K','potassio'],['Pt','platino']]])))
+    : T(shuffle([['H₂O','acqua'],['H₂O₂','acqua ossigenata'],['CO₂','anidride carbonica'],['CO','monossido di carbonio'],['O₂','ossigeno'],['O₃','ozono'],['NaCl','cloruro di sodio'],['NaOH','idrossido di sodio']]).slice(0,6)),
+  energia:l=> l===4
+    ? T(shuffle([['pila che si scarica','chimica → elettrica'],['batteria in carica','elettrica → chimica'],['motore elettrico','elettrica → movimento'],['dinamo della bici','movimento → elettrica'],['pannello fotovoltaico','luce → elettrica'],['pannello solare termico','luce → calore']]).slice(0,5))
+    : T(shuffle([['in serie, si toglie una lampadina','si spengono tutte'],['in parallelo, si toglie una lampadina','le altre restano accese'],['in serie, si aggiunge una lampadina','la luce di tutte diminuisce'],['in parallelo, si aggiunge una lampadina','le altre brillano come prima'],['interruttore aperto','non passa corrente'],['cortocircuito','passa troppa corrente']]).slice(0,5)),
+  viventi:l=> l===4
+    ? T(shuffle([['nucleo','contiene il DNA'],['mitocondri','producono energia'],['cloroplasti','fanno la fotosintesi'],['ribosomi','producono le proteine'],['membrana cellulare','controlla che cosa entra ed esce'],['vacuolo','contiene acqua e sostanze di riserva']]).slice(0,5))
+    : T(shuffle([['arterie','portano il sangue dal cuore al corpo'],['vene','riportano il sangue al cuore'],['capillari','scambiano sostanze con le cellule'],['globuli rossi','trasportano l\'ossigeno'],['globuli bianchi','difendono dalle infezioni'],['piastrine','fanno coagulare il sangue']]).slice(0,5)),
+  terra:l=> l===4
+    ? T(shuffle([['granito','magmatica, raffreddata in profondità'],['basalto','magmatica, raffreddata in superficie'],['marmo','metamorfica, nasce dal calcare'],['ardesia','metamorfica, si divide in lastre'],['calcare','sedimentaria, da gusci e resti di organismi'],['arenaria','sedimentaria, fatta di granelli di sabbia']]).slice(0,5))
+    : T(shuffle([['solstizio d\'estate','giorno più lungo dell\'anno'],['solstizio d\'inverno','giorno più corto dell\'anno'],['equinozio','giorno e notte lunghi uguali'],['afelio','Terra più lontana dal Sole'],['perielio','Terra più vicina al Sole'],['eclissi di Luna','Terra tra Sole e Luna'],['eclissi di Sole','Luna tra Sole e Terra']]).slice(0,5))
+};
+
+/* ---------- impostazioni ---------- */
+const P = {cats:['oper','figure','unita','strum'], lvl:1, rounds:3, npairs:6, screen:'touch', layout:'side', limMode:'open', timeR:90, timeM:0, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('coppie-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+P.cats = (Array.isArray(P.cats) ? P.cats : []).filter(k=>CATS.some(c=>c.k===k));
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('coppie-prefs', JSON.stringify(P)); }catch(e){} };
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+const cardClass = h => { if(/<svg/.test(h)) return 'card pic'; const n = plain(h).length; return n > 22 ? 'card len3' : n > 11 ? 'card len2' : 'card'; };
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim); $('#limF').classList.toggle('hide', !lim);
+  $('#timeRF').classList.toggle('hide', lim); $('#timeMF').classList.toggle('hide', !lim);
+  const rules = lim
+    ? (P.limMode==='memory'
+      ? 'LIM, memory: le carte sono coperte. La squadra di turno ne gira due: se sono una coppia prende il punto e gioca ancora, altrimenti le carte si richiudono e tocca all\'altra squadra.'
+      : 'LIM, carte scoperte: le squadre giocano a turno. Si tocca una carta e poi la sua compagna: coppia giusta, un punto. Dopo ogni tentativo il turno passa. Basta un tocco alla volta.')
+    : 'Multitouch: ogni squadra ha le sue carte, con le stesse coppie in posizioni diverse, e tutti giocano insieme. Si trascina una carta sulla sua compagna oppure si toccano una dopo l\'altra. Ogni coppia vale 1 punto; chi finisce per primo il round prende 2 punti in più. Una coppia sbagliata blocca quelle due carte per un secondo.';
+  const lv = P.lvl===0 ? ' Difficoltà crescente: il primo round è base, l\'ultimo campione.' : '';
+  $('#rules').innerHTML = rules + lv + ' Nessun dato viene salvato o inviato.';
+  const c = CATS.find(x=>P.cats.includes(x.k)) || CATS[0];
+  $('#example').innerHTML = `Esempio (${c.n}): <button class="${cardClass(c.ex[0])}" tabindex="-1"><span class="ci">${c.ex[0]}</span></button> va con <button class="${cardClass(c.ex[1])}" tabindex="-1"><span class="ci">${c.ex[1]}</span></button>`;
+}
+function renderSetup(){
+  const grp = (g, title) => `<div class="cgroup"><div class="ghead"><h3>${title}</h3><button class="mini" data-all="${g}">tutti</button><button class="mini" data-none="${g}">nessuno</button></div><div class="chips">${CATS.filter(c=>c.g===g).map(c=>`<button class="chip" data-k="${c.k}" aria-pressed="${P.cats.includes(c.k)}">${c.n}</button>`).join('')}</div></div>`;
+  $('#cats').innerHTML = grp('mat','Matematica') + grp('sci','Scienze');
+  $('#cats').querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ const k = b.dataset.k; P.cats = P.cats.includes(k) ? P.cats.filter(x=>x!==k) : [...P.cats, k]; save(); renderSetup(); });
+  $('#cats').querySelectorAll('[data-all]').forEach(b=>b.onclick = ()=>{ P.cats = [...new Set([...P.cats, ...CATS.filter(c=>c.g===b.dataset.all).map(c=>c.k)])]; save(); renderSetup(); });
+  $('#cats').querySelectorAll('[data-none]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.none).map(c=>c.k); P.cats = P.cats.filter(k=>!ks.includes(k)); save(); renderSetup(); });
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#rounds', 'rounds', [[1,'1'],[3,'3'],[5,'5']]);
+  seg('#npairs', 'npairs', [[4,'4'],[6,'6'],[8,'8']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#limMode', 'limMode', [['open','Scoperte'],['memory','Coperte (memory)']]);
+  seg('#timeR', 'timeR', [[0,'Senza limite'],[60,'60 s'],[90,'90 s'],[120,'2 minuti']]);
+  seg('#timeM', 'timeM', [[0,'Senza limite'],[15,'15 s'],[30,'30 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- coppie di un round ---------- */
+function buildPairs(n, l){
+  const out = [], labels = new Set(), vals = new Set();
+  const add = (p, c)=>{
+    if(!p || out.length >= n || p.a===p.b || labels.has(p.a) || labels.has(p.b) || vals.has(p.v) || /NaN|undefined|Infinity/.test(p.a + p.b)) return false;
+    labels.add(p.a); labels.add(p.b); vals.add(p.v); p.cat = c.n; out.push(p); return true;
+  };
+  /* livelli 4 e 5: prima le famiglie di coppie che si somigliano, poi si completa con coppie normali */
+  if(l >= 4){
+    const fams = shuffle(P.cats.filter(k=>FAM[k]));
+    for(let g=0; g<fams.length*3 && out.length < n; g++){
+      const c = CATS.find(x=>x.k===fams[g % fams.length]);
+      let F = null; try{ F = FAM[c.k](l); }catch(e){ F = null; }
+      if(F) shuffle(F).forEach(p=>add(p, c));
+    }
+  }
+  for(let g=0; g<600 && out.length < n; g++){
+    const c = CATS.find(x=>x.k===pick(P.cats)); if(!c) continue;
+    let p = null; try{ p = c.one(Math.min(l, 3)); }catch(e){ p = null; }
+    add(p, c);
+  }
+  return out;
+}
+function renderBoard(board, pairs, down){
+  const cards = shuffle(pairs.flatMap((p,i)=>[{p:i, s:'a', h:p.a}, {p:i, s:'b', h:p.b}]));
+  board.innerHTML = cards.map(c=>`<button class="${cardClass(c.h)}${down ? ' down' : ''}" data-p="${c.p}" data-s="${c.s}"><span class="ci">${c.h}</span></button>`).join('');
+  layoutBoard(board);
+}
+/* sceglie righe e colonne in modo che le carte siano un po' più larghe che alte */
+function layoutBoard(board){
+  const n = board.children.length; if(!n) return;
+  const r = board.getBoundingClientRect(), w = r.width || 800, h = r.height || 500;
+  let best = null;
+  for(let cols=2; cols<=8; cols++){ const rows = Math.ceil(n/cols), asp = (w/cols)/(h/rows), sc = Math.abs(Math.log(asp/1.45)) + (cols*rows - n)*0.12; if(!best || sc < best.sc) best = {cols, rows, sc}; }
+  board.style.gridTemplateColumns = `repeat(${best.cols}, minmax(0,1fr))`;
+  board.style.gridTemplateRows = `repeat(${best.rows}, minmax(0,1fr))`;
+}
+window.addEventListener('resize', ()=>document.querySelectorAll('.screen.on .board').forEach(layoutBoard));
+
+/* ---------- partita ---------- */
+const S = {R:0, round:-1, lvl:1, pairs:[], score:[0,0], found:[0,0], playing:false, paused:false, t0:0, pauseAt:0, raf:0, next:0, log:[], sel:[null,null], drags:new Map(), turn:1, first:null, busy:false, dur:0};
+const nm = t => t===1 ? P.n1 : P.n2;
+const LV = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; S.drags.forEach(d=>{ d.c.style.transform = ''; d.c.classList.remove('drag'); }); S.drags.clear(); }
+function start(){
+  if(!P.cats.length){ $('#warn').textContent = 'Scegli almeno un tipo di coppie.'; return; }
+  $('#warn').textContent = '';
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  Object.assign(S, {R:P.rounds, round:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextRound();
+}
+function nextRound(){
+  clearTimeout(S.next);
+  S.round++;
+  if(S.round >= S.R){ finish(); return; }
+  S.lvl = P.lvl===0 ? (S.R===1 ? 3 : 1 + Math.round(4*S.round/(S.R-1))) : P.lvl;
+  S.pairs = buildPairs(P.npairs, S.lvl);
+  S.found = [0,0]; S.sel = [null,null]; S.first = null; S.busy = false;
+  S.log.push({lvl:S.lvl, pairs:S.pairs, found:[0,0], win:0});
+  const label = `<small>Round</small>${S.round+1} di ${S.R}`;
+  if(P.screen==='lim') limRound(label); else touchRound(label);
+}
+function finish(){
+  stopAll();
+  if(S.log[S.round]) S.log[S.round].found = S.found.slice();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = S.log.map((r,i)=>`<div class="rround"><h3>Round ${i+1} <span>livello ${LV[r.lvl].toLowerCase()} · ${P.n1}: ${r.found[0]} coppie · ${P.n2}: ${r.found[1]} coppie${r.win ? ` · finito prima da ${nm(r.win)}` : ''}</span></h3><div class="plist">${r.pairs.map(p=>`<div class="pitem"><span>${p.a}</span><b>↔</b><span>${p.b}</span></div>`).join('')}</div></div>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+
+/* ---------- multitouch: ogni squadra ha le sue carte ---------- */
+function banner(t, html, win){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!win); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function prog(){ [1,2].forEach(t=>$('#p'+t).textContent = `${S.found[t-1]} / ${S.pairs.length}`); }
+function touchRound(label){
+  $('#rn').innerHTML = label;
+  [1,2].forEach(t=>renderBoard($('#b'+t), S.pairs, false));
+  prog(); setBar(1);
+  [1,2].forEach(t=>banner(t, `Round ${S.round+1}<small>${S.pairs.length} coppie · livello ${LV[S.lvl].toLowerCase()}</small>`));
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); }, 1600);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeR){ setBar(1); return; }
+  const dur = P.timeR*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ touchEnd(0); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function touchEnd(win){
+  stopAll();
+  const r = S.log[S.round]; r.found = S.found.slice(); r.win = win;
+  if(win){ S.score[win-1] += 2; $('#s'+win).textContent = S.score[win-1]; beep([523, 659, 784], 0.12); }
+  else beep([330, 262], 0.16);
+  [1,2].forEach(t=>{
+    $('#b'+t).querySelectorAll('.card:not(.gone)').forEach(c=>c.classList.add('miss'));
+    if(win===t) banner(t, `Finito! +2<small>${S.found[t-1]} coppie su ${S.pairs.length}</small>`, true);
+    else banner(t, `${win ? 'Round a ' + nm(win) : 'Tempo scaduto!'}<small>${S.found[t-1]} coppie su ${S.pairs.length}</small>`);
+  });
+  S.next = setTimeout(()=>{ unbanner(); nextRound(); }, 3600);
+}
+function tryMatch(t, c1, c2){
+  if(c1===c2) return;
+  if(c1.dataset.p===c2.dataset.p){
+    [c1,c2].forEach(c=>{ c.classList.remove('sel'); c.classList.add('good'); });
+    setTimeout(()=>[c1,c2].forEach(c=>c.classList.add('gone')), 260);
+    S.found[t-1]++; S.score[t-1]++; $('#s'+t).textContent = S.score[t-1]; prog();
+    beep([660, 880], 0.09);
+    if(S.found[t-1] >= S.pairs.length) touchEnd(t);
+  } else {
+    [c1,c2].forEach(c=>{ c.classList.remove('sel','bad'); void c.offsetWidth; c.classList.add('bad','cool'); });
+    beep([220], 0.15);
+    setTimeout(()=>[c1,c2].forEach(c=>c.classList.remove('bad','cool')), 1000);
+  }
+}
+function tapCard(t, c){
+  const s = S.sel[t-1];
+  if(s && (s.classList.contains('gone') || !s.isConnected)) S.sel[t-1] = null;
+  if(!S.sel[t-1]){ S.sel[t-1] = c; c.classList.add('sel'); return; }
+  if(S.sel[t-1]===c){ c.classList.remove('sel'); S.sel[t-1] = null; return; }
+  const first = S.sel[t-1]; S.sel[t-1] = null; first.classList.remove('sel');
+  tryMatch(t, first, c);
+}
+/* trascinamento: ogni dito (pointerId) muove la sua carta, così più studenti giocano insieme */
+function bindBoard(t){
+  const board = $('#b'+t);
+  board.addEventListener('pointerdown', e=>{
+    const c = e.target.closest('.card');
+    if(!c || !S.playing || S.paused || c.classList.contains('gone') || c.classList.contains('good') || c.classList.contains('cool') || c.classList.contains('drag')) return;
+    e.preventDefault();
+    try{ c.setPointerCapture(e.pointerId); }catch(err){}
+    S.drags.set(e.pointerId, {c, t, x0:e.clientX, y0:e.clientY, moved:false, flip: P.layout==='table' && t===1});
+    c.classList.add('drag');
+  });
+  board.addEventListener('pointermove', e=>{
+    const d = S.drags.get(e.pointerId); if(!d) return;
+    let dx = e.clientX - d.x0, dy = e.clientY - d.y0;
+    if(Math.hypot(dx, dy) > 10) d.moved = true;
+    if(d.flip){ dx = -dx; dy = -dy; }
+    if(d.moved) d.c.style.transform = `translate(${dx}px, ${dy}px) scale(1.05)`;
+  });
+  const up = e=>{
+    const d = S.drags.get(e.pointerId); if(!d) return;
+    S.drags.delete(e.pointerId);
+    d.c.style.transform = ''; d.c.classList.remove('drag');
+    if(!S.playing || S.paused || e.type==='pointercancel') return;
+    if(!d.moved){ tapCard(t, d.c); return; }
+    const target = document.elementsFromPoint(e.clientX, e.clientY).map(el=>el.closest && el.closest('.card')).find(el=>el && el!==d.c && board.contains(el) && !el.classList.contains('gone'));
+    if(target) tryMatch(t, d.c, target);
+  };
+  board.addEventListener('pointerup', up);
+  board.addEventListener('pointercancel', up);
+}
+bindBoard(1); bindBoard(2);
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>$('#h'+t).classList.toggle('locked', S.paused));
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: un solo tabellone, a turni ---------- */
+function limSides(){
+  [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; });
+}
+function limRound(label){
+  $('#lrn').innerHTML = `Round ${S.round+1} di ${S.R} · livello ${LV[S.lvl].toLowerCase()}`;
+  renderBoard($('#lb'), S.pairs, P.limMode==='memory');
+  S.turn = S.round % 2 + 1; S.playing = true; S.busy = false; S.first = null;
+  limSides(); limTurnMsg(); limTimer();
+}
+const leftPairs = ()=> S.pairs.length - S.found[0] - S.found[1];
+function limTurnMsg(pre){ $('#lmsg').innerHTML = `${pre ? pre + ' ' : ''}Tocca a <b>${nm(S.turn)}</b>: ${P.limMode==='memory' ? 'gira due carte' : 'tocca una carta e poi la sua compagna'} · restano ${leftPairs()} coppie`; }
+function limTimer(reset = true){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeM){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(reset){ S.t0 = performance.now(); S.dur = P.timeM*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    if(S.busy){ S.raf = requestAnimationFrame(tick); return; }
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limTimeout(); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limTimeout(){
+  beep([330, 262], 0.14);
+  if(S.first){ S.first.classList.remove('sel1','sel2'); if(P.limMode==='memory') S.first.classList.add('down'); S.first = null; }
+  S.turn = 3 - S.turn; limSides(); limTurnMsg('Tempo scaduto!'); limTimer();
+}
+function limTap(c){
+  if(!S.playing || S.paused || S.busy || c.classList.contains('gone')) return;
+  const mem = P.limMode==='memory';
+  if(c===S.first){ if(!mem){ c.classList.remove('sel1','sel2'); S.first = null; } return; }
+  if(mem) c.classList.remove('down');
+  if(!S.first){ S.first = c; c.classList.add('sel'+S.turn); beep([600], 0.05); return; }
+  const a = S.first, t = S.turn; S.first = null; S.busy = true;
+  c.classList.add('sel'+t);
+  if(a.dataset.p===c.dataset.p){
+    [a,c].forEach(x=>{ x.classList.remove('sel1','sel2'); x.classList.add('good'); });
+    S.found[t-1]++; S.score[t-1]++; $('#ls'+t).textContent = S.score[t-1]; S.log[S.round].found = S.found.slice();
+    beep([660, 880], 0.1);
+    setTimeout(()=>{
+      [a,c].forEach(x=>x.classList.add('gone')); S.busy = false;
+      if(!leftPairs()){ limRoundEnd(); return; }
+      if(!mem){ S.turn = 3 - t; limSides(); }
+      limTurnMsg(mem ? `Coppia! ${nm(t)} gioca ancora.` : `Coppia per ${nm(t)}!`); limTimer();
+    }, 900);
+  } else {
+    [a,c].forEach(x=>{ x.classList.remove('sel1','sel2'); x.classList.add('bad'); });
+    beep([220], 0.15);
+    setTimeout(()=>{
+      [a,c].forEach(x=>{ x.classList.remove('bad'); if(mem) x.classList.add('down'); }); S.busy = false;
+      S.turn = 3 - t; limSides(); limTurnMsg('Non è una coppia.'); limTimer();
+    }, mem ? 1500 : 900);
+  }
+}
+function limRoundEnd(){
+  stopAll(); S.turn = 0; limSides();
+  const [a,b] = S.found; S.log[S.round].found = S.found.slice();
+  $('#lmsg').innerHTML = `Round finito! ${P.n1}: <b>${a}</b> · ${P.n2}: <b>${b}</b>`;
+  beep([523, 659, 784], 0.12);
+  S.next = setTimeout(nextRound, 3200);
+}
+$('#lb').addEventListener('pointerdown', e=>{ const c = e.target.closest('.card'); if(!c) return; e.preventDefault(); limTap(c); });
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#lb').style.opacity = S.paused ? '.35' : '';
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; limTimer(false); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on')) e.preventDefault(); });
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__coppieTest = {CATS, buildPairs, P};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

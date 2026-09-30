@@ -12,13 +12,25 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta. Tra le idee per i prossimi ci sono: caccia alle coppie, geopiano collaborativo, tangram, frazioni da spezzare, circuiti elettrici, leve e bilance, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, frazioni da spezzare, circuiti elettrici, leve e bilance, linea del tempo.
 
 ## Giochi
+
+La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera grande da toccare. Ogni gioco ha in alto il link «← Tutti i giochi» per tornare lì.
 
 | File | Gioco | Come si gioca |
 |---|---|---|
 | `duello.html` | **Duello a squadre** | Due squadre, la stessa domanda con 4 risposte. Tre modi di gioco: **Multitouch** (lo schermo è diviso in due e si risponde tutti insieme: vince il punto chi tocca per primo la risposta giusta; chi sbaglia resta bloccato 2 secondi); **LIM a turni** con rubapunto; **LIM con prenotazione** (pulsante grande di ogni squadra, oppure tasti A e L della tastiera). |
+| `coppie.html` | **Caccia alle coppie** | Carte da abbinare (figura–nome, operazione–risultato, grandezza–unità, strumento–che cosa misura…). **Multitouch**: ogni squadra ha le sue carte e tutti giocano insieme; si trascina una carta sulla compagna oppure si toccano una dopo l'altra, e chi finisce per primo il round prende 2 punti in più. **LIM**: un solo tabellone, a turni, con carte **scoperte** oppure **coperte** (memory). |
+
+### Caccia alle coppie: impostazioni
+- **Coppie da cercare**:
+  - *Matematica*: operazioni e risultati, frazioni-decimali-percentuali, potenze e radici, equivalenze, figure piane (disegno, nome, formula dell'area), solidi (disegno, nome, facce-vertici-spigoli, formula del volume), equazioni e soluzioni.
+  - *Scienze*: grandezze e unità di misura (anche formula ↔ grandezza), strumenti di misura, formule in azione (es. "120 km in 2 h" ↔ "60 km/h", anche con formule inverse), materia ed elementi, energia ed elettricità, viventi e corpo umano, Terra e Universo.
+- **Difficoltà**: Base, Medio, Avanzato, Esperto, Campione, oppure Crescente (dal primo all'ultimo round). A livello **Esperto** e **Campione** ogni round contiene «famiglie» di coppie che si somigliano apposta (per esempio x + 3 = 12, x − 3 = 12, 3x = 12, x : 3 = 12; oppure Na, N, Ne, Ni; oppure area e perimetro delle stesse figure): la soluzione è una sola, ma bisogna ragionare. **Round**: 1, 3 o 5. **Coppie per round**: 4, 6 o 8.
+- Nello stesso round non compaiono mai due coppie con lo stesso valore (per esempio 3² → 9 e √81 → 9), così ogni carta ha una sola compagna.
+- **Tempo**: per round (multitouch) oppure per mossa (LIM).
+- A fine partita: risultato e riepilogo di tutte le coppie, round per round.
 
 ### Duello a squadre: impostazioni
 - **Argomenti** (si scelgono uno per uno, oppure "tutti / nessuno" per gruppo). Le domande sono generate a caso ogni volta.
@@ -29,17 +41,18 @@ I giochi si aggiungono uno alla volta. Tra le idee per i prossimi ci sono: cacci
   - *Velocità*: sullo schermo multitouch è una **raffica**. Ogni squadra ha le sue domande, una dopo l'altra, per 1, 1½ o 2 minuti, e vince chi ne indovina di più. Alla LIM è il gioco normale, ma con 5, 8 o 10 secondi per domanda.
   - *Ragionamento*: domande su cause, confronti, proporzioni ("se raddoppio…") e problemi da impostare.
 - **Difficoltà**:
-  - *Fissa*: Base, Medio o Avanzato.
-  - *Crescente*: si parte dal livello base e si arriva all'avanzato. Nella raffica si sale di livello ogni 4 risposte giuste.
-  - *Su misura*: si sceglie quante domande per livello (es. 4 base, 6 medie, 3 avanzate).
-- **Domanda bonus finale**: livello esperto, vale 3 punti e ha il doppio del tempo.
+  - *Fissa*: Base, Medio, Avanzato, Esperto o Campione. Il livello Campione è il più difficile: problemi a più passaggi, formule inverse combinate, trabocchetti.
+  - *Crescente*: si parte dal livello base e si arriva al campione. Nella raffica si sale di livello ogni 4 risposte giuste.
+  - *Su misura*: si sceglie quante domande per livello (es. 4 base, 6 medie, 3 avanzate, 1 esperta).
+- **Risposte**: nelle domande con risposta numerica, tra le 3 sbagliate ce ne sono sempre **2 plausibili** (gli errori tipici) e **1 molto sbagliata**.
+- **Domanda bonus finale**: livello campione, vale 3 punti e ha il doppio del tempo.
 - **Domande**: 10, 15 o 20. **Tempo per domanda**: senza limite, 15, 20, 30, 45 o 60 secondi.
 - **Squadre** (multitouch): affiancate (schermo a parete) oppure una di fronte all'altra (schermo appoggiato come un tavolo).
 - **Suoni**: sì / no.
 - A fine partita: risultato e riepilogo di tutte le domande con la risposta giusta.
 
 ## Pubblicare su GitHub
-Si può creare un repository apposta (per esempio `giochi-multitouch`), caricare i file e attivare GitHub Pages (Settings → Pages → Deploy from a branch → `main` / root). Il gioco sarà poi online su `https://<utente>.github.io/giochi-multitouch/duello.html`.
+Si può creare un repository apposta (per esempio `giochi-multitouch`), caricare i file e attivare GitHub Pages (Settings → Pages → Deploy from a branch → `main` / root). Il launcher sarà poi online su `https://<utente>.github.io/giochi-multitouch/` e da lì si aprono tutti i giochi.
 
 ## Crediti
 Caratteri Google Fonts: Baloo 2 e Nunito (SIL Open Font License). Senza internet la pagina funziona comunque, con i caratteri di sistema.

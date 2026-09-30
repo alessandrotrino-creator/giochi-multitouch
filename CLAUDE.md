@@ -10,7 +10,8 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Sul PC del docente non ci sono né git né node: i file si caricano dal sito di GitHub.
 
 ## Decisioni
-- Ogni gioco è **un solo file HTML** senza build, come il laboratorio. Nessun dato salvato o inviato; solo le preferenze in `localStorage` (`duello-prefs`).
+- Ogni gioco è **un solo file HTML** senza build, come il laboratorio. Nessun dato salvato o inviato; solo le preferenze in `localStorage` (`duello-prefs`, `coppie-prefs`).
+- Il docente carica i file a mano dal sito di GitHub (Add file → Upload files): la cartella di lavoro è `Desktop\giochi multitouch`. Non lasciarci file di servizio (es. `.claude/`).
 - Notazione italiana: `·` per moltiplicare, `:` per dividere, virgola decimale (`Intl.NumberFormat('it-IT')`), frazioni disegnate in colonna.
 - Multitouch vero: le risposte usano `pointerdown` (non `click`), così più dita contemporanee funzionano; `touch-action:none`, niente zoom, niente menu con la pressione lunga.
 - Modalità LIM proposte dal docente e da Claude: **a turni con rubapunto** e **con prenotazione** (pulsante per squadra o tasti A / L, anche con due tastiere USB).
@@ -22,5 +23,20 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Impostazioni nuove: `sfida` (`classica` / `veloce` / `ragion`), `diff` (`fissa` / `cresc` / `mix`), `mix` [base, medio, avanzato], `bonus`, `speedT` (secondi per domanda nella velocità alla LIM), `rafT` (durata della raffica).
 - Velocità multitouch = **raffica** (`R`, `rafStart`, `rafNext`, `rafAnswer`, `rafClock`): ogni squadra ha le sue domande; con difficoltà crescente sale di livello ogni 4 risposte giuste. Alla LIM la velocità usa solo un tempo breve (`curT`). Il bonus vale 3 punti (`q.pts`) e ha il tempo doppio.
 - Stato: `P` (impostazioni), `G` (partita), `LG` (fasi della LIM: `book`, `answer`, `end`), `R` (raffica).
+- **5 livelli** (dal 30/09/2026, richiesta del docente): 1 Base, 2 Medio, 3 Avanzato, 4 Esperto, 5 Campione. Il livello 5 sta in `L5[k]()` (chiamato all'inizio di ogni `gen` con `if(l===5)`) e `CP5` (domande di concetto). Il bonus usa il livello 5; crescente = 1 → 5; `mix` ha 5 valori (le preferenze vecchie a 3 valori vengono allungate).
+- **Risposte sbagliate** (richiesta del docente): in `numQ` sempre 2 plausibili (gli errori candidati più vicini, distanza relativa < 1,6) + 1 molto sbagliata (distanza ≥ 4, altrimenti ×25 o simile). Verificato: circa il 94% delle domande numeriche ha esattamente questa forma; le altre hanno comunque 2 vicine e 1 lontana, con soglie un po' diverse.
+
+## `coppie.html` (Caccia alle coppie) — creato il 30/09/2026
+- Schermate come il Duello: `#setup`, `#game` (due metà con tabellone `.board` ciascuna), `#lim` (tabellone al centro), `#end`. Preferenze in `localStorage` (`coppie-prefs`).
+- Coppie: `CATS` con `one(livello)` → `{a, b, v}`; `v` è il "valore" della coppia e `buildPairs` scarta le coppie con stesso `v` o stessa etichetta nello stesso round (una carta = una sola compagna). Aiuti: `numP`, `txtP`, `bank({1:[…],2:[…],3:[…]})`, `equivP` (unità in `UN`). Disegni SVG in `FIG` (figure piane) e `SOL` (solidi), classe `.fig`.
+- Multitouch: trascinamento con un dito per carta (`S.drags` per `pointerId`, `setPointerCapture`), oppure tocco-tocco (`S.sel` per squadra). Nella disposizione "tavolo" la metà blu è ruotata di 180° e gli spostamenti vengono invertiti. Coppia +1, chi finisce il round +2; una coppia sbagliata blocca le due carte per 1 s.
+- LIM: `limTap`; scoperte (il turno passa dopo ogni tentativo) o memory (chi trova una coppia rigioca).
+- Il testo delle carte si adatta con `container-type:size` e unità `cqi/cqh`; classi di lunghezza `len2` / `len3` (non usare `.mid`: è la colonna centrale).
+- Verificato: 300 coppie per argomento e livello senza errori; round da 8 coppie completi con tutti gli argomenti; prove nel browser di trascinamento, tocco-tocco, memory alla LIM e riepilogo. `window.__coppieTest` espone `CATS`, `buildPairs`, `P`.
+- **5 livelli**: ai livelli 4 e 5 `buildPairs` usa prima le **famiglie** `FAM[k](l)`, gruppi di coppie che si somigliano apposta (stessi numeri con operazioni diverse, simboli chimici simili, area/perimetro, V/R/I…), poi completa con `one(3)`. Attenzione a non creare ambiguità vere: ogni carta deve avere una sola compagna (es. calcare e arenaria sono entrambe sedimentarie → descrizioni diverse). Crescente: dal livello 1 al 5 distribuiti sui round.
+
+## `index.html` (launcher)
+- Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
+
 ## Idee per i prossimi giochi (dall'elenco proposto al docente)
-Caccia alle coppie simultanea (formula–figura, solido–sviluppo…), "Costruisci insieme" a tempo (figure di area data, circuiti), geopiano collaborativo, tangram / equiscomposizione con rotazione a due dita, frazioni da spezzare, circuiti elettrici, leve e bilance, ottica, ecosistemi, linea del tempo.
+"Costruisci insieme" a tempo (figure di area data, circuiti), geopiano collaborativo, tangram / equiscomposizione con rotazione a due dita, frazioni da spezzare, circuiti elettrici, leve e bilance, ottica, ecosistemi, linea del tempo.

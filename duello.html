@@ -167,12 +167,14 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .lv.b4{background:var(--accent);border-color:var(--accent);color:#fff}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
 </style>
 </head>
 <body>
 
 <!-- ============ IMPOSTAZIONI ============ -->
 <section class="screen on" id="setup" aria-label="Impostazioni del duello">
+    <a class="home" href="index.html">← Tutti i giochi</a>
   <div class="card">
     <div class="brand">
       <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="10" width="26" height="44" rx="8" fill="#2F6FDB"/><rect x="34" y="10" width="26" height="44" rx="8" fill="#E8801F"/><path d="M24 24l16 16M40 24L24 40" stroke="#fff" stroke-width="5" stroke-linecap="round"/></svg>
@@ -283,12 +285,19 @@ const r2 = x => Math.round(x*100)/100;
 const r4 = x => Math.round(x*10000)/10000;
 
 /* domanda: {q, a, opts, x?} — a e opts sono stringhe (possono contenere HTML), a è sempre fra le opts; x è la spiegazione */
+/* risposte sbagliate: 2 plausibili (gli errori tipici più vicini alla risposta giusta) + 1 molto errata */
 function numQ(q, a, cands){
   a = r4(a);
-  const out = [a], seen = new Set([a]);
-  shuffle(cands.map(r4)).forEach(c=>{ if(out.length < 4 && Number.isFinite(c) && !seen.has(c) && (a < 0 || c >= 0)){ seen.add(c); out.push(c); } });
-  let k = 1; while(out.length < 4){ const c = r4(a + (k % 2 ? k : -k) * (Math.abs(a) >= 20 ? 2 : 1)); if(!seen.has(c) && (a < 0 || c >= 0)){ seen.add(c); out.push(c); } k++; }
-  return {q, a:N(a), opts:out.map(N)};
+  const seen = new Set([a]), ok = c => Number.isFinite(c) && !seen.has(c) && (a < 0 || c >= 0);
+  const rel = c => Math.abs(c - a) / Math.max(Math.abs(a), 1);
+  const pool = []; shuffle(cands.map(r4)).forEach(c=>{ if(ok(c)){ seen.add(c); pool.push(c); } });
+  pool.sort((x,y)=>rel(x) - rel(y));
+  const near = pool.filter(c=>rel(c) < 1.6).slice(0,2);
+  let k = 1; const used = new Set([a, ...near]);
+  while(near.length < 2){ const c = r4(a + (k % 2 ? 1 : -1) * Math.ceil(k/2) * (Number.isInteger(a) ? (Math.abs(a) >= 20 ? 2 : 1) : 0.1)); if(!used.has(c) && (a < 0 || c >= 0)){ used.add(c); near.push(c); } k++; }
+  let far = pool.filter(c=>!used.has(c) && rel(c) >= 4).pop();
+  if(far === undefined){ for(const m of [25, 40, 100, 7]){ const c = a === 0 ? 50 : r4(Math.abs(a) < 1 ? a*m*4 : Math.round(a*m)); if(!used.has(c)){ far = c; break; } } }
+  return {q, a:N(a), opts:[a, ...near, far].map(N)};
 }
 function txtQ(q, a, wrong){ return {q, a, opts:[a, ...shuffle([...new Set(wrong)].filter(w=>w!==a)).slice(0,3)]}; }
 const X = (o, x) => { if(o) o.x = x; return o; };                    // aggiunge la spiegazione
@@ -301,7 +310,7 @@ function cmpQ(q, A, va, B, vb, x){ return X(txtQ(q, va > vb ? A : vb > va ? B : 
    livelli: 1 base, 2 medio, 3 avanzato, 4 esperto (solo domanda bonus) */
 const CATS = [
   /* ================= MATEMATICA ================= */
-  {k:'calc', g:'mat', n:'Calcolo mentale', gen:l=>{
+  {k:'calc', g:'mat', n:'Calcolo mentale', gen:l=>{ if(l===5) return L5.calc();
     if(l===1){ const t = rnd(0,2);
       if(t===0){ const a = rnd(2,10), b = rnd(2,10); return numQ(`${a} · ${b}`, a*b, [a*b+a, a*b-b, a*(b+1)+1, a+b, a*b+10, a*b-1]); }
       if(t===1){ const a = rnd(2,10), b = rnd(2,10); return numQ(`${a*b} : ${a}`, b, [b+1, b-1, a, b+2, b*2]); }
@@ -337,7 +346,7 @@ const CATS = [
     3:[["Moltiplicando un numero positivo per 0,5 si ottiene…","la sua metà","il suo doppio","un numero più grande","lo stesso numero"],["Il prodotto di due numeri negativi è…","positivo","negativo","zero","a volte positivo, a volte negativo"],["In 3 + 4 · 5 si esegue prima…","la moltiplicazione","l'addizione","indifferente: il risultato è uguale","l'operazione più a sinistra"]],
     4:[["Dividendo un numero positivo per 0,25 il risultato diventa…","4 volte più grande","4 volte più piccolo","uguale","un quarto più piccolo"],["Se a · b = 0, allora…","almeno uno tra a e b è 0","sono entrambi 0","a = b","a e b sono negativi"],["Il prodotto di tre numeri negativi è…","negativo","positivo","zero","dipende dai numeri"]]
   }},
-  {k:'pot', g:'mat', n:'Potenze e radici', gen:l=>{
+  {k:'pot', g:'mat', n:'Potenze e radici', gen:l=>{ if(l===5) return L5.pot();
     if(l===1){ const t = rnd(0,1), n = rnd(2,12);
       if(t===0) return numQ(sup(n,2), n*n, [n*2, n*n+n, n*n-1, (n+1)*(n+1)]);
       return numQ(`√${n*n}`, n, [n+1, n-1, n*2, n*n/2]); }
@@ -368,7 +377,7 @@ const CATS = [
     3:[["Se raddoppi il lato di un quadrato, l'area…","diventa 4 volte","raddoppia","resta uguale","diventa 8 volte"],["Il quadrato di un numero negativo è…","positivo","negativo","zero","non esiste"],["(2 + 3)² è uguale a 2² + 3²?","no: fa 25, mentre 2² + 3² = 13","sì, fanno entrambi 25","sì, fanno entrambi 13","no: fa 10"]],
     4:[["Se raddoppi lo spigolo di un cubo, il volume…","diventa 8 volte","raddoppia","diventa 4 volte","diventa 6 volte"],["√(9 + 16) è uguale a √9 + √16?","no: fa 5, mentre √9 + √16 = 7","sì, fanno entrambi 7","sì, fanno entrambi 5","no: fa 25"],["Quale numero è più grande?","3⁴","4³","2⁶","sono tutti uguali"]]
   }},
-  {k:'fraz', g:'mat', n:'Frazioni e percentuali', gen:l=>{
+  {k:'fraz', g:'mat', n:'Frazioni e percentuali', gen:l=>{ if(l===5) return L5.fraz();
     if(l===1){ const t = rnd(0,1);
       if(t===0){ const [n,d] = pick([[1,2],[1,4],[3,4],[1,5],[2,5],[1,10],[3,10]]); return numQ(`${frac(n,d)} = ?`, n/d, [d/n/10, n/d*10, n/d+0.1, (n+1)/d, n/(d+1)]); }
       const p = pick([10,25,50]), x = pick([20,40,60,80,120,200]); return numQ(`${p}% di ${x}`, p*x/100, [p*x/10, x-p, p*x/100+10, x/p]); }
@@ -404,7 +413,7 @@ const CATS = [
     3:[["Un prezzo sale del 10% e poi scende del 10%. Rispetto all'inizio…","è un po' più basso","è uguale","è un po' più alto","è sceso del 10%"],["Uno sconto del 10% e poi un altro del 10% equivalgono a…","uno sconto del 19%","uno sconto del 20%","uno sconto del 21%","uno sconto dell'11%"],["Moltiplicare per " + frac(1,2) + " equivale a…","dividere per 2","moltiplicare per 2","dividere per 0,2","togliere 2"]],
     4:[["Un prezzo raddoppia: di quanto per cento è aumentato?","del 100%","del 200%","del 50%","del 2%"],["Un numero aumenta del 50% e poi diminuisce del 50%. Rispetto all'inizio…","è diminuito del 25%","è uguale","è diminuito del 50%","è aumentato del 25%"],["Il 20% del 50% di un numero è il…","10% del numero","70% del numero","30% del numero","1000% del numero"]]
   }},
-  {k:'equiv', g:'mat', n:'Equivalenze', gen:l=>{
+  {k:'equiv', g:'mat', n:'Equivalenze', gen:l=>{ if(l===5) return L5.equiv();
     if(l===4){
       if(Math.random()<0.5){ const [a,b,f] = pick([['ha','m²',10000],['km²','ha',100],['m³','L',1000],['t','kg',1000],['m³','cm³',1000000]]), v = pick([0.5,2.5,1.2,0.03,4]);
         return Math.random()<0.5 ? numQ(`${N(v)} ${a} = ? ${b}`, v*f, [v*f*10, v*f/10, v*f*100, v*f/100]) : numQ(`${N(v*f)} ${b} = ? ${a}`, v, [v*10, v/10, v*100, v*f]); }
@@ -436,7 +445,7 @@ const CATS = [
     3:[["Nelle misure di volume, ogni unità è … volte la successiva più piccola","1000","100","10","3"],["Un'ora e mezza sono…","90 minuti","150 minuti","130 minuti","1 ora e 50 minuti"],["1 m² contiene quanti quadratini di 1 cm di lato?","10 000","100","1000","1 000 000"]],
     4:[["1,5 ore sono 90 minuti e non 150 perché…","un'ora ha 60 minuti, non 100","1,5 = 1 ora e 50 minuti","si divide per 100","si moltiplica per 100"],["Un ettaro (1 ha) è l'area di un quadrato di lato…","100 m","10 m","1000 m","1 km"],["1 m³ d'acqua contiene quanti litri?","1000","100","10","1 000 000"]]
   }},
-  {k:'solidi', g:'mat', n:'Solidi', gen:l=>{
+  {k:'solidi', g:'mat', n:'Solidi', gen:l=>{ if(l===5) return L5.solidi();
     const adj = {3:'triangolare',4:'quadrangolare',5:'pentagonale',6:'esagonale',8:'ottagonale'};
     if(l===1){ const S = [['cubo',6,8,12],['parallelepipedo',6,8,12],['tetraedro',4,4,6],['prisma triangolare',5,6,9],['piramide quadrangolare',5,5,8]];
       const [n,F,V,Sp] = pick(S), w = rnd(0,2), what = ['facce','vertici','spigoli'][w], a = [F,V,Sp][w];
@@ -465,7 +474,7 @@ const CATS = [
     3:[["Un cubo ha lo spigolo doppio di un altro. La sua area totale è…","4 volte","2 volte","8 volte","6 volte"],["Una piramide e un prisma hanno stessa base e stessa altezza. Il volume della piramide è…","un terzo di quello del prisma","la metà","uguale","il doppio"],["Due scatole hanno lo stesso volume. Hanno per forza la stessa area totale?","no","sì","solo se sono cubi","solo se sono di cartone"]],
     4:[["Un cono e un cilindro hanno stessa base e stessa altezza. Quanti coni pieni d'acqua servono per riempire il cilindro?","3","2","4","π"],["Può esistere un poliedro con 4 facce, 4 vertici e 7 spigoli?","no: F + V − S deve fare 2","sì","solo se è concavo","solo se le facce sono quadrate"],["A parità di volume, quale solido ha l'area più piccola?","la sfera","il cubo","il cilindro","il tetraedro"]]
   }},
-  {k:'equaz', g:'mat', n:'Equazioni', gen:l=>{
+  {k:'equaz', g:'mat', n:'Equazioni', gen:l=>{ if(l===5) return L5.equaz();
     if(l===1){ const x = rnd(1,15), a = rnd(2,20); return numQ(`x + ${a} = ${x+a}`, x, [x+a+x, a, x+1, x-1, x+a].filter(v=>v!==x)); }
     if(l===2){ const x = rnd(1,10), a = rnd(2,6), b = rnd(1,15); return numQ(`${a}x + ${b} = ${a*x+b}`, x, [x+1, x-1, (a*x+b)/a, a*x, x+b]); }
     if(l===3){ const x = rnd(-6,8), a = rnd(3,7), c = rnd(1,a-1), b = rnd(-10,10), d = (a-c)*x + b;
@@ -492,7 +501,7 @@ const CATS = [
   }},
 
   /* ================= SCIENZE ================= */
-  {k:'moto', g:'sci', n:'Velocità e moto', gen:l=>{
+  {k:'moto', g:'sci', n:'Velocità e moto', gen:l=>{ if(l===5) return L5.moto();
     if(l===1){ const t = rnd(0,3);
       if(t===0){ const v = pick([30,40,50,60,70,80,90]), h = rnd(2,4), s = v*h; return X(numQ(`Un'auto percorre ${s} km in ${h} ore. A che velocità va (km/h)?`, v, [s, v+10, v-10, v*2, s+h]), `v = s : t = ${s} : ${h} = ${v} km/h`); }
       if(t===1){ const v = pick([10,12,15,18,20,25]), h = rnd(2,4), s = v*h; return X(numQ(`Una bici va a ${v} km/h per ${h} ore. Quanti km percorre?`, s, [v+h, v*(h+1), s/2, s+10]), `s = v · t = ${v} · ${h} = ${s} km`); }
@@ -531,7 +540,7 @@ const CATS = [
     3:[["Il tachimetro dell'auto indica…","la velocità in quell'istante","la velocità media del viaggio","lo spazio percorso","il tempo di viaggio"],["«Da 0 a 100 km/h in 5 secondi» descrive…","l'accelerazione","la velocità media","lo spazio di frenata","la velocità massima"],["In un grafico spazio-tempo, una retta più inclinata indica…","una velocità maggiore","una velocità minore","un corpo fermo","un tempo maggiore"]],
     4:[["Fai metà strada (30 km) a 30 km/h. A che velocità devi fare l'altra metà per avere una media di 60 km/h?","è impossibile","90 km/h","120 km/h","60 km/h"],["In un grafico spazio-tempo, una linea orizzontale indica un corpo…","fermo","che accelera","a velocità costante","che torna indietro"],["Andata a 40 km/h e ritorno a 60 km/h sulla stessa strada: la velocità media è…","minore di 50 km/h","esattamente 50 km/h","maggiore di 50 km/h","100 km/h"]]
   }},
-  {k:'dens', g:'sci', n:'Densità e galleggiamento', gen:l=>{
+  {k:'dens', g:'sci', n:'Densità e galleggiamento', gen:l=>{ if(l===5) return L5.dens();
     const MAT = [['sughero',0.25],['legno',0.6],['olio',0.9],['ghiaccio',0.92],['alluminio',2.7],['ferro',7.9],['rame',8.9],['piombo',11.3],['oro',19.3]], MET = MAT.filter(m=>m[1] > 2);
     if(l===1){ const t = rnd(0,2);
       if(t===0){ const V = pick([10,20,50,100]), d = pick([2,3,4,5,8]), m = d*V; return X(numQ(`Un oggetto ha massa ${m} g e volume ${V} cm³. Qual è la sua densità (g/cm³)?`, d, [V/m, d*10, d+1, m-V]), `d = m : V = ${m} : ${V} = ${d} g/cm³`); }
@@ -565,7 +574,7 @@ const CATS = [
     3:[["A parità di volume, se la massa triplica, la densità…","triplica","diventa un terzo","resta uguale","aumenta di 3 g/cm³"],["Un uovo affonda in acqua dolce ma galleggia in acqua molto salata perché…","l'acqua salata ha densità maggiore","il sale rende l'uovo più leggero","l'acqua salata è più calda","il sale entra nell'uovo"],["Scaldando l'aria di una mongolfiera, la densità dell'aria interna…","diminuisce e la mongolfiera sale","aumenta e la mongolfiera sale","resta uguale","diminuisce e la mongolfiera scende"]],
     4:[["Una nave d'acciaio galleggia perché…","la sua densità media (acciaio più aria) è minore di quella dell'acqua","l'acciaio delle navi è più leggero dell'acqua","il motore la spinge verso l'alto","l'acqua di mare sostiene qualsiasi oggetto"],["Un sottomarino, per immergersi, riempie d'acqua i serbatoi: così…","aumenta la sua densità media","diminuisce la sua massa","diminuisce la sua densità","aumenta il suo volume"],["Il ghiaccio è meno denso dell'acqua. Per questo d'inverno i laghi…","gelano in superficie e sotto resta acqua liquida","gelano prima sul fondo","non gelano mai","gelano tutti insieme"]]
   }},
-  {k:'forze', g:'sci', n:'Forze, peso e pressione', gen:l=>{
+  {k:'forze', g:'sci', n:'Forze, peso e pressione', gen:l=>{ if(l===5) return L5.forze();
     if(l===1){ const t = rnd(0,3);
       if(t===0){ const m = pick([2,5,8,12,30,45,60]); return X(numQ(`Quanto pesa, in newton, un oggetto di ${m} kg? (g = 10 N/kg)`, m*10, [m, m/10, m*100, m+10]), `P = m · g = ${m} · 10 = ${m*10} N`); }
       if(t===1) return txtQ('Con quale strumento si misura una forza?', 'il dinamometro', ['la bilancia a bracci','il termometro','il barometro','il cronometro']);
@@ -601,7 +610,7 @@ const CATS = [
     3:[["Le forbici sono una leva di…","primo genere (fulcro in mezzo)","secondo genere","terzo genere","nessun genere"],["La carriola è una leva di…","secondo genere (carico in mezzo)","primo genere","terzo genere","nessun genere"],["La pinzetta è una leva di…","terzo genere (forza in mezzo)","primo genere","secondo genere","nessun genere"],["Con un braccio della forza più lungo, per sollevare lo stesso peso serve…","una forza minore","una forza maggiore","la stessa forza","una forza doppia"]],
     4:[["Un libro fermo sul tavolo: le forze che agiscono su di lui…","si fanno equilibrio (la risultante è zero)","non ci sono","sono solo il suo peso","spingono più verso l'alto"],["Una palla lanciata in orizzontale e una lasciata cadere dalla stessa altezza nello stesso istante: quale tocca terra prima?","arrivano insieme","quella lanciata","quella lasciata cadere","quella più pesante"],["Nel vuoto, una piuma e un martello lasciati cadere insieme…","arrivano a terra insieme","il martello arriva prima","la piuma arriva prima","restano sospesi"],["Più si scende in profondità nel mare, la pressione…","aumenta","diminuisce","resta uguale","si annulla"]]
   }},
-  {k:'calore', g:'sci', n:'Calore e temperatura', gen:l=>{
+  {k:'calore', g:'sci', n:'Calore e temperatura', gen:l=>{ if(l===5) return L5.calore();
     if(l===1){ const t = rnd(0,3);
       if(t===0){ const c = pick([0,10,20,25,37,100]); return X(numQ(`${c} °C sono quanti kelvin?`, c+273, [c, c+100, 273-c, c+237]), `K = °C + 273`); }
       if(t===1){ const [q,a] = pick([['A che temperatura bolle l\'acqua (al livello del mare)?','100 °C'],['A che temperatura congela l\'acqua?','0 °C'],['Qual è la temperatura normale del corpo umano?','circa 37 °C']]); return txtQ(q, a, ['100 °C','0 °C','circa 37 °C','50 °C','273 °C']); }
@@ -633,7 +642,7 @@ const CATS = [
     3:[["Una bottiglia di vetro piena d'acqua in freezer si rompe perché…","l'acqua, diventando ghiaccio, aumenta di volume","il vetro si dilata col freddo","il ghiaccio diventa più denso","il ghiaccio pesa più dell'acqua"],["Uscendo bagnati dalla piscina si sente freddo perché…","l'acqua che evapora sottrae calore alla pelle","l'acqua è più fredda dell'aria","il vento porta il freddo","la pelle si dilata"],["In alta montagna l'acqua bolle a meno di 100 °C perché…","la pressione dell'aria è più bassa","fa più freddo","l'acqua è più pura","l'acqua contiene meno ossigeno"]],
     4:[["Le città sul mare hanno inverni più miti perché l'acqua…","si scalda e si raffredda lentamente (calore specifico alto)","è salata","ha densità bassa","evapora poco"],["−40 °C in gradi Fahrenheit sono…","−40 °F","0 °F","−72 °F","40 °F"],["Il thermos mantiene caldo il tè perché…","il vuoto tra le pareti ostacola il passaggio del calore","il vetro produce calore","il tappo è di metallo","il tè si raffredda solo se lo agiti"],["Esiste una temperatura più bassa di tutte, lo zero assoluto. Quanto vale?","0 K, cioè circa −273 °C","0 °C","−100 °C","−1000 °C"]]
   }},
-  {k:'materia', g:'sci', n:'Materia ed elementi', gen:l=>{
+  {k:'materia', g:'sci', n:'Materia ed elementi', gen:l=>{ if(l===5) return L5.materia();
     if(l===1){
       if(Math.random() < 0.25){ const [q,a] = pick([['ha forma e volume propri','solido'],['ha volume proprio ma prende la forma del recipiente','liquido'],['non ha né forma né volume propri','aeriforme (gas)']]); return txtQ(`Quale stato della materia ${q}?`, a, ['solido','liquido','aeriforme (gas)','nessuno stato']); }
       const EL = [['H','idrogeno'],['O','ossigeno'],['C','carbonio'],['N','azoto'],['Fe','ferro'],['Na','sodio'],['Ca','calcio'],['K','potassio'],['Au','oro'],['Ag','argento'],['Cu','rame'],['Cl','cloro'],['He','elio'],['S','zolfo']];
@@ -665,7 +674,7 @@ const CATS = [
     3:[["Un composto si differenzia da un elemento perché…","è formato da atomi di elementi diversi legati tra loro","è sempre liquido","non si può scomporre","contiene un solo tipo di atomo"],["Quale di queste è una trasformazione chimica?","la combustione del legno","la fusione del ghiaccio","lo zucchero sciolto nel tè","un vetro che si rompe"],["Quale di queste è una trasformazione fisica?","l'evaporazione dell'acqua","la ruggine sul ferro","la cottura di un uovo","la combustione di un fiammifero"]],
     4:[["In una reazione chimica in un recipiente chiuso, la massa totale…","resta uguale (legge di Lavoisier)","aumenta","diminuisce","dipende dalla temperatura"],["Se un atomo perde un elettrone diventa…","uno ione positivo","uno ione negativo","un atomo di un altro elemento","un isotopo"],["Due atomi con lo stesso numero di protoni ma diverso numero di neutroni sono…","isotopi dello stesso elemento","elementi diversi","ioni","molecole"]]
   }},
-  {k:'energia', g:'sci', n:'Energia ed elettricità', gen:l=>{
+  {k:'energia', g:'sci', n:'Energia ed elettricità', gen:l=>{ if(l===5) return L5.energia();
     if(l===1){ const t = rnd(0,2);
       if(t===0){ const ren = ['solare','eolica','idroelettrica','geotermica'], non = ['petrolio','carbone','gas naturale','uranio']; return Math.random()<0.5 ? txtQ('Quale di queste fonti di energia è rinnovabile?', pick(ren), non) : txtQ('Quale di queste fonti di energia NON è rinnovabile?', pick(non), ren); }
       if(t===1){ const TR = [['una pila','chimica → elettrica'],['un pannello fotovoltaico','luminosa → elettrica'],['un ventilatore','elettrica → di movimento'],['una stufa elettrica','elettrica → termica'],['la turbina di una diga','di movimento → elettrica']]; const [n,a] = pick(TR); return txtQ(`Quale trasformazione di energia avviene in ${n}?`, a, TR.map(x=>x[1])); }
@@ -700,7 +709,7 @@ const CATS = [
     3:[["Quale consuma più energia?","una lampada da 100 W accesa 10 ore","un forno da 2000 W acceso 20 minuti","un asciugacapelli da 1000 W acceso 30 minuti","un caricabatterie da 10 W acceso 24 ore"],["Una lampadina a LED scalda meno di una a incandescenza perché…","trasforma in luce una parte maggiore dell'energia","consuma più corrente","è più piccola","funziona a pile"]],
     4:[["Una palla cade da ferma senza attriti. A metà altezza la sua energia cinetica è…","la metà dell'energia potenziale iniziale","zero","tutta l'energia iniziale","il doppio di quella potenziale"],["Nessuna macchina ha un rendimento del 100% perché…","parte dell'energia si disperde, soprattutto come calore","l'energia si distrugge","le macchine sono vecchie","l'energia elettrica è instabile"],["Due lampadine uguali in parallelo, rispetto a una sola, fanno passare dalla pila…","il doppio della corrente","metà della corrente","la stessa corrente","nessuna corrente"]]
   }},
-  {k:'viventi', g:'sci', n:'Viventi e corpo umano', gen:l=>{
+  {k:'viventi', g:'sci', n:'Viventi e corpo umano', gen:l=>{ if(l===5) return L5.viventi();
     if(l===1){
       if(Math.random()<0.6){ const V = [['ha le piume e depone uova','uccello'],['respira con le branchie e ha le pinne','pesce'],['allatta i piccoli','mammifero'],['ha la pelle coperta di squame e depone uova sulla terraferma','rettile'],['nasce in acqua con le branchie e da adulto vive anche sulla terraferma','anfibio']]; const [q,a] = pick(V); return txtQ(`Un vertebrato che ${q} è un…`, a, V.map(v=>v[1])); }
       return txtQ('Quale di questi animali è un invertebrato?', pick(['lombrico','farfalla','polpo','ragno','lumaca']), ['gatto','rana','trota','lucertola','aquila']); }
@@ -727,7 +736,7 @@ const CATS = [
     3:[["Durante una corsa il cuore batte più veloce perché…","i muscoli hanno bisogno di più ossigeno","il sangue diventa più denso","i polmoni si riempiono d'acqua","lo stomaco lavora di più"],["Una pianta tenuta al buio per molti giorni…","non riesce a fare la fotosintesi e deperisce","cresce di più","produce più ossigeno","si trasforma in fungo"],["Nei polmoni il sangue…","prende ossigeno e lascia anidride carbonica","prende anidride carbonica e lascia ossigeno","prende cibo","si ferma"]],
     4:[["Due genitori con occhi castani hanno un figlio con occhi azzurri (carattere recessivo). I genitori sono…","entrambi eterozigoti (Aa)","entrambi omozigoti dominanti (AA)","uno AA e uno aa","non è possibile"],["Gli antibiotici non servono contro l'influenza perché…","l'influenza è causata da un virus","l'influenza è causata da batteri resistenti","agiscono solo sui funghi","servono solo per le ferite"],["Nelle piramidi alimentari i livelli alti hanno pochi individui perché…","a ogni passaggio si perde gran parte dell'energia","i predatori sono più grandi","mangiano meno","vivono più a lungo"]]
   }},
-  {k:'terra', g:'sci', n:'Terra e Universo', gen:l=>{
+  {k:'terra', g:'sci', n:'Terra e Universo', gen:l=>{ if(l===5) return L5.terra();
     const PL = ['Mercurio','Venere','Terra','Marte','Giove','Saturno','Urano','Nettuno'];
     if(l===1){ if(Math.random()<0.6){ const i = rnd(0,7); return txtQ(`Qual è il ${['primo','secondo','terzo','quarto','quinto','sesto','settimo','ottavo'][i]} pianeta in ordine di distanza dal Sole?`, PL[i], PL); }
       return pick([()=>txtQ('Qual è il pianeta più grande del Sistema solare?', 'Giove', PL), ()=>txtQ('Qual è la stella più vicina alla Terra?', 'il Sole', ['la Luna','Sirio','la Stella polare','Marte']), ()=>txtQ('Qual è l\'unico satellite naturale della Terra?', 'la Luna', ['il Sole','Marte','Venere','Phobos'])])(); }
@@ -759,10 +768,113 @@ const SOLID_NAMES = ['cubo','cono','cilindro','sfera','piramide','prisma','paral
 const solidiBase = CATS.find(c=>c.k==='solidi').gen;
 CATS.find(c=>c.k==='solidi').gen = l=>{ if(l===1 && Math.random() < 0.3){ const [q,a] = pick(SOLID_WHO); return txtQ(q, a, SOLID_NAMES); } return solidiBase(l); };
 
-const LV = ['', 'Base', 'Medio', 'Avanzato', 'Esperto'];
+/* ---------- livello 5 "Campione": un gradino sopra l'esperto (più passaggi, trabocchetti, formule inverse combinate) ---------- */
+const hhmm = (H, min) => { const h = H + Math.floor(min/60), m = ((min % 60) + 60) % 60; return `alle ${h}:${String(m).padStart(2,'0')}`; };
+const L5 = {
+  calc:()=>{ const t = rnd(0,2);
+    if(t===0){ const a = rnd(10,40), b = rnd(2,6), c = rnd(8,15), d = rnd(2,7), r = a - b*(c-d); return X(numQ(`${a} − ${b} · (${c} − ${d})`, r, [(a-b)*(c-d), a - b*c - d, r + 2*b, -r]), `prima la parentesi: ${c-d}; poi ${b} · ${c-d} = ${b*(c-d)}; infine ${a} − ${b*(c-d)} = ${N(r)}`); }
+    if(t===1){ const x = pick([0.4,0.3,0.2,0.6,0.5,0.8]), y = pick([0.3,0.2,0.7,0.4,0.9]); return X(numQ(`${N(x)} · ${N(y)}`, x*y, [x*y*10, x*y/10, x+y]), `${N(x*10)} · ${N(y*10)} = ${N(x*y*100)}; i decimali sono due: ${N(x*y)}`); }
+    const a = rnd(1,5), b = rnd(6,10), c = rnd(1,4), d = rnd(5,9), r = (a-b)*(c-d); return X(numQ(`(${a} − ${b}) · (${c} − ${d})`, r, [-r, (a-b)+(c-d), r+1]), `(${N(a-b)}) · (${N(c-d)}) = ${r}: meno per meno fa più`);
+  },
+  pot:()=>{ const t = rnd(0,2);
+    if(t===0){ const b = rnd(2,3), m = rnd(3,5), n = rnd(2,4), k = rnd(2, m+n-2), e = m+n-k; return X(numQ(`${sup(b,m)} · ${sup(b,n)} : ${sup(b,k)}`, b**e, [b**(e-1), b**(e+1), b**(m*n-k)]), `esponenti: ${m} + ${n} − ${k} = ${e} → ${sup(b,e)} = ${b**e}`); }
+    if(t===1){ const [x,y,r] = pick([[2,8,4],[3,12,6],[5,20,10],[2,18,6],[3,27,9],[2,32,8]]); return X(numQ(`√${x} · √${y}`, r, [r2(Math.sqrt(x+y)), r+1, r*2]), `√${x} · √${y} = √${x*y} = ${r}`); }
+    const k = rnd(2,4), j = rnd(2, Math.floor(9/k)), e = rnd(2,5), f = rnd(2,4); return X(txtQ(`(${k} · ${sup(10,e)}) · (${j} · ${sup(10,f)})`, `${k*j} · ${sup(10,e+f)}`, [`${k*j} · ${sup(10,e*f)}`, `${k+j} · ${sup(10,e+f)}`, `${k*j} · ${sup(100,e+f)}`]), `${k} · ${j} = ${k*j}; ${sup(10,e)} · ${sup(10,f)} = ${sup(10,e+f)}`);
+  },
+  fraz:()=>{ const t = rnd(0,2);
+    if(t===0){ const [a,b,c,d] = pick([[3,4,1,2],[2,3,4,9],[5,6,5,12],[3,5,9,10],[4,7,2,7],[7,8,7,4]]), n = a*d, m = b*c, g = gcd(n,m), pn = a*c, pd = b*d, pg = gcd(pn,pd);
+      return X(txtQ(`${frac(a,b)} : ${frac(c,d)}`, frac(n/g, m/g), [frac(pn/pg, pd/pg), frac(m/g, n/g), frac(n/g*10, m/g)]), `si moltiplica per l'inverso: ${frac(a,b)} · ${frac(d,c)} = ${frac(n,m)} = ${frac(n/g,m/g)}`); }
+    if(t===1){ const [p1,p2] = pick([[40,50],[80,100],[50,60],[20,25],[200,250],[60,75]]), pc = (p2-p1)/p1*100; return X(numQ(`Un prezzo passa da ${p1} € a ${p2} €. Di quanto per cento è aumentato?`, pc, [(p2-p1)/p2*100, p2-p1, pc/2]), `aumento di ${p2-p1} € su ${p1} €: ${p2-p1} : ${p1} = ${N(pc/100)} → ${N(pc)}%`); }
+    const x = pick([10,20,25,50]), p = pick([100,200,400,80]), r = p*(1+x/100)*(1-x/100); return X(numQ(`Un prezzo di ${p} € aumenta del ${x}% e poi diminuisce del ${x}%. Quanto costa alla fine (€)?`, r, [p, p*(1 - x/100), p - x]), `${p} · ${N(1+x/100)} · ${N(1-x/100)} = ${N(r)} €: meno di prima`);
+  },
+  equiv:()=>{ const t = rnd(0,2);
+    if(t===0){ const a = rnd(2,9), b = rnd(5,95); return X(numQ(`${a} m² + ${b} dm² = ? cm²`, a*10000 + b*100, [a*10000 + b*10, a*1000 + b*100, a*10000 + b]), `${a} m² = ${N(a*10000)} cm²; ${b} dm² = ${N(b*100)} cm²`); }
+    if(t===1){ const v = pick([0.25,0.5,1.2,0.08,2.5,0.035]); return X(numQ(`${N(v)} m³ = ? L`, v*1000, [v*100, v*10]), `1 m³ = 1000 dm³ = 1000 L`); }
+    const h1 = rnd(2,5), m1 = pick([5,10,15,20]), h2 = rnd(0,h1-1), m2 = pick([30,40,45,50]), d = (h1*60+m1) - (h2*60+m2);
+    return X(numQ(`${h1} h ${m1} min − ${h2} h ${m2} min = ? min`, d, [(h1-h2)*100 + m1 - m2, d+60, d-10]), `${h1*60+m1} min − ${h2*60+m2} min = ${d} min (un'ora vale 60 minuti, non 100)`);
+  },
+  solidi:()=>{ const t = rnd(0,2);
+    if(t===0){ const s = rnd(2,6); return X(numQ(`Un cubo ha area totale ${6*s*s} cm². Qual è il suo volume (cm³)?`, s**3, [(s+1)**3, (s-1)**3, s*s*4]), `una faccia = ${6*s*s} : 6 = ${s*s} cm² → spigolo ${s} cm → V = ${s**3} cm³`); }
+    if(t===1){ const [a,b,c,d] = pick([[1,2,2,3],[2,3,6,7],[1,4,8,9],[2,6,9,11],[4,4,7,9]]); return X(numQ(`Qual è la diagonale di un parallelepipedo di ${a} × ${b} × ${c} cm (cm)?`, d, [d+1, r2(Math.sqrt(a*a+b*b)), a+b+c]), `d = √(${a}² + ${b}² + ${c}²) = √${d*d} = ${d} cm`); }
+    const r = rnd(3,6), h = rnd(3,9); return X(txtQ(`Area laterale di un cilindro con r = ${r} cm e h = ${h} cm`, `${2*r*h}π cm²`, [`${r*h}π cm²`, `${r*r*h}π cm²`, `${2*r*h*10}π cm²`]), `A = 2 · π · r · h = 2 · π · ${r} · ${h} = ${2*r*h}π cm²`);
+  },
+  equaz:()=>{ const t = rnd(0,2);
+    if(t===0){ const a = rnd(3,6), c = rnd(1,a-1), b = rnd(1,5), d = rnd(1,5), x = rnd(-4,8), e = a*(x-b) - c*(x+d); return X(numQ(`${a}(x − ${b}) − ${c}(x + ${d}) = ${N(e)}`, x, [(e + a*b - c*d)/(a-c), -x, x+1]), `${a}x − ${a*b} − ${c}x − ${c*d} = ${N(e)} → ${a-c}x = ${N(e + a*b + c*d)} → x = ${x}`); }
+    if(t===1){ const [a,b] = pick([[2,3],[3,6],[2,6],[4,4],[2,4],[3,4]]), L = a*b/gcd(a,b), x = L*rnd(1,4), c = x/a + x/b; return X(numQ(`${frac('x',a)} + ${frac('x',b)} = ${c}`, x, [x+L, x-L, c*a*b]), `con denominatore ${L}: ${L/a}x + ${L/b}x = ${c*L} → ${L/a + L/b}x = ${c*L} → x = ${x}`); }
+    const n = pick([20,40,60,80,120,200]), p = pick([25,50,20,10]), v = n*(1+p/100); return X(numQ(`Un numero, aumentato del ${p}%, diventa ${N(v)}. Qual è il numero?`, n, [v*(1-p/100), v - p, n + p]), `x · ${N(1+p/100)} = ${N(v)} → x = ${N(v)} : ${N(1+p/100)} = ${n}`);
+  },
+  moto:()=>{ const t = rnd(0,2);
+    if(t===0){ let s1, m1, s2, m2, v, g = 0; do{ m1 = pick([10,15,20,30]); m2 = pick([10,20,30,40]); s1 = rnd(3,20); s2 = rnd(3,20); v = (s1+s2)/((m1+m2)/60); }while(g++ < 300 && (!Number.isInteger(v) || v > 150 || s1*m2 === s2*m1));
+      return X(numQ(`Un'auto percorre ${s1} km in ${m1} minuti e poi ${s2} km in ${m2} minuti. Qual è la sua velocità media (km/h)?`, v, [Math.round((s1/m1 + s2/m2)*30), s1+s2, v+10]), `${s1+s2} km in ${m1+m2} min = ${N((m1+m2)/60)} h → ${s1+s2} : ${N((m1+m2)/60)} = ${N(v)} km/h`); }
+    if(t===1){ const v = pick([20,25,30,40]), L = pick([100,200,300]), T = pick([500,800,1000,1200]), tt = (L+T)/v; if(!Number.isInteger(tt)) return null;
+      return X(numQ(`Un treno lungo ${L} m va a ${v} m/s ed entra in una galleria lunga ${T} m. Quanti secondi passano da quando entra la locomotiva a quando esce l'ultimo vagone?`, tt, [T/v, (T-L)/v, tt+10]), `deve percorrere galleria + treno: ${T} + ${L} = ${T+L} m; ${T+L} : ${v} = ${tt} s`); }
+    const d = pick([150,200,240,300]), v1 = pick([60,80]), v2 = pick([40,60,90,100]), mins = (d - v1)/(v1+v2)*60; if(!Number.isInteger(mins) || mins <= 0) return null;
+    return X(txtQ(`Alle 9:00 un'auto parte da A verso B a ${v1} km/h. Alle 10:00 un'altra parte da B verso A a ${v2} km/h. A e B distano ${d} km. A che ora si incontrano?`, hhmm(10, mins), [hhmm(10, Math.round(d/(v1+v2)*12)*5), hhmm(9, mins), hhmm(15, mins)]), `alle 10 la prima ha già fatto ${v1} km; restano ${d-v1} km, che si accorciano di ${v1+v2} km ogni ora: ${mins} minuti dopo le 10`);
+  },
+  dens:()=>{ const t = rnd(0,2);
+    if(t===0){ const s = pick([5,10,20]), m = 0.4*s**3; return X(numQ(`Un cubo di legno (d = 0,6 g/cm³) con lo spigolo di ${s} cm galleggia in acqua. Quanti grammi di zavorra servono perché vada tutto appena sott'acqua?`, m, [0.6*s**3, s**3, 0.4*s*s]), `tutto immerso sposta ${N(s**3)} g d'acqua; il legno pesa ${N(0.6*s**3)} g → mancano ${N(m)} g`); }
+    if(t===1){ const d = pick([2.5,2.7,7.9,11.3,0.8]), V = pick([20,40,50]), m = d*V; return X(numQ(`Un oggetto di ${N(m)} g, immerso in acqua, sposta ${V} mL. Qual è la sua densità in kg/m³?`, d*1000, [d*100, d*10000, r2(V/m*1000)]), `d = ${N(m)} : ${V} = ${N(d)} g/cm³ = ${N(d*1000)} kg/m³`); }
+    const [n,d,w,dw] = pick([['ghiaccio',0.92,'dolce',1],['ghiaccio',0.92,'di mare',1.03],['legno',0.6,'di mare',1.03],['legno',0.75,'dolce',1],['sughero',0.25,'dolce',1]]), sub = Math.round(100*d/dw);
+    return X(numQ(`Un blocco di ${n} (d = ${N(d)} g/cm³) galleggia in acqua ${w} (d = ${N(dw)} g/cm³). Che percentuale del blocco resta FUORI dall'acqua (arrotonda all'unità)?`, 100 - sub, [sub, 100 - sub + 5, 100 - sub - 3]), `immerso: ${N(d)} : ${N(dw)} ≈ ${sub}% → fuori ≈ ${100-sub}%`);
+  },
+  forze:()=>{ const t = rnd(0,2);
+    if(t===0){ let F1, b1, F2, b2, b3, F3; do{ F1 = pick([10,20,30]); b1 = pick([10,20,30]); F2 = pick([10,20,40]); b2 = pick([20,40,50]); b3 = pick([20,25,40,50,100]); F3 = (F1*b1 + F2*b2)/b3; }while(!Number.isInteger(F3) || b1===b2);
+      return X(numQ(`Leva in equilibrio: da un lato ci sono ${F1} N a ${b1} cm e ${F2} N a ${b2} cm dal fulcro. Che forza serve dall'altro lato, a ${b3} cm dal fulcro (N)?`, F3, [F1+F2, Math.round((F1+F2)*b2/b3), F3+10]), `${F1} · ${b1} + ${F2} · ${b2} = ${F1*b1+F2*b2} → F = ${F1*b1+F2*b2} : ${b3} = ${F3} N`); }
+    if(t===1){ const [n,d] = pick([['ferro',7900],['alluminio',2700],['rame',8900]]), s = pick([0.1,0.2,0.5]), p = d*10*s; return X(numQ(`Un cubo pieno di ${n} (d = ${N(d)} kg/m³) con lo spigolo di ${N(s*100)} cm è appoggiato su un tavolo. Che pressione esercita (Pa)? (g = 10 N/kg)`, p, [d*10*s*s, d*s, d*10*s**3]), `peso = d · g · s³, superficie = s² → p = d · g · s = ${N(d)} · 10 · ${N(s)} = ${N(p)} Pa`); }
+    const S1 = pick([2,4,5,10]), F1 = pick([50,100,200]), S2 = pick([100,200,500]), F2 = F1*S2/S1; return X(numQ(`Torchio idraulico: sul pistone piccolo (${S1} cm²) si spinge con ${F1} N. Che forza si ottiene sul pistone grande (${S2} cm²) (N)?`, F2, [F1*S1/S2, F2/2, F1 + S2]), `stessa pressione su tutti e due: ${F1} : ${S1} = F : ${S2} → F = ${N(F2)} N`);
+  },
+  calore:()=>{ const t = rnd(0,2);
+    if(t===0){ let m1, t1, m2, t2, tf; do{ m1 = pick([100,200,300]); t1 = pick([10,20,30]); m2 = pick([100,200,300]); tf = pick([30,40,50]); t2 = (tf*(m1+m2) - m1*t1)/m2; }while(!Number.isInteger(t2) || t2 <= tf || t2 > 100 || m1===m2);
+      return X(numQ(`Mescoli ${m1} g d'acqua a ${t1} °C con ${m2} g d'acqua più calda e ottieni ${tf} °C. A che temperatura era l'acqua calda (°C)?`, t2, [2*tf - t1, t2+10, t2-10]), `calore ceduto = calore ricevuto: ${m2} · (T − ${tf}) = ${m1} · (${tf} − ${t1}) → T = ${t2} °C`); }
+    if(t===1){ const m = pick([10,20,50,100,200]); return X(numQ(`Quanti joule servono per fondere ${m} g di ghiaccio che è già a 0 °C? (servono 334 J per ogni grammo)`, 334*m, [334*m/10, 4.2*m*10, 334+m]), `Q = ${m} · 334 = ${N(334*m)} J; durante la fusione la temperatura resta 0 °C`); }
+    const m = pick([10,50,100]), T = pick([10,20,50]), Q = 334*m + 4.2*m*T; return X(numQ(`Quanti joule servono per trasformare ${m} g di ghiaccio a 0 °C in acqua a ${T} °C? (fusione: 334 J/g; acqua: 4,2 J/(g·°C))`, Q, [334*m, 334*m + 4.2*T, 4.2*m*T]), `fusione ${N(334*m)} J + riscaldamento ${N(4.2*m*T)} J = ${N(Q)} J`);
+  },
+  materia:()=>{
+    if(Math.random() < 0.5){ const [r,el,n] = pick([['2 H₂ + O₂ → 2 H₂O','idrogeno',4],['CH₄ + 2 O₂ → CO₂ + 2 H₂O','ossigeno',4],['N₂ + 3 H₂ → 2 NH₃','idrogeno',6],['2 Na + Cl₂ → 2 NaCl','cloro',2],['C₃H₈ + 5 O₂ → 3 CO₂ + 4 H₂O','ossigeno',10],['2 Mg + O₂ → 2 MgO','magnesio',2]]);
+      return X(numQ(`Nella reazione ${r}, quanti atomi di ${el} ci sono tra i reagenti (a sinistra della freccia)?`, n, [n/2, n*2, n+1]), `coefficiente × numeretto; per la legge di Lavoisier sono tanti quanti a destra`); }
+    const [n,Z,A] = pick([['cloro',17,37],['carbonio',6,14],['uranio',92,235],['idrogeno',1,3],['ossigeno',8,18],['ferro',26,58]]); return X(numQ(`L'isotopo ${n}-${A} ha numero atomico ${Z}. Quanti neutroni ha?`, A-Z, [A-Z-2, A-Z+1, A+Z]), `neutroni = numero di massa − numero atomico = ${A} − ${Z} = ${A-Z}`);
+  },
+  energia:()=>{ const t = rnd(0,2);
+    if(t===0){ const V = pick([12,24,6]), [R1,R2] = pick([[2,3],[3,6],[4,12],[6,12],[4,6]]), I = V/R1 + V/R2; if(!Number.isInteger(I*2)) return null;
+      return X(numQ(`Due resistenze da ${R1} Ω e ${R2} Ω sono collegate in parallelo a ${V} V. Quanta corrente esce in tutto dalla pila (A)?`, I, [V/R1, V/R2, V/(R1+R2)]), `ogni ramo ha ${V} V: ${V} : ${R1} + ${V} : ${R2} = ${N(V/R1)} + ${N(V/R2)} = ${N(I)} A`); }
+    if(t===1){ const E = pick([1000,2000,500]), f = pick([0.2,0.25,0.4,0.8]), U = E*f; return X(numQ(`Un motore riceve ${N(E)} J di energia elettrica e ne trasforma ${N(U)} J in movimento. Qual è il suo rendimento (%)?`, f*100, [100 - f*100, f*100 + 10, E/U*100]), `${N(U)} : ${N(E)} = ${N(f)} → ${N(f*100)}%; il resto si disperde come calore`); }
+    const [h,v] = pick([[5,10],[20,20],[45,30],[80,40],[1.25,5]]); return X(numQ(`Un sasso cade da ${N(h)} m senza attriti. Con che velocità arriva a terra (m/s)? (v = √(2 · g · h), g = 10 m/s²)`, v, [r2(Math.sqrt(10*h)), v*2, 20*h]), `v = √(2 · 10 · ${N(h)}) = √${N(20*h)} = ${v} m/s`);
+  },
+  viventi:()=>{ const t = rnd(0,2);
+    if(t===0){ const n = pick([8,12,20,40,100]), [c,w,f] = pick([['Aa × Aa','aa (carattere recessivo)',0.25],['Aa × aa','aa (carattere recessivo)',0.5],['Aa × Aa','con il carattere dominante',0.75]]);
+      return X(numQ(`Incrocio ${c} (A dominante). Su ${n} figli, quanti ci si aspetta in media ${w}?`, n*f, [n*(1-f), n*f === n/2 ? n/4 : n/2, n*f+1]), `probabilità ${N(f*100)}% di ${n} = ${N(n*f)}`); }
+    if(t===1){ const b = pick([60,70,75,80]), ml = pick([60,70,80]); return X(numQ(`Il cuore batte ${b} volte al minuto e a ogni battito pompa ${ml} mL di sangue. Quanti litri pompa in un minuto?`, b*ml/1000, [b*ml/100, (b+ml)/10, b*ml/10000]), `${b} · ${ml} = ${N(b*ml)} mL = ${N(b*ml/1000)} L`); }
+    const E = pick([100000,200000,500000]); return X(numQ(`I produttori di un ecosistema hanno ${N(E)} kJ di energia. Quanta ne arriva ai consumatori terziari (regola del 10%) (kJ)?`, E/1000, [E/100, E/10000, E*0.3]), `a ogni passaggio resta il 10%: ${N(E)} → ${N(E/10)} → ${N(E/100)} → ${N(E/1000)} kJ`);
+  },
+  terra:()=>{ const t = rnd(0,2);
+    if(t===0){ const d = pick([54,90,180,270]), m = d*1e6/300000/60; return X(numQ(`Marte, in un certo periodo, dista ${d} milioni di km dalla Terra. Quanti minuti impiega un segnale radio (viaggia alla velocità della luce, 300.000 km/s) per arrivare?`, m, [m*60]), `${N(d*1e6)} : 300.000 = ${N(m*60)} s = ${N(m)} min`); }
+    if(t===1){ const k = pick([25000,50000,100000,200000]), km = pick([2,3,5,10]), cm = km*100000/k; return X(numQ(`Su una carta in scala 1 : ${N(k)}, quanti centimetri separano due paesi che nella realtà distano ${km} km?`, cm, [cm*10, cm/10, km*k/1000]), `${km} km = ${N(km*100000)} cm; ${N(km*100000)} : ${N(k)} = ${N(cm)} cm`); }
+    const [c,o] = pick([['Tokyo',9],['Pechino',8],['Sydney',10],['Dubai',4]]), h = rnd(18,23), H = h + o - 1, day = H >= 24;
+    return X(txtQ(`A Roma (UTC+1) è lunedì, ore ${h}. Che giorno e che ora è a ${c} (UTC+${o})?`, `${day ? 'martedì' : 'lunedì'}, ore ${H % 24}`, [`${day ? 'lunedì' : 'martedì'}, ore ${H % 24}`, `${day ? 'martedì' : 'lunedì'}, ore ${(h + o) % 24}`, `domenica, ore ${(h - o + 25) % 24}`]), `differenza +${o-1} ore: ${h} + ${o-1} = ${H}${day ? ` → ore ${H % 24} del giorno dopo` : ''}`);
+  }
+};
+const CP5 = {
+  calc:[["Quanto fa 0,1 · 0,1?","0,01","0,1","0,001","1"],["Se a e b sono entrambi negativi, il numero a · b − a è…","sempre positivo","sempre negativo","sempre zero","dipende solo da b"]],
+  pot:[["Quale numero è più grande?","2¹⁰","10³","3⁶","sono tutti uguali"],["10⁻² è uguale a…","0,01","0,1","−20","−100"]],
+  fraz:[["Il 50% del 50% di un numero è il…","25% del numero","50% del numero","100% del numero","2500% del numero"],["Quale di queste frazioni è più vicina a 1?",frac(7,8),frac(5,6),frac(3,4),frac(2,3)]],
+  equiv:[["Un cubo di 1 m di spigolo pieno d'acqua contiene…","1000 litri","100 litri","10 000 litri","1 000 000 di litri"],["1 km² quanti ettari sono?","100","1000","10","10 000"]],
+  solidi:[["Se dimezzi il raggio di un cilindro e lasci uguale l'altezza, il volume…","diventa un quarto","si dimezza","diventa un ottavo","resta uguale"],["Quante facce ha un prisma con 12 vertici?","8","6","12","18"]],
+  equaz:[["L'equazione 2(x + 3) = 2x + 6…","è vera per qualsiasi x","ha soluzione x = 0","ha soluzione x = 3","non ha soluzioni"],["L'equazione 2(x + 3) = 2x + 5…","non ha soluzioni (impossibile)","ha soluzione x = −1","è vera per qualsiasi x","ha soluzione x = 1"]],
+  moto:[["Un'auto va a 90 km/h, un'altra a 25 m/s. Quale è più veloce?","vanno alla stessa velocità","quella a 90 km/h","quella a 25 m/s","non si possono confrontare"],["Se la velocità raddoppia, lo spazio di frenata…","diventa circa 4 volte","raddoppia","resta uguale","si dimezza"]],
+  dens:[["Un cubetto di ghiaccio si scioglie in un bicchiere pieno d'acqua fino all'orlo. L'acqua…","non trabocca: il livello resta uguale","trabocca un po'","scende un po'","trabocca molto"],["Una nave passa dal mare a un fiume (acqua dolce). La nave…","affonda un po' di più","sale un po'","resta uguale","va a fondo"]],
+  forze:[["Una scatola sta ferma su una rampa senza scivolare. Che cosa la tiene ferma?","l'attrito con la rampa","il suo peso","la pressione dell'aria","nessuna forza"],["Sulla Stazione spaziale gli astronauti galleggiano perché…","cadono continuamente verso la Terra insieme alla Stazione","lassù non c'è gravità","sono più leggeri della Stazione","l'aria li sostiene"]],
+  calore:[["Mentre il ghiaccio fonde a 0 °C, il calore fornito serve a…","staccare le particelle, senza alzare la temperatura","alzare la temperatura","raffreddare l'ambiente","produrre vapore"],["Una pentola d'acqua bolle a fuoco alto e un'altra a fuoco basso. La temperatura dell'acqua…","è la stessa, circa 100 °C","è più alta nella prima","è più alta nella seconda","dipende dal materiale della pentola"]],
+  materia:[["In una reazione chimica gli atomi…","si riorganizzano in nuove sostanze, senza crearsi né distruggersi","spariscono","diventano atomi di altri elementi","aumentano di numero"],["Carbonio-12 e carbonio-14 hanno un diverso numero di…","neutroni","protoni","elettroni","nuclei"]],
+  energia:[["Aggiungendo in serie un'altra lampadina uguale, la corrente nel circuito…","diminuisce","aumenta","resta uguale","si annulla"],["Aggiungendo in parallelo un'altra lampadina uguale, la corrente che esce dalla pila…","aumenta","diminuisce","resta uguale","si annulla"]],
+  viventi:[["Il sangue ricco di ossigeno torna dai polmoni al cuore attraverso…","le vene polmonari","l'aorta","le vene cave","l'arteria polmonare"],["Un genitore AA e uno aa hanno figli tutti Aa. Se due di questi figli hanno un bambino, che probabilità c'è che sia aa?","25%","50%","0%","100%"]],
+  terra:[["Se l'asse terrestre non fosse inclinato…","non ci sarebbero le stagioni","non ci sarebbero il giorno e la notte","l'anno durerebbe di più","non ci sarebbero le maree"],["Stando all'equatore, la Stella polare si vede…","bassissima, sull'orizzonte","proprio sopra la testa","a metà cielo","sempre, anche di giorno"]]
+};
+CATS.forEach(c=>{ if(CP5[c.k]) c.cp[5] = CP5[c.k]; });
+
+const LV = ['', 'Base', 'Medio', 'Avanzato', 'Esperto', 'Campione'];
 function ragOf(c, l){
   if(c.rc && Math.random() < 0.5){ const r = c.rc(l); if(r) return r; }
-  return con(c.cp[l] || c.cp[3]);
+  return con(c.cp[l] || c.cp[4] || c.cp[3]);
 }
 /* genera una domanda valida (4 risposte diverse, quella giusta presente) */
 function genQ(c, l){
@@ -776,15 +888,16 @@ function genQ(c, l){
 
 /* ---------- impostazioni ---------- */
 const SCI = CATS.filter(c=>c.g==='sci').map(c=>c.k);
-const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3], bonus:false, time:20, speedT:8, rafT:90, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
 try{
   const s = JSON.parse(localStorage.getItem('duello-prefs')||'{}');
   if(Array.isArray(s.cats) && s.cats.includes('scienze')) s.cats = s.cats.filter(k=>k!=='scienze').concat(SCI);   // vecchio argomento unico "Scienze"
   Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; });
 }catch(e){}
 P.cats = (Array.isArray(P.cats) ? P.cats : []).filter(k=>CATS.some(c=>c.k===k));
-if(!Array.isArray(P.mix) || P.mix.length!==3 || P.mix.some(v=>!Number.isInteger(v) || v < 0 || v > 12)) P.mix = [4,6,3];
-if(![1,2,3].includes(P.lvl)) P.lvl = 1;
+if(Array.isArray(P.mix) && P.mix.length===3) P.mix = P.mix.concat([0,0]);
+if(!Array.isArray(P.mix) || P.mix.length!==5 || P.mix.some(v=>!Number.isInteger(v) || v < 0 || v > 12)) P.mix = [4,6,3,0,0];
+if(![1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
 const save = ()=>{ try{ localStorage.setItem('duello-prefs', JSON.stringify(P)); }catch(e){} };
 function seg(id, key, items){
   const box = $(id);
@@ -792,7 +905,7 @@ function seg(id, key, items){
   box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
 }
 const isRaf = ()=> P.sfida==='veloce' && P.screen==='touch';
-const mixTot = ()=> P.mix[0] + P.mix[1] + P.mix[2];
+const mixTot = ()=> P.mix.reduce((s,v)=>s+v, 0);
 const RULES = {
   touch:'Multitouch: le due squadre rispondono <b>insieme</b>, ognuna nella sua metà dello schermo; vince il punto chi tocca per primo la risposta giusta. Una risposta sbagliata blocca la squadra per 2 secondi. Le risposte sono in ordine diverso nelle due metà, così non si copia.',
   raffica:'Velocità (raffica): ogni squadra ha <b>le sue domande</b>, una dopo l\'altra, finché non scade il tempo. Ogni risposta giusta vale 1 punto; una sbagliata blocca la squadra per 1,5 secondi. Vince chi ne indovina di più.',
@@ -806,12 +919,12 @@ const SFIDA_NOTE = {
 };
 const DIFF_NOTE = {
   fissa:'',
-  cresc:'Difficoltà crescente: si parte dal livello base, poi medio, poi avanzato.',
-  mix:'Su misura: le domande arrivano in ordine, prima le base, poi le medie, poi le avanzate.'
+  cresc:'Difficoltà crescente: si parte dal livello base e si sale fino al livello campione.',
+  mix:'Su misura: le domande arrivano in ordine di difficoltà, dalle più facili alle più difficili.'
 };
 const DIFFS = [['fissa','Fissa'],['cresc','Crescente'],['mix','Su misura']];
 function renderMix(){
-  $('#mix').innerHTML = ['Base','Medio','Avanzato'].map((n,i)=>`<div class="step"><b>${n}</b><button data-i="${i}" data-d="-1" aria-label="Una domanda di livello ${n} in meno">−</button><output>${P.mix[i]}</output><button data-i="${i}" data-d="1" aria-label="Una domanda di livello ${n} in più">+</button></div>`).join('') + `<span class="tot">Totale: ${mixTot()}${P.bonus ? ' + bonus' : ''}</span>`;
+  $('#mix').innerHTML = ['Base','Medio','Avanzato','Esperto','Campione'].map((n,i)=>`<div class="step"><b>${n}</b><button data-i="${i}" data-d="-1" aria-label="Una domanda di livello ${n} in meno">−</button><output>${P.mix[i]}</output><button data-i="${i}" data-d="1" aria-label="Una domanda di livello ${n} in più">+</button></div>`).join('') + `<span class="tot">Totale: ${mixTot()}${P.bonus ? ' + bonus' : ''}</span>`;
   $('#mix').querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const i = +b.dataset.i; P.mix[i] = Math.max(0, Math.min(12, P.mix[i] + (+b.dataset.d))); save(); renderMix(); });
 }
 function syncSetup(){
@@ -830,7 +943,7 @@ function syncSetup(){
   const parts = [raf ? RULES.raffica : (lim ? RULES[P.limMode] : RULES.touch)];
   if(SFIDA_NOTE[P.sfida] && !raf) parts.push(SFIDA_NOTE[P.sfida]);
   if(DIFF_NOTE[P.diff]) parts.push(raf && P.diff==='cresc' ? 'Difficoltà crescente: ogni 4 risposte giuste la squadra passa al livello successivo.' : DIFF_NOTE[P.diff]);
-  if(P.bonus && !raf) parts.push('Alla fine arriva una <b>domanda bonus</b> di livello esperto, che vale 3 punti (con il tempo raddoppiato).');
+  if(P.bonus && !raf) parts.push('Alla fine arriva una <b>domanda bonus</b> di livello campione, che vale 3 punti (con il tempo raddoppiato).');
   if(!raf) parts.push('Se il tempo finisce senza risposte giuste nessuno prende il punto.');
   parts.push('Tutto resta su questo schermo: nessun dato viene salvato o inviato.');
   $('#rules').innerHTML = parts.join(' ');
@@ -845,7 +958,7 @@ function renderSetup(){
   $('#cats').querySelectorAll('[data-all]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.all).map(c=>c.k); P.cats = [...new Set([...P.cats, ...ks])]; save(); renderSetup(); });
   $('#cats').querySelectorAll('[data-none]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.none).map(c=>c.k); P.cats = P.cats.filter(k=>!ks.includes(k)); save(); renderSetup(); });
   seg('#sfida', 'sfida', [['classica','Classica'],['veloce','Velocità'],['ragion','Ragionamento']]);
-  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato']]);
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione']]);
   seg('#num', 'num', [[10,'10'],[15,'15'],[20,'20']]);
   seg('#bonus', 'bonus', [[false,'No'],[true,'Sì, vale 3 punti']]);
   seg('#time', 'time', [[0,'Senza limite'],[15,'15 s'],[20,'20 s'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
@@ -874,8 +987,8 @@ function beep(freqs, dur){
 /* ---------- domande e visualizzazione ---------- */
 const G = {qs:[], i:0, score:[0,0], lock:[0,0], done:false, t0:0, paused:false, pauseAt:0, timerRaf:0, nextTimer:0, log:[]};
 function levelPlan(){
-  if(P.diff==='mix') return [].concat(Array(P.mix[0]).fill(1), Array(P.mix[1]).fill(2), Array(P.mix[2]).fill(3));
-  if(P.diff==='cresc') return Array.from({length:P.num}, (_,i)=>1 + Math.floor(3*i/P.num));
+  if(P.diff==='mix') return P.mix.flatMap((k,i)=>Array(k).fill(i+1));
+  if(P.diff==='cresc') return Array.from({length:P.num}, (_,i)=>1 + Math.floor(5*i/P.num));
   return Array(P.num).fill(P.lvl);
 }
 function drawQ(l, seen){
@@ -890,7 +1003,7 @@ function drawQ(l, seen){
 function makeQuestions(){
   const out = [], seen = new Set();
   levelPlan().forEach(l=>{ const q = drawQ(l, seen); if(q) out.push(q); });
-  if(P.bonus){ const q = drawQ(4, seen); if(q){ q.pts = 3; q.bonus = true; out.push(q); } }
+  if(P.bonus){ const q = drawQ(5, seen); if(q){ q.pts = 3; q.bonus = true; out.push(q); } }
   return out;
 }
 const catLabel = q => q.bonus ? `★ Domanda bonus · vale 3 punti · ${q.cat}` : `${q.cat} · ${LV[q.lvl]}`;
@@ -1016,7 +1129,7 @@ $('#stop').onclick = ()=>{ stopAll(); finish(); };
 
 /* ---------- velocità multitouch: raffica, ogni squadra con le sue domande ---------- */
 const R = {on:false, q:[null,null], seen:[null,null], busy:[false,false], t0:0, dur:0, pauseAt:0, tos:[]};
-function rafLevel(t){ return P.diff==='fissa' ? P.lvl : Math.min(3, 1 + Math.floor(G.score[t-1]/4)); }
+function rafLevel(t){ return P.diff==='fissa' ? P.lvl : Math.min(5, 1 + Math.floor(G.score[t-1]/4)); }
 function rafStart(){
   Object.assign(R, {on:true, q:[null,null], seen:[new Set(), new Set()], busy:[false,false], dur:P.rafT*1000, tos:[]});
   G.done = false; G.lock = [0,0];
