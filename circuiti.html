@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Circuiti elettrici</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; il circuito è montato su una tavoletta verde da laboratorio, con fili di rame */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8;
+  --pcb:#2E6B4F; --pcb2:#245A42; --copper:#D9822B; --copper2:#F2B25C; --tc:var(--accent);
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --pcb:#1F4A37; --pcb2:#183A2B; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --pcb:#1F4A37; --pcb2:#183A2B; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:60px;height:60px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.lvdesc{margin:0;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.45}
+.parts{display:flex;flex-wrap:wrap;gap:10px}
+.parts .o{display:flex;flex-direction:column;align-items:center;gap:2px;width:92px;font-weight:800;font-size:.8rem;color:var(--muted);text-align:center;line-height:1.15}
+.parts .o svg{width:84px;height:46px;background:var(--pcb);border-radius:10px}
+
+/* ---------- circuito ---------- */
+.task{font-weight:800;text-align:center;font-size:clamp(1rem,2.5vh,1.45rem);line-height:1.3;min-height:1.3em}
+.task b{color:var(--accent)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center}
+.circ{display:block;touch-action:none;max-width:100%;max-height:100%}
+.circ .pcb{fill:var(--pcb);stroke:var(--pcb2);stroke-width:4}
+.circ .node{fill:#C9CED6;stroke:#6B7280;stroke-width:1.5}
+.circ .wire{stroke:var(--copper);stroke-width:7;stroke-linecap:round;fill:none}
+.circ .wire2{stroke:var(--copper2);stroke-width:2.2;stroke-linecap:round;fill:none;opacity:.8}
+.circ .flow{stroke:#FFF6C2;stroke-width:2.6;stroke-dasharray:4 12;fill:none;stroke-linecap:round;animation:flow .7s linear infinite;opacity:.95}
+.circ .flow.rev{animation-direction:reverse}
+@keyframes flow{to{stroke-dashoffset:-16}}
+.circ .lead{stroke:#B8BEC8;stroke-width:4;stroke-linecap:round}
+.circ .slot{fill:rgba(255,255,255,.08);stroke:#fff;stroke-width:2.5;stroke-dasharray:7 6;opacity:.85}
+.circ .slotq{fill:#fff;font-family:var(--font-title);font-weight:800;font-size:22px;text-anchor:middle;dominant-baseline:central;opacity:.85}
+.circ .hit{fill:transparent;cursor:pointer}
+.circ .lab{fill:#fff;font-family:var(--font-title);font-weight:800;font-size:17px;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:rgba(0,0,0,.45);stroke-width:3}
+.circ .glow{fill:#FFE66B;filter:blur(7px)}
+.circ.paper .pcb{fill:#FFFFFF;stroke:#C9CED6}
+.parts .o svg.paper,.titem svg.paper,.ghost svg.paper{background:#fff}
+.circ .sline{stroke:#18223A;stroke-width:2.5;fill:none;stroke-linecap:round}
+.circ .stxt{fill:#18223A;font-family:var(--font-title);font-weight:800;font-size:17px;text-anchor:middle;dominant-baseline:central}
+.circ .stxt.small{font-size:13px}
+.circ.paper .node{fill:#18223A;stroke:none;r:3.5}
+.circ.paper .lab{fill:#6A4CD8;stroke:none}
+.circ.paper .slot{stroke:#6A4CD8;fill:rgba(106,76,216,.06)}
+.circ.paper .slotq{fill:#6A4CD8}
+.circ.paper .flow{stroke:#E8801F}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 .12em;font-size:.92em}
+.frac span:first-child{border-bottom:.09em solid currentColor;padding:0 .16em .06em}
+.frac span:last-child{padding:.06em .16em 0}
+.circ .spin{transform-box:fill-box;transform-origin:center;animation:spin .5s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.circ .wave{fill:none;stroke:#FFE66B;stroke-width:2.5;stroke-linecap:round;animation:wave .6s ease-in-out infinite alternate}
+@keyframes wave{from{opacity:.2}to{opacity:1}}
+.circ .placed .hit{cursor:grab}
+.circ .sel .slot{stroke:var(--tc);opacity:1}
+.board.armed .circ .slot{stroke:#FFE66B;opacity:1}
+.circ .over .slot{fill:rgba(255,230,107,.35)}
+.short{display:none;position:absolute;left:50%;top:6px;transform:translateX(-50%);background:var(--bad);color:#fff;font-weight:800;border-radius:999px;padding:4px 14px;z-index:4;white-space:nowrap}
+.board.isshort .short{display:block}
+.tray{display:flex;justify-content:center;align-items:center;gap:clamp(6px,1vw,14px);flex-wrap:wrap;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:6px 10px;min-height:clamp(60px,9vh,90px)}
+.tray:empty{display:none}
+.tray .lab0{font-weight:800;color:var(--muted);font-size:.85rem}
+.titem{display:flex;flex-direction:column;align-items:center;gap:0;border:3px solid var(--line);border-radius:14px;background:var(--surface-2);padding:2px 6px;touch-action:none;cursor:grab;font-weight:800;font-size:clamp(.7rem,1.5vh,.85rem);color:var(--muted);min-width:70px}
+.titem svg{width:clamp(60px,9vh,86px);height:clamp(34px,5vh,48px);background:var(--pcb);border-radius:8px}
+.titem.sel{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 14%,var(--surface))}
+.titem.empty{opacity:.35;pointer-events:none}
+.ghost{position:fixed;z-index:50;pointer-events:none;transform:translate(-50%,-50%) scale(1.1);opacity:.92}
+.ghost svg{width:96px;height:54px;background:var(--pcb);border-radius:10px;box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.ghost.flip{transform:translate(-50%,-50%) rotate(180deg) scale(1.1)}
+.aid{text-align:center;font-weight:800;font-size:clamp(.85rem,1.9vh,1.15rem);min-height:1.4em;color:var(--muted)}
+.aid .bad{color:var(--bad)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2vh,12px)}
+.opts:empty{display:none}
+.opt{border:3px solid var(--line);background:var(--surface);border-radius:16px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.1rem,3vh,1.9rem);min-height:clamp(52px,7.5vh,76px);display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 4px 0 var(--line);text-align:center;line-height:1.15}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.t1 .opt{border-color:color-mix(in srgb,var(--t1) 40%,var(--line))} .t2 .opt{border-color:color-mix(in srgb,var(--t2) 40%,var(--line))}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 40%);--tc:var(--t1)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 40%);--tc:var(--t2)}
+#game.table .half.t1{transform:rotate(180deg)}
+.board{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);flex:1;min-height:0;position:relative}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.8rem,6vh,4rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 26px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;max-width:92%}
+.banner small{display:block;font-family:var(--font-body);font-size:.4em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.35}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:36vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(150px,16vw,250px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.msg{text-align:center;font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+#lim.turn1{--tc:var(--t1)} #lim.turn2{--tc:var(--t2)}
+#bdL.dim{opacity:.4;pointer-events:none}
+
+/* ---------- editor ---------- */
+#editor{overflow:auto;justify-content:center;padding:12px 16px}
+.edwrap{width:min(1300px,100%);display:flex;flex-direction:column;gap:10px;min-height:0;height:100%}
+.edtop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:space-between}
+.edtop h2{font-size:clamp(1.2rem,3vh,1.8rem)}
+.edbtns{display:flex;gap:8px;flex-wrap:wrap}
+.edmain{flex:1;min-height:0;display:flex;gap:12px}
+.edmain .stage{flex:1;min-width:0}
+.edside{width:clamp(200px,22vw,300px);background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:12px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.edside h3{font-size:1.2rem}
+.edinfo{display:flex;flex-direction:column;gap:6px;font-weight:700;line-height:1.35}
+.edinfo .r{display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:4px}
+.edinfo .r b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.edinfo .warn{color:var(--bad);font-weight:800}
+.circ.ed .slot{opacity:.28;stroke-dasharray:4 6}
+.circ.ed .slotq{display:none}
+.titem.tool{min-width:62px}
+.titem.tool .x{font-size:1.6rem;line-height:44px;height:48px;color:var(--bad)}
+@media (max-width:800px){ .edmain{flex-direction:column} .edside{width:auto} }
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni di Circuiti elettrici">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="10" fill="#2E6B4F"/><path d="M14 46V18h36v28H14" fill="none" stroke="#D9822B" stroke-width="4" stroke-linejoin="round"/><rect x="8" y="26" width="12" height="14" rx="2" fill="#30353F"/><rect x="8" y="26" width="12" height="5" fill="#E8801F"/><circle cx="32" cy="18" r="11" fill="#FFE66B" opacity=".55"/><circle cx="32" cy="18" r="7" fill="#FFF6C2" stroke="#9AA2AE" stroke-width="1.5"/></svg>
+      <div><h1>Circuiti elettrici</h1><p>Monta il circuito con pile, fili, lampadine, interruttori e motori: accendi quello che serve, senza cortocircuiti.</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="row">
+      <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
+      <div class="field"><span>Aiuto: mostra la corrente</span><div class="seg" id="aid"></div></div>
+      <div class="field"><span>Disegno del circuito</span><div class="seg" id="draw"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeCF"><span>Tempo per sfida</span><div class="seg" id="timeC"></div></div>
+      <div class="field" id="timeTF"><span>Tempo per turno</span><div class="seg" id="timeT"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>I componenti</span><div class="parts" id="parts"></div></div>
+    <p class="note" id="rules"></p>
+    <div class="actions"><button class="start" id="go">Inizia la sfida</button><button class="btn2" id="openEd">Apri l'editor (circuito libero)</button></div>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Circuiti elettrici">
+  <div class="half t1" id="h1">
+    <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="board" id="bd1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="board" id="bd2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Circuiti elettrici alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpass">Passa</button> <button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="bdL"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ EDITOR LIBERO ============ -->
+<section class="screen" id="editor" aria-label="Editor di circuiti">
+  <div class="edwrap">
+    <div class="edtop"><button class="ctl" id="edBack">← Impostazioni</button><h2>Editor: costruisci il tuo circuito</h2><div class="edbtns"><button class="ctl" id="edEx">Esempio</button><button class="ctl" id="edDraw">Schema elettrico</button><button class="ctl" id="edClear">Svuota</button></div></div>
+    <div class="edmain">
+      <div class="stage" id="edSt"></div>
+      <div class="edside"><h3>Misure</h3><div id="edInfo" class="edinfo"></div></div>
+    </div>
+    <div class="tray" id="edPal"></div>
+    <p class="note" id="edHelp">Scegli un pezzo dalla tavolozza e tocca un lato del reticolo per metterlo. Tocca un interruttore per aprirlo o chiuderlo; tocca la pila con il pezzo «pila» per girarla. Con la gomma si toglie un pezzo.</p>
+  </div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
+const N = x => NF.format(x);
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+
+/* ---------- componenti ---------- */
+const VBAT = 4.5, RINT = 0.1;
+const R = {lamp:10, motor:8, buzz:12};
+/* oggetti da provare come conduttori o isolanti */
+const OBJ = {
+  chiave:{c:true, n:'chiave', s:'<circle cx="-12" cy="0" r="9" fill="#C9CED6" stroke="#6B7280" stroke-width="2"/><circle cx="-12" cy="0" r="3" fill="#2E6B4F"/><path d="M-3 0h20v6M10 0v5" stroke="#C9CED6" stroke-width="5" fill="none"/>'},
+  moneta:{c:true, n:'moneta', s:'<circle cx="0" cy="0" r="13" fill="#E8C35A" stroke="#9C7A1E" stroke-width="2"/><text x="0" y="1" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="#7A5C10">1€</text>'},
+  graffetta:{c:true, n:'graffetta', s:'<path d="M-16 4h26a5 5 0 0 0 0-10h-22a4 4 0 0 0 0 8h18" stroke="#C9CED6" stroke-width="3" fill="none" stroke-linecap="round"/>'},
+  forchetta:{c:true, n:'forchetta', s:'<path d="M-18 0h18M0 -6v12M0 -6h10M0 -2h10M0 2h10M0 6h10" stroke="#C9CED6" stroke-width="3" fill="none" stroke-linecap="round"/>'},
+  gomma:{c:false, n:'gomma', s:'<rect x="-15" y="-8" width="30" height="16" rx="3" fill="#F28CA0" stroke="#B0577A" stroke-width="2"/><rect x="5" y="-8" width="10" height="16" fill="#5B92F0"/>'},
+  tappo:{c:false, n:'tappo di plastica', s:'<rect x="-11" y="-10" width="22" height="20" rx="4" fill="#4FA3E0" stroke="#2F6FDB" stroke-width="2"/><path d="M-7 -10v20M-2 -10v20M3 -10v20M8 -10v20" stroke="#2F6FDB" stroke-width="1.2"/>'},
+  legno:{c:false, n:'bastoncino di legno', s:'<rect x="-18" y="-5" width="36" height="10" rx="4" fill="#D9A55B" stroke="#9A6A2E" stroke-width="2"/><path d="M-10 -2c5 2 10 2 16 0" stroke="#9A6A2E" stroke-width="1.2" fill="none"/>'},
+  vetro:{c:false, n:'bicchiere di vetro', s:'<path d="M-10 -12h20l-3 24h-14z" fill="rgba(200,230,255,.55)" stroke="#9AC6E8" stroke-width="2" stroke-linejoin="round"/>'},
+  carta:{c:false, n:'foglio di carta', s:'<path d="M-11 -13h16l6 6v20h-22z" fill="#fff" stroke="#9AA2AE" stroke-width="2" stroke-linejoin="round"/><path d="M-6 -2h12M-6 3h12M-6 8h8" stroke="#9AA2AE" stroke-width="1.5"/>'}
+};
+const COND = Object.keys(OBJ).filter(k=>OBJ[k].c), INS = Object.keys(OBJ).filter(k=>!OBJ[k].c);
+
+/* ---------- reticolo: nodi (c, r), c = 0..4, r = 0..3; ogni componente sta su un lato tra due nodi vicini ---------- */
+const X = c => 50 + c*115, Y = r => 45 + r*105, W = 560, H = 405;
+const nk = p => p[0] + ',' + p[1];
+
+/* risolve il circuito con il metodo dei nodi: pile come generatore + resistenza interna */
+function solve(els){
+  const nodes = new Map(); els.forEach(e=>{ [e.a, e.b].forEach(p=>{ if(!nodes.has(nk(p))) nodes.set(nk(p), nodes.size); }); });
+  const bats = els.filter(e=>e.t==='bat'); if(!bats.length) return {V:new Map(), I:new Map(), batI:0};
+  const gnd = nodes.get(nk(bats[0].b)), n = nodes.size;
+  const g = e => e.t==='wire' ? 1000 : e.t==='obj' ? (OBJ[e.o].c ? 200 : 0) : e.t==='lamp' ? 1/R.lamp : e.t==='motor' ? 1/R.motor : e.t==='buzz' ? 1/R.buzz : e.t==='res' ? 1/e.r : e.t==='sw' ? (e.on ? 1000 : 0) : e.t==='bat' ? 1/RINT : 0;
+  const A = Array.from({length:n}, ()=>new Float64Array(n)), z = new Float64Array(n);
+  els.forEach(e=>{ const gi = g(e); if(!gi) return; const i = nodes.get(nk(e.a)), j = nodes.get(nk(e.b)); A[i][i] += gi; A[j][j] += gi; A[i][j] -= gi; A[j][i] -= gi; if(e.t==='bat'){ const v = (e.v || VBAT)/RINT; z[i] += v; z[j] -= v; } });
+  for(let i=0; i<n; i++) A[i][i] += 1e-9;
+  /* nodo di riferimento */
+  for(let j=0; j<n; j++){ A[gnd][j] = 0; } A[gnd][gnd] = 1; z[gnd] = 0;
+  /* eliminazione di Gauss */
+  for(let c=0; c<n; c++){ let p = c; for(let r=c+1; r<n; r++) if(Math.abs(A[r][c]) > Math.abs(A[p][c])) p = r; [A[c], A[p]] = [A[p], A[c]]; [z[c], z[p]] = [z[p], z[c]]; const d = A[c][c]; if(Math.abs(d) < 1e-15) continue; for(let r=0; r<n; r++){ if(r===c) continue; const f = A[r][c]/d; if(!f) continue; for(let k=c; k<n; k++) A[r][k] -= f*A[c][k]; z[r] -= f*z[c]; } }
+  const V = new Map(); nodes.forEach((i,key)=>V.set(key, Math.abs(A[i][i]) > 1e-15 ? z[i]/A[i][i] : 0));
+  const I = new Map(); let batI = 0;
+  els.forEach(e=>{ const dv = V.get(nk(e.a)) - V.get(nk(e.b)); if(e.t==='bat'){ const i = ((e.v || VBAT) - dv)/RINT; I.set(e, i); batI = Math.max(batI, Math.abs(i)); } else I.set(e, dv*g(e)); });
+  return {V, I, batI};
+}
+/* stato del circuito: lampade accese (con luminosità), motori, cicalini, cortocircuito */
+function sim(els, over){
+  const list = over ? els.map(e=>over.has(e) ? {...e, ...over.get(e)} : e) : els;
+  const s = solve(list), out = {lit:{}, P:{}, short:s.batI > 8, I:s.I, list, batI:s.batI};
+  list.forEach(e=>{ if(e.t==='lamp' || e.t==='motor' || e.t==='buzz'){ const i = s.I.get(e) || 0, p = i*i*R[e.t]; out.P[e.id] = p; out.lit[e.id] = p > 0.12 && !out.short; } });
+  return out;
+}
+const PSINGLE = (VBAT/(R.lamp+RINT))**2*R.lamp;
+
+/* ---------- disegni ---------- */
+function partSVG(t, o){
+  const p = o || {};
+  if(t==='wire') return '<path class="wire" d="M-57 0H57"/><path class="wire2" d="M-57 -2H57"/>';
+  const SC = 1.45, sc = (w, body) => `<path class="lead" d="M-57 0H${-w*SC}M${w*SC} 0H57"/><g transform="scale(${SC})">${body}</g>`;
+  /* il polo + è verso il primo nodo (a), cioè a sinistra nel disegno locale */
+  if(t==='bat') return sc(28, `<rect x="-28" y="-15" width="56" height="30" rx="5" fill="#30353F"/><rect x="-28" y="-15" width="18" height="30" rx="4" fill="#E8801F"/><text x="-19" y="0" fill="#fff" font-size="16" font-weight="800" text-anchor="middle" dominant-baseline="central">+</text><text x="21" y="0" fill="#fff" font-size="18" font-weight="800" text-anchor="middle" dominant-baseline="central">−</text><text x="3" y="0" fill="#C9CED6" font-size="11" font-weight="800" text-anchor="middle" dominant-baseline="central">${N(p.v || VBAT)} V</text>`);
+  if(t==='lamp') return sc(14, `${p.glow ? `<circle class="glow" cx="0" cy="0" r="${18 + 14*p.glow}" opacity="${Math.min(1, .35 + p.glow*.65)}"/>` : ''}<rect x="-8" y="10" width="16" height="9" rx="2" fill="#9AA2AE"/><circle cx="0" cy="-2" r="14" fill="${p.glow ? '#FFF6C2' : 'rgba(230,240,250,.75)'}" stroke="#9AA2AE" stroke-width="2"/><path d="M-5 8l2-10 3 4 3-4 2 10" stroke="${p.glow ? '#E8801F' : '#6B7280'}" stroke-width="1.6" fill="none"/>`);
+  if(t==='motor') return sc(17, `<circle cx="0" cy="0" r="17" fill="#C9CED6" stroke="#6B7280" stroke-width="2"/><text x="0" y="1" font-size="15" font-weight="800" fill="#30353F" text-anchor="middle" dominant-baseline="central">M</text><g class="${p.on ? 'spin' : ''}" transform="translate(0 -26)"><path d="M0 0l12-4-12 4-12 4M0 0l4 12-4-12-4-12" stroke="#E8801F" stroke-width="5" stroke-linecap="round"/><circle r="2.5" fill="#30353F"/></g>`);
+  if(t==='buzz') return sc(17, `<rect x="-17" y="-14" width="34" height="28" rx="8" fill="#30353F"/><circle cx="0" cy="0" r="8" fill="#6B7280"/><circle cx="0" cy="0" r="2.5" fill="#30353F"/>${p.on ? '<path class="wave" d="M22 -12a16 16 0 0 1 0 24M28 -18a24 24 0 0 1 0 36"/>' : ''}`);
+  if(t==='res') return sc(22, `<rect x="-22" y="-9" width="44" height="18" rx="5" fill="#E9D3A8" stroke="#9A6A2E" stroke-width="1.5"/><path d="M-12 -9v18M-6 -9v18M6 -9v18" stroke="#B0577A" stroke-width="3"/><text x="0" y="-19" fill="#fff" font-size="13" font-weight="800" text-anchor="middle">${N(p.r || 0)} Ω</text>`);
+  if(t==='sw') return sc(20, `<circle cx="-20" cy="0" r="5" fill="#C9CED6" stroke="#6B7280" stroke-width="2"/><circle cx="20" cy="0" r="5" fill="#C9CED6" stroke="#6B7280" stroke-width="2"/><path d="M-20 0L${p.on ? '20 0' : '14 -22'}" stroke="#E8801F" stroke-width="6" stroke-linecap="round"/>`);
+  if(t==='obj') return sc(24, OBJ[p.o].s);
+  return '';
+}
+/* simboli normalizzati dello schema elettrico (come sui libri di testo) */
+function symSVG(t, o){
+  const p = o || {}, ln = (w) => `<path class="sline" d="M-57 0H${-w}M${w} 0H57"/>`;
+  if(t==='wire') return '<path class="sline" d="M-57 0H57"/>';
+  if(t==='bat') return ln(7) + `<path class="sline" d="M-7 -20V20" stroke-width="3.5"/><path class="sline" d="M7 -10V10" stroke-width="8"/><text class="stxt" x="-17" y="-14">+</text><text class="stxt" x="18" y="-14">−</text><text class="stxt small" x="0" y="34">${N(p.v || VBAT)} V</text>`;
+  if(t==='lamp') return ln(17) + `${p.glow ? `<circle class="glow" cx="0" cy="0" r="${20 + 12*p.glow}" opacity="${Math.min(1, .35 + p.glow*.65)}"/>` : ''}<circle cx="0" cy="0" r="17" class="sline" style="fill:${p.glow ? '#FFE66B' : '#fff'}"/><path class="sline" d="M-12 -12L12 12M12 -12L-12 12"/>`;
+  if(t==='motor') return ln(17) + `<circle cx="0" cy="0" r="17" class="sline" style="fill:#fff"/><text class="stxt" x="0" y="1">M</text>${p.on ? '<path class="sline spin" d="M-24 -18a30 30 0 0 1 48 0" fill="none" stroke-dasharray="6 5"/>' : ''}`;
+  if(t==='buzz') return ln(16) + `<path class="sline" d="M-16 8A16 16 0 0 1 16 8Z" style="fill:#fff"/><path class="sline" d="M-16 8V0M16 8V0" />${p.on ? '<path class="wave" d="M22 -14a16 16 0 0 1 0 22M28 -20a24 24 0 0 1 0 34" style="stroke:#E8801F"/>' : ''}`;
+  if(t==='res') return ln(22) + `<rect class="sline" x="-22" y="-9" width="44" height="18" style="fill:#fff"/><text class="stxt small" x="0" y="-22">${N(p.r || 0)} Ω</text>`;
+  if(t==='sw') return ln(18) + `<circle cx="-18" cy="0" r="4" class="sline" style="fill:#fff"/><circle cx="18" cy="0" r="4" class="sline" style="fill:#fff"/><path class="sline" d="M-15 -2L${p.on ? '16 -2' : '12 -22'}" stroke-width="3.5"/>`;
+  if(t==='obj') return `<path class="sline" d="M-57 0H-26M26 0H57"/><g transform="scale(1.3)">${OBJ[p.o].s}</g>`;
+  return '';
+}
+const drawPart = (t, o) => P.draw==='sym' ? symSVG(t, o) : partSVG(t, o);
+/* un componente sul suo lato del reticolo */
+function elSVG(e, k, st){
+  const x1 = X(e.a[0]), y1 = Y(e.a[1]), x2 = X(e.b[0]), y2 = Y(e.b[1]), cx = (x1+x2)/2, cy = (y1+y2)/2, ang = Math.atan2(y2-y1, x2-x1)*180/Math.PI;
+  const up = Math.abs(ang) > 90 ? 180 : 0;                    /* le scritte restano dritte */
+  let body = '';
+  if(e.t==='slot') body = `<rect class="slot" x="-30" y="-22" width="60" height="44" rx="8"/><text class="slotq" x="0" y="0" transform="rotate(${-ang})">?</text>`;
+  else body = drawPart(e.t, {...e, glow: e.t==='lamp' && st && st.lit[e.id] ? Math.min(1, st.P[e.id]/PSINGLE) : 0, on: e.t==='sw' ? e.on : st && st.lit[e.id]});
+  let flow = '';
+  if(st && P.aid && e.t!=='slot'){ const i = st.I.get(e) || 0; if(Math.abs(i) > 0.02 && !st.short) flow = `<path class="flow${i < 0 ? ' rev' : ''}" d="M-57 0H57"/>`; }
+  const lab = e.id ? `<text class="lab" x="0" y="${e.t==='lamp' ? 46 : 42}" transform="rotate(${-ang + up} 0 ${e.t==='lamp' ? 46 : 42})">${e.id}</text>` : '';
+  return `<g class="el${e.placed ? ' placed' : ''}" data-k="${k}" transform="translate(${cx} ${cy}) rotate(${ang})">${e.t==='wire' ? body + flow : flow + body}${lab}<rect class="hit" x="-50" y="-40" width="100" height="80"/></g>`;
+}
+function circuitSVG(els, st){
+  const nodes = new Map(); els.forEach(e=>[e.a, e.b].forEach(p=>nodes.set(nk(p), p)));
+  let h = `<rect class="pcb" x="4" y="4" width="${W-8}" height="${H-8}" rx="22"/>`;
+  /* prima i fili, poi i componenti (così stanno sopra) */
+  const order = els.map((e,k)=>[e,k]).sort((p,q)=>(p[0].t==='wire' ? 0 : 1) - (q[0].t==='wire' ? 0 : 1));
+  order.forEach(([e,k])=>{ h += elSVG(e, k, st); });
+  nodes.forEach(p=>{ h += `<circle class="node" cx="${X(p[0])}" cy="${Y(p[1])}" r="6"/>`; });
+  return `<svg class="circ${P.draw==='sym' ? ' paper' : ''}" viewBox="0 0 ${W} ${H}">${h}</svg>`;
+}
+
+/* ---------- schemi di base ---------- */
+const E = (a, b, t, o) => ({a, b, t, ...(o || {})});
+/* anello: in alto da sinistra a destra, a destra in giù, in basso verso sinistra, a sinistra in su */
+function loop(){ const p = []; for(let c=0; c<4; c++) p.push([[c,0],[c+1,0]]); for(let r=0; r<3; r++) p.push([[4,r],[4,r+1]]); for(let c=4; c>0; c--) p.push([[c,3],[c-1,3]]); for(let r=3; r>0; r--) p.push([[0,r],[0,r-1]]); return p; }
+const BATI = 12;   /* nell'anello la pila sta a sinistra, al centro */
+function loopEls(spec){ return loop().map(([a,b],i)=>i===BATI ? E(b, a, 'bat') : spec[i] ? E(a, b, spec[i].t, spec[i]) : E(a, b, 'wire')); }
+/* due (o tre) rami in parallelo tra la rotaia in alto e quella in basso */
+function parEls(br, mainSw){
+  const els = [E([0,0],[0,1],'wire'), E([0,1],[0,2],'bat'), E([0,2],[0,3],'wire')];
+  for(let c=0; c<4; c++){ els.push(c===0 && mainSw ? E([0,0],[1,0],mainSw.t, mainSw) : E([c,0],[c+1,0],'wire')); els.push(E([c,3],[c+1,3],'wire')); }
+  br.forEach(b=>{ els.push(b.top ? E([b.x,0],[b.x,1],b.top.t, b.top) : E([b.x,0],[b.x,1],'wire')); els.push(E([b.x,1],[b.x,2], b.mid.t, b.mid)); els.push(b.bot ? E([b.x,2],[b.x,3],b.bot.t, b.bot) : E([b.x,2],[b.x,3],'wire')); });
+  return els;
+}
+/* nota: in parEls la pila ha a = (0,1) in alto: il + è in alto */
+
+/* ---------- impostazioni ---------- */
+const P = {lvl:1, num:8, aid:true, draw:'real', screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('circuiti-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('circuiti-prefs', JSON.stringify(P)); }catch(e){} };
+const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+const LVD = {
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dal chiudere il circuito fino agli interruttori in serie e in parallelo e alla legge di Ohm.',
+  1:'Base: completa il circuito per accendere la lampadina; trova l\'oggetto che conduce la corrente; fai suonare il cicalino.',
+  2:'Medio: due lampadine in serie; accendi solo le lampadine richieste con gli interruttori; che cosa succede se apri un interruttore?',
+  3:'Avanzato: monta due lampadine in parallelo che brillino al massimo; tre lampadine e tre interruttori; trova il cortocircuito; quante lampadine si accendono?',
+  4:'Esperto: due interruttori in serie (la lampadina si accende solo se sono chiusi tutti e due); due interruttori in parallelo (basta uno dei due); lampadina sempre accesa e motore comandato; che cosa succede con tre lampadine?',
+  5:'Campione: legge di Ohm (intensità di corrente con pila e resistore); resistori in serie; quale lampadina brilla di più?; un interruttore generale e uno per ogni lampadina.'
+};
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim);
+  $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
+  $('#lvdesc').textContent = LVD[P.lvl];
+  $('#rules').innerHTML = (lim
+    ? 'LIM a turni: una squadra alla volta; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dal circuito com\'è. Basta un tocco alla volta: tocca un pezzo del vassoio e poi il buco.'
+    : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sul suo circuito, e giocano insieme. Si trascina un pezzo dal vassoio nel buco tratteggiato (oppure si tocca il pezzo e poi il buco); un pezzo messo si toglie toccandolo; gli interruttori si aprono e chiudono con un tocco. Vince il punto chi risolve per primo.')
+    + ' Con l\'aiuto attivo si vede la corrente che scorre nei fili. Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
+  seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
+  seg('#draw', 'draw', [['real','Realistico'],['sym','Schema elettrico (simboli)']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#timeC', 'timeC', [[0,'Senza limite'],[60,'60 s'],[90,'90 s'],[120,'2 minuti']]);
+  seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#parts').innerHTML = [['bat',{},'pila 4,5 V'],['wire',{},'filo di rame'],['lamp',{glow:.8},'lampadina'],['sw',{on:false},'interruttore'],['motor',{},'motore'],['buzz',{},'cicalino'],['obj',{o:'chiave'},'conduttore (chiave)'],['obj',{o:'gomma'},'isolante (gomma)']].map(([t,o,n])=>`<div class="o">${miniPart(t,o)}<span>${n}</span></div>`).join('');
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+const miniPart = (t, o) => `<svg class="circ${P.draw==='sym' ? ' paper' : ''}" viewBox="-62 -46 124 92">${drawPart(t, o)}</svg>`;
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- sfide ----------
+   build: els = componenti (fissi o "slot" da riempire), tray = pezzi disponibili {t, o?, n}, test(els) → '' oppure il motivo;
+   choice: 4 risposte (giusta, 2 plausibili, 1 molto sbagliata). */
+const sw = (id, on) => ({t:'sw', id, on:!!on});
+const lampsOf = els => els.filter(e=>e.t==='lamp').map(e=>e.id);
+const switchesOf = els => els.filter(e=>e.t==='sw');
+const litTxt = st => { const l = Object.keys(st.lit).filter(k=>st.lit[k]); return l.length ? 'accese: ' + l.join(', ') : 'nessuna lampadina accesa'; };
+const needLit = (els, want) => { const st = sim(els); if(st.short) return 'cortocircuito!'; const ids = lampsOf(els); for(const id of ids){ if(want.includes(id) && !st.lit[id]) return `${id} è spenta`; if(!want.includes(id) && st.lit[id]) return `${id} deve restare spenta`; } return ''; };
+/* tutte le combinazioni di interruttori */
+function truth(els, sws, fn){ for(let m=0; m < (1 << sws.length); m++){ const over = new Map(sws.map((s,i)=>[s, {on:!!(m & (1 << i))}])); const st = sim(els, over); const r = fn(st, sws.map((s,i)=>!!(m & (1 << i)))); if(r) return r; } return ''; }
+const choices = (right, near, far) => shuffle([{h:right, ok:true}, ...near.slice(0,2).map(h=>({h})), {h:far}]);
+const numCh = (right, near, far, unit) => { const seen = new Set([right]), l = [right]; near.forEach(v=>{ if(l.length < 3 && v > 0 && !seen.has(v)){ seen.add(v); l.push(v); } }); for(const v of [right*2, right/2, right+1]) if(l.length < 3 && !seen.has(v)){ seen.add(v); l.push(v); } let f = far; while(seen.has(f)) f += 1; return shuffle(l.map((v,i)=>({h:`${N(Math.round(v*100)/100)} ${unit}`, ok:i===0})).concat([{h:`${N(f)} ${unit}`}])); };
+function makeChallenge(l){
+  for(let g=0; g<200; g++){
+    const v = rnd(0, l===1 ? 2 : 3);
+    if(l===1){
+      const free = [0,2,3,4,5,6,7,8,9,10,11,13], gap = pick(free.filter(i=>i!==1));
+      if(v===0){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}, {t:'obj', o:pick(INS), n:1}], task:'Il circuito è aperto: <b>chiudilo</b> per accendere la lampadina.', test:els=>needLit(els, ['A']), sol:'un filo di rame nel buco'}; }
+      if(v===1){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; const c = pick(COND), ins = shuffle(INS).slice(0,3); return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'obj', o:c, n:1}, ...ins.map(o=>({t:'obj', o, n:1}))]), task:'Metti nel buco <b>l\'oggetto che fa passare la corrente</b>.', test:els=>needLit(els, ['A']) ? 'questo oggetto è un isolante: la corrente non passa' : '', sol:`${OBJ[c].n}: è di metallo, quindi conduce`}; }
+      const swi = pick(free.filter(i=>i!==1 && i!==gap)); const spec = {1:{t:'buzz', id:'C'}}; spec[gap] = {t:'slot'}; spec[swi] = sw('S', false);
+      return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], task:'Fai <b>suonare il cicalino</b>.', test:els=>{ const st = sim(els); return st.lit.C ? '' : 'il cicalino non suona: il circuito deve essere chiuso dappertutto'; }, sol:'un filo nel buco e l\'interruttore S chiuso'};
+    }
+    if(l===2){
+      if(v===0){ const free = [0,2,3,4,6,7,8,9,10,11,13], gap = pick(free); const spec = {1:{t:'lamp', id:'A'}, 5:{t:'lamp', id:'B'}}; spec[gap] = {t:'slot'};
+        return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], task:'Le lampadine A e B sono <b>in serie</b>: accendile tutte e due.', test:els=>needLit(els, ['A','B']), sol:'un filo nel buco: in serie la corrente passa da tutte e due'}; }
+      if(v===1){ const main = Math.random() < 0.5; const els = parEls([{x:2, top:sw('S1', Math.random() < 0.5), mid:{t:'lamp', id:'A'}}, {x:4, top:sw('S2', Math.random() < 0.5), mid:{t:'lamp', id:'B'}}], main ? sw('S', Math.random() < 0.5) : null);
+        const want = pick([['A'],['B'],['A','B']]); if(!needLit(els, want)) continue;
+        return {l, kind:'build', els, tray:[], task:`Accendi ${want.length===2 ? '<b>tutte e due</b> le lampadine' : `<b>solo la lampadina ${want[0]}</b>`} usando gli interruttori.`, test:x=>needLit(x, want), sol:`${main ? 'S chiuso, ' : ''}${want.includes('A') ? 'S1 chiuso' : 'S1 aperto'}, ${want.includes('B') ? 'S2 chiuso' : 'S2 aperto'}`}; }
+      if(v===2){ const els = parEls([{x:2, top:sw('S1', true), mid:{t:'lamp', id:'A'}}, {x:4, top:sw('S2', true), mid:{t:'lamp', id:'B'}}], sw('S', true));
+        const s = pick(switchesOf(els)), st = sim(els, new Map([[s, {on:false}]])), off = ['A','B'].filter(id=>!st.lit[id]);
+        const ans = off.length===2 ? 'si spengono tutte e due' : off.length ? `si spegne solo ${off[0]}` : 'non cambia niente';
+        const all = ['si spengono tutte e due', 'si spegne solo A', 'si spegne solo B', 'non cambia niente'].filter(x=>x!==ans);
+        return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'la pila si ricarica'), task:`Le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}: ${s.id==='S' ? 'S è sulla strada comune a tutte e due' : `${s.id} interrompe solo il suo ramo`}`}; }
+      const free = [0,2,3,4,6,7,8,9,10,11,13], gap = pick(free); const spec = {1:{t:'lamp', id:'A'}, 5:{t:'motor', id:'M'}}; spec[gap] = {t:'slot'};
+      return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'wire', n:9}, {t:'obj', o:pick(COND), n:1}, {t:'obj', o:pick(INS), n:1}]), task:'Fai <b>girare il motore</b> e accendi la lampadina.', test:els=>{ const st = sim(els); return st.short ? 'cortocircuito!' : st.lit.M && st.lit.A ? '' : 'il circuito è ancora aperto'; }, sol:'nel buco un filo o un oggetto di metallo'};
+    }
+    if(l===3){
+      if(v===0){ const els = parEls([{x:2, mid:{t:'slot'}}, {x:4, mid:{t:'slot'}}]); const k = els.findIndex(e=>e.a[0]===1 && e.a[1]===0 && e.b[0]===2); els[k] = E([1,0],[2,0],'slot');
+        return {l, kind:'build', els, tray:[{t:'lamp', n:2}, {t:'wire', n:4}], task:'Monta <b>due lampadine</b> in modo che brillino tutte e due <b>al massimo</b> (come se ognuna avesse la pila tutta per sé).', test:x=>{ const ls = x.filter(e=>e.t==='lamp'); if(ls.length < 2) return 'servono due lampadine'; const st = sim(x); if(st.short) return 'cortocircuito: una lampadina è stata saltata da un filo'; return ls.every(e=>st.P[e.id] > 0.8*PSINGLE) ? '' : 'sono accese ma deboli: così sono in serie'; }, sol:'una lampadina in ogni ramo (in parallelo) e un filo sulla strada comune'}; }
+      if(v===1){ const els = parEls([{x:2, top:sw('S1', Math.random() < 0.5), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', Math.random() < 0.5), mid:{t:'lamp', id:'B'}}, {x:4, top:sw('S3', Math.random() < 0.5), mid:{t:'lamp', id:'C'}}], sw('S', false));
+        const want = pick([['A','B'],['A','C'],['B','C'],['B'],['A','B','C']]); if(!needLit(els, want)) continue;
+        return {l, kind:'build', els, tray:[], task:`Accendi <b>${want.join(' e ')}</b>${want.length < 3 ? ` ma non ${['A','B','C'].filter(x=>!want.includes(x)).join(' né ')}` : ''}.`, test:x=>needLit(x, want), sol:`S chiuso (è l'interruttore generale) e chiusi solo gli interruttori di ${want.join(', ')}`}; }
+      if(v===2){ const spec = {1:{t:'lamp', id:'A'}}; const els = loopEls(spec); els.push(E([1,0],[1,1],'wire', {placed:true, fromSlot:true}), E([1,1],[2,1],'wire', {placed:true, fromSlot:true}), E([2,1],[2,0],'wire', {placed:true, fromSlot:true}));
+        return {l, kind:'build', els, tray:[], task:'C\'è un <b>cortocircuito</b>: la corrente salta la lampadina. Togli un pezzo di filo (toccalo) per accenderla.', test:x=>needLit(x, ['A']), sol:'togliere uno dei tre fili che fanno il giro intorno alla lampadina'}; }
+      const els = parEls([{x:2, top:sw('S1', Math.random() < 0.6), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', Math.random() < 0.6), mid:{t:'lamp', id:'B'}}, {x:4, top:sw('S3', Math.random() < 0.6), mid:{t:'lamp', id:'C'}}], sw('S', Math.random() < 0.75));
+      const st = sim(els), n = Object.values(st.lit).filter(Boolean).length;
+      return {l, kind:'choice', els, ro:true, opts:numCh(n, [n+1, n-1, 3-n].filter(x=>x >= 0 && x <= 3 && x!==n), 9, ''), task:'<b>Quante lampadine</b> sono accese con gli interruttori come sono adesso?', sol:`${n}: ${litTxt(st)}`};
+    }
+    if(l===4){
+      const logicEls = () => { const els = [E([0,0],[0,1],'wire'), E([0,1],[0,2],'bat'), E([0,2],[0,3],'wire'), E([0,0],[1,0],'wire'), E([1,0],[2,0],'slot'), E([2,0],[3,0],'slot'), E([3,0],[4,0],'wire'), E([1,0],[1,1],'wire'), E([1,1],[2,1],'slot'), E([2,1],[3,1],'slot'), E([3,1],[3,0],'wire'), E([4,0],[4,1],'wire'), E([4,1],[4,2],'lamp', {id:'A'}), E([4,2],[4,3],'wire')]; for(let c=0; c<4; c++) els.push(E([c,3],[c+1,3],'wire')); return els; };
+      if(v===0) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], task:'Interruttori <b>in serie</b>: la lampadina deve accendersi <b>solo se tutti e due</b> gli interruttori sono chiusi.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] && on[1]) ? (st.lit.A ? 'si accende anche con un solo interruttore chiuso' : 'non si accende con tutti e due chiusi') : ''); }, sol:'i due interruttori uno dopo l\'altro (in serie), sulla stessa strada'};
+      if(v===1) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], task:'Interruttori <b>in parallelo</b>: la lampadina deve accendersi <b>se almeno uno</b> dei due interruttori è chiuso.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] || on[1]) ? (st.lit.A ? 'si accende anche con tutti e due aperti' : 'con un solo interruttore chiuso non si accende') : ''); }, sol:'un interruttore su ogni strada (in parallelo), con un filo accanto a ciascuno'};
+      if(v===2){ const els = parEls([{x:2, top:{t:'slot'}, mid:{t:'lamp', id:'A'}}, {x:4, top:{t:'slot'}, mid:{t:'motor', id:'M'}}]); const k = els.findIndex(e=>e.a[0]===0 && e.a[1]===0 && e.b[0]===1); els[k] = E([0,0],[1,0],'slot');
+        return {l, kind:'build', els, tray:[{t:'sw', n:1}, {t:'wire', n:3}], task:'La lampadina A deve restare <b>sempre accesa</b>; l\'interruttore deve <b>accendere e spegnere solo il motore</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==1) return 'usa l\'interruttore'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !st.lit.A ? 'la lampadina si spegne' : !!st.lit.M !== on[0] ? 'il motore non è comandato dall\'interruttore' : ''); }, sol:'l\'interruttore nel ramo del motore, fili negli altri buchi'}; }
+      const els = parEls([{x:2, top:sw('S1', true), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', true), mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}], sw('S', true));
+      const s = pick(switchesOf(els)), st = sim(els, new Map([[s, {on:false}]])), off = ['A','B','C'].filter(id=>!st.lit[id]);
+      const ans = off.length===3 ? 'si spengono tutte' : off.length ? `si spegne solo ${off[0]}` : 'non cambia niente';
+      const all = ['si spengono tutte', 'si spegne solo A', 'si spegne solo B', 'si spegne solo C', 'non cambia niente'].filter(x=>x!==ans);
+      return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'si accendono più forte tutte'), task:`Tutte le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}`};
+    }
+    /* livello 5 */
+    if(v===0){ const [V, Rr] = pick([[6,3],[9,3],[12,4],[12,6],[4.5,1.5],[9,4.5],[6,2],[12,3]]), I = V/Rr; const spec = {1:{t:'res', r:Rr}}; const els = loopEls(spec); els[BATI].v = V;
+      return {l, kind:'choice', els, ro:true, opts:numCh(I, [V*Rr, Math.round(Rr/V*100)/100, I+1], V+Rr*10, 'A'), task:`La pila è da <b>${N(V)} V</b> e il resistore da <b>${N(Rr)} Ω</b>. Quale <b>intensità di corrente</b> attraversa il circuito? (legge di Ohm: I = ${frac('V','R')})`, sol:`I = ${frac('V','R')} = ${frac(N(V) + ' V', N(Rr) + ' Ω')} = ${N(I)} A`}; }
+    if(v===1){ const [V, R1, R2] = pick([[12,2,4],[9,1,2],[6,1,2],[12,1,3],[12,4,2],[9,2,1]]), I = V/(R1+R2); const els = loopEls({1:{t:'res', r:R1}, 5:{t:'res', r:R2}}); els[BATI].v = V;
+      return {l, kind:'choice', els, ro:true, opts:numCh(I, [Math.round((V/R1 + V/R2)*100)/100, Math.round(V/R1*100)/100], V*(R1+R2), 'A'), task:`Due resistori da <b>${R1} Ω</b> e <b>${R2} Ω</b> in serie, pila da <b>${V} V</b>: quale intensità di corrente attraversa il circuito?`, sol:`in serie le resistenze si sommano: R = ${R1} Ω + ${R2} Ω = ${R1+R2} Ω; I = ${frac('V','R')} = ${frac(V + ' V', (R1+R2) + ' Ω')} = ${N(I)} A`}; }
+    if(v===2){ let els, best;
+      if(Math.random() < 0.5){ els = parEls([{x:2, mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}]); const k = els.findIndex(e=>e.a[0]===1 && e.a[1]===0 && e.b[0]===2); els[k] = E([1,0],[2,0],'lamp', {id:'A'}); }
+      else { els = parEls([{x:2, top:{t:'lamp', id:'A'}, mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}]); }
+      const st = sim(els), ids = ['A','B','C'], mx = Math.max(...ids.map(i=>st.P[i])); best = ids.filter(i=>Math.abs(st.P[i]-mx) < 1e-6); if(best.length!==1) continue;
+      return {l, kind:'choice', els, ro:true, opts:shuffle(ids.map(i=>({h:`la lampadina ${i}`, ok:i===best[0]})).concat([{h:'nessuna: sono tutte spente'}])), task:'Le tre lampadine sono uguali. <b>Quale brilla di più?</b>', sol:`la lampadina ${best[0]}: ${best[0]==='A' && st.P.B < mx ? 'tutta la corrente passa da A, poi si divide tra B e C' : 'è da sola nel suo ramo, mentre le altre due sono in serie e si dividono la tensione'}`}; }
+    const els = parEls([{x:2, top:{t:'slot'}, mid:{t:'lamp', id:'A'}}, {x:3, top:{t:'slot'}, mid:{t:'lamp', id:'B'}}, {x:4, top:{t:'slot'}, mid:{t:'lamp', id:'C'}}]); const k = els.findIndex(e=>e.a[0]===0 && e.a[1]===0 && e.b[0]===1); els[k] = E([0,0],[1,0],'slot');
+    return {l, kind:'build', els, tray:[{t:'sw', n:4}], task:'Monta <b>un interruttore generale</b> che spegne tutto e <b>un interruttore per ogni lampadina</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==4) return 'servono 4 interruttori'; const allOn = new Map(s.map(q=>[q, {on:true}])); const st0 = sim(x, allOn); if(st0.short || !['A','B','C'].every(i=>st0.lit[i])) return 'con tutti gli interruttori chiusi le lampadine devono essere accese'; let gen = 0; const own = new Set(); for(const q of s){ const m = new Map(allOn); m.set(q, {on:false}); const st = sim(x, m); const off = ['A','B','C'].filter(i=>!st.lit[i]); if(off.length===3) gen++; else if(off.length===1) own.add(off[0]); else return 'un interruttore spegne due lampadine'; } return gen===1 && own.size===3 ? '' : 'manca l\'interruttore generale o quello di una lampadina'; }, sol:'un interruttore sulla strada comune (generale) e uno in cima a ogni ramo'};
+  }
+  return makeChallenge(Math.max(1, l-1));
+}
+
+/* ---------- tabellone ---------- */
+const BD = {};
+let SW = 0;
+function mkBoard(id){
+  const host = $('#bd'+id);
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"></div><div class="short">Cortocircuito! La pila si scalda</div><div class="aid" id="a${id}"></div><div class="tray" id="tr${id}"></div><div class="opts" id="o${id}"></div>`;
+  BD[id] = {id, host, els:[], tray:[], sel:null, phase:'build', lock:false};
+  bindBoard(id);
+}
+const teamOf = id => id==='L' ? S.turn : id;
+function setupBoard(id){
+  const C = S.ch, b = BD[id];
+  b.els = C.els.map(e=>({...e})); b.tray = (C.tray || []).map(t=>({...t})); b.sel = null; b.phase = 'build'; b.lock = false; b.swn = switchesOf(b.els).length;
+  $('#k'+id).innerHTML = C.task;
+  const ob = $('#o'+id);
+  ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
+  ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
+  draw(id);
+}
+function draw(id){
+  const C = S.ch, b = BD[id], st = sim(b.els);
+  $('#st'+id).innerHTML = circuitSVG(b.els, st);
+  b.host.classList.toggle('isshort', st.short);
+  b.host.classList.toggle('armed', !!b.sel);
+  const tr = $('#tr'+id);
+  tr.innerHTML = C.kind==='build' && b.tray.length ? `<span class="lab0">Pezzi:</span>` + b.tray.map((t,i)=>`<div class="titem${b.sel===i ? ' sel' : ''}${t.n <= 0 ? ' empty' : ''}" data-i="${i}">${miniPart(t.t, t)}<span>${t.t==='obj' ? OBJ[t.o].n : {wire:'filo', lamp:'lampadina', sw:'interruttore'}[t.t]}${t.n < 9 ? ` (${t.n})` : ''}</span></div>`).join('') : '';
+  sizeBoard(id);
+  if(C.kind==='build'){ const msg = C.test(b.els); $('#a'+id).innerHTML = P.aid ? (msg ? `<span>${litTxt(st)}${st.short ? '' : ''}</span>` : '') : ''; if(!msg && b.phase==='build' && S.playing && !S.paused) win(id); }
+  else $('#a'+id).innerHTML = '';
+}
+function sizeBoard(id){
+  const stg = $('#st'+id), r = stg.getBoundingClientRect(), svg = stg.querySelector('svg'); if(!svg) return;
+  let w = r.width - 4, h = w * H / W; if(h > r.height - 4){ h = r.height - 4; w = h * W / H; }
+  svg.setAttribute('width', Math.max(120, w)); svg.setAttribute('height', Math.max(90, h));
+}
+window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) sizeBoard(id); }));
+function choose(id, bt){
+  const b = BD[id]; if(!canPlay(id) || bt.disabled) return;
+  if(S.ch.opts[+bt.dataset.k].ok){ bt.classList.add('right'); win(id); return; }
+  bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
+  if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+/* mettere un pezzo del vassoio in un buco */
+function placeInto(id, k, ti){
+  const b = BD[id], e = b.els[k], t = b.tray[ti]; if(!e || e.t!=='slot' || !t || t.n <= 0) return false;
+  t.n--;
+  const ne = {a:e.a, b:e.b, t:t.t, placed:true, fromSlot:true, ti};
+  if(t.t==='obj') ne.o = t.o;
+  if(t.t==='sw'){ ne.on = false; ne.id = 'S' + (++b.swn); }
+  if(t.t==='lamp'){ const used = new Set(b.els.filter(x=>x.t==='lamp').map(x=>x.id)); ne.id = ['A','B','C','D'].find(x=>!used.has(x)); }
+  b.els[k] = ne; beep([640], 0.04); return true;
+}
+function removeAt(id, k){
+  const b = BD[id], e = b.els[k]; if(!e || !e.placed) return;
+  if(e.ti !== undefined && b.tray[e.ti]) b.tray[e.ti].n++;
+  b.els[k] = {a:e.a, b:e.b, t:'slot'};
+  if(e.t==='sw'){ /* rinumera gli interruttori messi */ let n = switchesOf(b.els).filter(x=>!x.placed).length; b.els.forEach(x=>{ if(x.t==='sw' && x.placed) x.id = 'S' + (++n); }); b.swn = n; }
+  beep([420], 0.04);
+}
+const drags = new Map();
+function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase==='build' && !b.lock && (id!=='L' || S.turn); }
+function bindBoard(id){
+  const host = $('#bd'+id);
+  const elAt = (x, y) => { for(const el of document.elementsFromPoint(x, y)){ const g = el.closest && el.closest('.el'); if(g && host.contains(g)) return g; } return null; };
+  host.addEventListener('pointerdown', e=>{
+    if(!canPlay(id) || S.ch.kind!=='build') return;
+    const b = BD[id];
+    const ti = e.target.closest && e.target.closest('.titem');
+    if(ti){ e.preventDefault(); const i = +ti.dataset.i; if(b.tray[i].n <= 0) return;
+      const gh = document.createElement('div'); gh.className = 'ghost' + (P.layout==='table' && id===1 && P.screen==='touch' ? ' flip' : ''); gh.innerHTML = miniPart(b.tray[i].t, b.tray[i]); gh.style.left = e.clientX + 'px'; gh.style.top = e.clientY + 'px'; document.body.appendChild(gh);
+      try{ host.setPointerCapture(e.pointerId); }catch(err){}
+      drags.set(e.pointerId, {id, ti:i, gh, x0:e.clientX, y0:e.clientY, moved:false, over:null}); return; }
+    const g = e.target.closest && e.target.closest('.el'); if(!g || S.ch.ro) return;
+    e.preventDefault();
+    const k = +g.dataset.k, el = b.els[k];
+    if(el.t==='sw'){ el.on = !el.on; beep([el.on ? 700 : 500], 0.04); draw(id); return; }
+    if(el.t==='slot' && b.sel !== null){ if(placeInto(id, k, b.sel)){ if(b.tray[b.sel].n <= 0) b.sel = null; draw(id); } return; }
+    if(el.placed){ removeAt(id, k); draw(id); }
+  });
+  host.addEventListener('pointermove', e=>{
+    const d = drags.get(e.pointerId); if(!d) return;
+    if(Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 8) d.moved = true;
+    d.gh.style.left = e.clientX + 'px'; d.gh.style.top = e.clientY + 'px';
+    const g = elAt(e.clientX, e.clientY), ok = g && BD[id].els[+g.dataset.k].t==='slot' ? g : null;
+    if(ok !== d.over){ if(d.over) d.over.classList.remove('over'); if(ok) ok.classList.add('over'); d.over = ok; }
+  });
+  const up = e=>{
+    const d = drags.get(e.pointerId); if(!d) return; drags.delete(e.pointerId); d.gh.remove(); if(d.over) d.over.classList.remove('over');
+    const b = BD[id]; if(!canPlay(id) || e.type==='pointercancel'){ draw(id); return; }
+    if(!d.moved){ b.sel = b.sel===d.ti ? null : d.ti; draw(id); return; }       /* tocco: seleziona il pezzo, poi si tocca il buco */
+    const g = elAt(e.clientX, e.clientY); if(g){ const k = +g.dataset.k; if(b.els[k].t==='slot') placeInto(id, k, d.ti); }
+    draw(id);
+  };
+  host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+}
+
+/* ---------- partita ---------- */
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const nm = t => t===1 ? P.n1 : P.n2;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>d.gh.remove()); drags.clear(); }
+function start(){
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.list = Array.from({length:P.num}, (_,i)=> P.lvl===0 ? 1 + Math.floor(5*i/P.num) : P.lvl);
+  Object.assign(S, {i:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextChallenge();
+}
+function nextChallenge(){
+  clearTimeout(S.next);
+  S.i++;
+  if(S.i >= S.list.length){ finish(); return; }
+  S.ch = makeChallenge(S.list[S.i]);
+  S.log.push({ch:S.ch, who:0});
+  if(P.screen==='lim') limChallenge(); else touchChallenge();
+}
+function finish(){
+  stopAll();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+function win(id){
+  const team = teamOf(id);
+  if(BD[id].phase==='done') return;
+  S.playing = false; cancelAnimationFrame(S.raf);
+  BD[id].phase = 'done';
+  S.score[team-1]++; S.log[S.i].who = team;
+  beep([660, 880, 1100], 0.1);
+  if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
+  $('#s'+team).textContent = S.score[team-1];
+  banner(team, 'Giusto! +1', true);
+  banner(3-team, `Punto a ${nm(team)}<small>Soluzione: ${S.ch.sol}</small>`);
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 3800);
+}
+
+/* ---------- multitouch ---------- */
+function banner(t, html, ok){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!ok); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function touchChallenge(){
+  $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
+  S.playing = false;
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1);
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(draw); }, 2200);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeC){ setBar(1); return; }
+  const dur = P.timeC*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>{ $('#h'+t).classList.toggle('locked', S.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; });
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: a turni, con rubapunto ---------- */
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#lim').classList.toggle('turn1', S.turn===1); $('#lim').classList.toggle('turn2', S.turn===2); $('#bdL').classList.toggle('dim', !S.turn); }
+function limChallenge(){
+  $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
+  S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
+  limSides(); setupBoard('L');
+  $('#lmsg').innerHTML = `Tocca a <b>${nm(S.turn)}</b>`;
+  limTimer(P.timeT);
+}
+function limTimer(sec, keep){
+  cancelAnimationFrame(S.raf);
+  if(!sec){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(!keep){ S.t0 = performance.now(); S.dur = sec*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limFail('Tempo scaduto!'); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limFail(why){
+  if(!S.playing) return;
+  beep([330, 262], 0.14);
+  if(!S.stolen){
+    S.stolen = true; S.turn = 3 - S.turn; BD.L.phase = 'build';
+    limSides(); draw('L');
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
+    return;
+  }
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, 5000);
+}
+$('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#bdL').classList.toggle('dim', S.paused || !S.turn);
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; if(P.timeT) limTimer(S.dur/1000, true); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- editor libero: ogni lato del reticolo può ospitare un pezzo ---------- */
+const ED = {els:[], tool:0, swn:0};
+const TOOLS = [{t:'bat', n:'pila'}, {t:'wire', n:'filo'}, {t:'lamp', n:'lampadina'}, {t:'sw', n:'interruttore'}, {t:'motor', n:'motore'}, {t:'buzz', n:'cicalino'}, {t:'res', n:'resistore', r:10}, {t:'obj', o:'chiave', n:'chiave (metallo)'}, {t:'obj', o:'gomma', n:'gomma (isolante)'}, {t:'erase', n:'togli pezzo'}];
+function edEmpty(){ const els = []; for(let r=0; r<=3; r++) for(let c=0; c<4; c++) els.push({a:[c,r], b:[c+1,r], t:'slot'}); for(let c=0; c<=4; c++) for(let r=0; r<3; r++) els.push({a:[c,r], b:[c,r+1], t:'slot'}); return els; }
+function edExample(){
+  ED.els = edEmpty(); ED.swn = 0;
+  const set = (a, b, t, o) => { const k = ED.els.findIndex(e=>nk(e.a)===nk(a) && nk(e.b)===nk(b)); ED.els[k] = {a, b, t, ...(o || {})}; };
+  set([0,1],[0,2],'bat'); set([0,0],[0,1],'wire'); set([0,2],[0,3],'wire');
+  [[0,0],[1,0],[2,0],[3,0]].forEach(([c,r])=>set([c,r],[c+1,r], c===0 ? 'sw' : 'wire', c===0 ? {id:'S1', on:true} : {}));
+  [[0,3],[1,3],[2,3],[3,3]].forEach(([c,r])=>set([c,r],[c+1,r],'wire'));
+  set([2,0],[2,1],'wire'); set([2,1],[2,2],'lamp', {id:'A'}); set([2,2],[2,3],'wire');
+  set([4,0],[4,1],'wire'); set([4,1],[4,2],'lamp', {id:'B'}); set([4,2],[4,3],'wire');
+  ED.swn = 1;
+}
+function edLabels(){ const L = 'ABCDEFGHIJ'; let li = 0, mi = 0, bi = 0, ri = 0; ED.els.forEach(e=>{ if(e.t==='lamp') e.id = L[li++]; if(e.t==='motor') e.id = 'M' + (++mi); if(e.t==='buzz') e.id = 'C' + (++bi); if(e.t==='res') e.id = 'R' + (++ri); }); }
+function edDraw(){
+  edLabels();
+  const st = sim(ED.els);
+  $('#edSt').innerHTML = circuitSVG(ED.els, st).replace('class="circ', 'class="circ ed');
+  const stg = $('#edSt'), r = stg.getBoundingClientRect(), svg = stg.querySelector('svg');
+  if(svg){ let w = r.width - 4, h = w*H/W; if(h > r.height - 4){ h = r.height - 4; w = h*W/H; } svg.setAttribute('width', Math.max(200, w)); svg.setAttribute('height', Math.max(140, h)); }
+  $('#edPal').innerHTML = TOOLS.map((tl,i)=>`<div class="titem tool${ED.tool===i ? ' sel' : ''}" data-i="${i}">${tl.t==='erase' ? '<div class="x">✕</div>' : miniPart(tl.t, tl)}<span>${tl.n}</span></div>`).join('');
+  $('#edDraw').textContent = P.draw==='sym' ? 'Disegno realistico' : 'Schema elettrico';
+  /* misure */
+  const rows = [];
+  if(!ED.els.some(e=>e.t==='bat')) rows.push('<div>Metti una <b>pila</b> per far passare la corrente.</div>');
+  else {
+    if(st.short) rows.push('<div class="warn">Cortocircuito! La corrente passa tutta nel filo e la pila si scalda: nessun utilizzatore funziona.</div>');
+    ED.els.filter(e=>e.t==='bat').forEach((e,i)=>rows.push(`<div class="r"><span>Pila ${N(e.v || VBAT)} V</span><b>I = ${N(Math.round(Math.abs(st.I.get(e) || 0)*100)/100)} A</b></div>`));
+    ED.els.filter(e=>['lamp','motor','buzz','res'].includes(e.t)).forEach(e=>{ const i = Math.abs(st.I.get(e) || 0), on = e.t==='res' ? i > 0.01 : st.lit[e.id]; const what = e.t==='lamp' ? (on ? (st.P[e.id] > 0.8*PSINGLE ? 'accesa' : 'accesa debole') : 'spenta') : e.t==='motor' ? (on ? 'gira' : 'fermo') : e.t==='buzz' ? (on ? 'suona' : 'muto') : `${N(e.r)} Ω`; rows.push(`<div class="r"><span>${e.id}: ${what}</span><b>I = ${N(Math.round(i*100)/100)} A</b></div>`); });
+    rows.push(`<div class="note">Ogni lampadina ha una resistenza di ${R.lamp} Ω, il motore ${R.motor} Ω, il cicalino ${R.buzz} Ω. Legge di Ohm: I = ${frac('V','R')}.</div>`);
+  }
+  $('#edInfo').innerHTML = rows.join('');
+}
+function edOpen(){ if(!ED.els.length) edExample(); show('editor'); edDraw(); }
+$('#openEd').onclick = edOpen;
+$('#edBack').onclick = ()=>{ renderSetup(); show('setup'); };
+$('#edClear').onclick = ()=>{ ED.els = edEmpty(); ED.swn = 0; edDraw(); };
+$('#edEx').onclick = ()=>{ edExample(); edDraw(); };
+$('#edDraw').onclick = ()=>{ P.draw = P.draw==='sym' ? 'real' : 'sym'; save(); edDraw(); };
+$('#edPal').addEventListener('pointerdown', e=>{ const it = e.target.closest('.titem'); if(!it) return; e.preventDefault(); ED.tool = +it.dataset.i; edDraw(); });
+$('#edSt').addEventListener('pointerdown', e=>{
+  const g = e.target.closest && e.target.closest('.el'); if(!g) return; e.preventDefault();
+  const k = +g.dataset.k, el = ED.els[k], tl = TOOLS[ED.tool];
+  if(tl.t==='erase'){ if(el.t!=='slot'){ ED.els[k] = {a:el.a, b:el.b, t:'slot'}; beep([420], 0.04); } edDraw(); return; }
+  if(el.t==='sw' && tl.t==='sw'){ el.on = !el.on; beep([el.on ? 700 : 500], 0.04); edDraw(); return; }
+  if(el.t==='bat' && tl.t==='bat'){ ED.els[k] = {...el, a:el.b, b:el.a}; beep([600], 0.04); edDraw(); return; }
+  if(el.t==='res' && tl.t==='res'){ const vs = [2,5,10,20,50]; el.r = vs[(vs.indexOf(el.r) + 1) % vs.length]; edDraw(); return; }
+  const ne = {a:el.a, b:el.b, t:tl.t};
+  if(tl.t==='obj') ne.o = tl.o;
+  if(tl.t==='sw'){ ne.on = false; ne.id = 'S' + (++ED.swn); }
+  if(tl.t==='res') ne.r = 10;
+  if(tl.t==='bat'){ /* il + verso sinistra o verso l'alto */ }
+  ED.els[k] = ne; beep([640], 0.04); edDraw();
+});
+window.addEventListener('resize', ()=>{ if($('#editor').classList.contains('on')) edDraw(); });
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on') || $('#editor').classList.contains('on')) e.preventDefault(); });
+[1,2,'L'].forEach(mkBoard);
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__circTest = {makeChallenge, sim, solve, switchesOf, OBJ, P, S, BD, placeInto, removeAt, draw};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

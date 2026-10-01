@@ -282,9 +282,9 @@ const SOL = {
   'piramide': svg('<path d="M14 76h52L50 12z"/><path d="M66 76l20-16L50 12z"/><path class="dash" d="M14 76l20-16h52M34 60L50 12"/>'),
   'prisma triangolare': svg('<path d="M10 84h40l-20-34z"/><path d="M50 84l38-22-20-34-38 22z"/><path class="dash" d="M10 84l38-22h40M48 62l20-34"/>')
 };
-const AREA = {'quadrato':'l · l', 'rettangolo':'b · h', 'triangolo':'(b · h) : 2', 'cerchio':'π · r²', 'trapezio':'(B + b) · h : 2', 'rombo':'(D · d) : 2', 'parallelogramma':'b · h'};
+const AREA = {'quadrato':'l · l', 'rettangolo':'b · h', 'triangolo':frac('b · h','2'), 'cerchio':'π · r²', 'trapezio':frac('(B + b) · h','2'), 'rombo':frac('D · d','2'), 'parallelogramma':'b · h'};
 const SOLF = {'cubo':'6 facce, 8 vertici, 12 spigoli', 'parallelepipedo':'6 facce, 8 vertici, 12 spigoli', 'piramide':'5 facce, 5 vertici, 8 spigoli', 'prisma triangolare':'5 facce, 6 vertici, 9 spigoli', 'cilindro':'2 basi circolari e una superficie curva', 'cono':'1 base circolare e un vertice', 'sfera':'solo una superficie curva, senza spigoli'};
-const SOLV = {'cubo':'l · l · l', 'parallelepipedo':'a · b · c', 'cilindro':'π · r² · h', 'cono':'π · r² · h : 3', 'sfera':'4/3 · π · r³', 'piramide':'A<sub>base</sub> · h : 3', 'prisma triangolare':'A<sub>base</sub> · h'};
+const SOLV = {'cubo':'l · l · l', 'parallelepipedo':'a · b · c', 'cilindro':'π · r² · h', 'cono':frac('π · r² · h','3'), 'sfera':'4/3 · π · r³', 'piramide':frac('A<sub>base</sub> · h','3'), 'prisma triangolare':'A<sub>base</sub> · h'};
 
 /* ---------- misure per le equivalenze ---------- */
 const UN = {
@@ -362,7 +362,7 @@ const CATS = [
   {k:'unita', g:'sci', n:'Grandezze e unità di misura', ex:['forza','newton'], one:bank({
     1:[['forza','newton'],['energia','joule'],['potenza','watt'],['pressione','pascal'],['temperatura','grado Celsius'],['massa','kilogrammo'],['tempo','secondo'],['lunghezza','metro'],['capacità','litro']],
     2:[['forza','N'],['energia','J'],['potenza','W'],['pressione','Pa'],['corrente elettrica','A'],['tensione elettrica','V'],['resistenza elettrica','Ω'],['velocità','m/s'],['densità','g/cm³'],['temperatura assoluta','K']],
-    3:[['s : t','velocità'],['m : V','densità'],['F : S','pressione'],['m · g','peso'],['V : R','corrente elettrica'],['V · I','potenza elettrica'],['m · g · h','energia potenziale'],['m · c · ΔT','calore'],['F · s','lavoro'],['½ · m · v²','energia cinetica']]
+    3:[[frac('s','t'),'velocità'],[frac('m','V'),'densità'],[frac('F','S'),'pressione'],['m · g','peso'],[frac('V','R'),'intensità di corrente'],['V · I','potenza elettrica'],['m · g · h','energia potenziale'],['m · c · ΔT','calore'],['F · s','lavoro'],['½ · m · v²','energia cinetica']]
   })},
   {k:'strum', g:'sci', n:'Strumenti di misura', ex:['termometro','temperatura'], one:bank({
     1:[['termometro','temperatura'],['bilancia','massa'],['cronometro','tempo'],['metro a nastro','lunghezza'],['dinamometro','forza'],['cilindro graduato','volume di un liquido']],
@@ -440,9 +440,9 @@ const FAM = {
       ? [[`${d} m`,`${d*100} cm`,'L',1],[`${d} cm`,`${d*10} mm`,'L',0.01],[`${d} dm`,`${d*100} mm`,'L',0.1],[`${d} km`,`${d*1000} m`,'L',1000],[`${d} hm`,`${d*10} dam`,'L',100]]
       : [[`${d} m²`,`${N(d*10000)} cm²`,'A',1],[`${d} dm²`,`${d*100} cm²`,'A',0.01],[`${d} m³`,`${N(d*1000)} L`,'V',1000],[`${d} dm³`,`${d} L`,'V',1],[`${d} cm³`,`${d} mL`,'V',0.001]];
     return F.map(([a,b,dim,k])=>({a, b, v:'q:'+dim+':'+(d*k).toPrecision(8)})); },
-  figure:l=>{ const F = [['quadrato: area','l · l'],['quadrato: perimetro','4 · l'],['rettangolo: area','b · h'],['rettangolo: perimetro','2 · (b + h)'],['triangolo: area','b · h : 2'],['cerchio: area','π · r²'],['cerchio: circonferenza','2 · π · r'],['rombo: area','D · d : 2'],['trapezio: area','(B + b) · h : 2']];
+  figure:l=>{ const F = [['quadrato: area','l · l'],['quadrato: perimetro','4 · l'],['rettangolo: area','b · h'],['rettangolo: perimetro','2 · (b + h)'],['triangolo: area',frac('b · h','2')],['cerchio: area','π · r²'],['cerchio: circonferenza','2 · π · r'],['rombo: area',frac('D · d','2')],['trapezio: area',frac('(B + b) · h','2')]];
     return T(shuffle(F).slice(0, l===4 ? 5 : 6)); },
-  solidi:l=>{ if(l===4) return T(shuffle([['cubo: volume','l³'],['cubo: area totale','6 · l²'],['cilindro: volume','π · r² · h'],['cilindro: area laterale','2 · π · r · h'],['cono: volume','π · r² · h : 3'],['sfera: volume','4/3 · π · r³'],['sfera: superficie','4 · π · r²']]).slice(0,5));
+  solidi:l=>{ if(l===4) return T(shuffle([['cubo: volume','l³'],['cubo: area totale','6 · l²'],['cilindro: volume','π · r² · h'],['cilindro: area laterale','2 · π · r · h'],['cono: volume',frac('π · r² · h','3')],['sfera: volume','4/3 · π · r³'],['sfera: superficie','4 · π · r²']]).slice(0,5));
     return T(shuffle([['prisma triangolare','5 facce, 6 vertici, 9 spigoli'],['piramide quadrangolare','5 facce, 5 vertici, 8 spigoli'],['prisma quadrangolare','6 facce, 8 vertici, 12 spigoli'],['piramide pentagonale','6 facce, 6 vertici, 10 spigoli'],['prisma pentagonale','7 facce, 10 vertici, 15 spigoli'],['piramide esagonale','7 facce, 7 vertici, 12 spigoli'],['prisma esagonale','8 facce, 12 vertici, 18 spigoli']]).slice(0,5)); },
   equaz:l=>{ const a = rnd(2,5), b = a*rnd(3,6);
     const F = l===4
@@ -450,7 +450,7 @@ const FAM = {
       : [[`${a}x + ${a} = ${b}`, (b-a)/a],[`${a}(x + ${a}) = ${b}`, b/a - a],[`${a}x − ${a} = ${b}`, (b+a)/a],[`(x + ${a}) : ${a} = ${b}`, b*a - a]];
     return F.filter(([,x])=>Number.isInteger(x) || Number.isInteger(x*2)).map(([q,x])=>({a:q, b:`x = ${N(x)}`, v:'x:'+x})); },
   unita:l=> l===4
-    ? T(shuffle([['s : t','velocità'],['m : V','densità'],['F : S','pressione'],['V : R','corrente elettrica'],['V · I','potenza elettrica'],['m · g','peso'],['F · s','lavoro']]).slice(0,5))
+    ? T(shuffle([[frac('s','t'),'velocità'],[frac('m','V'),'densità'],[frac('F','S'),'pressione'],[frac('V','R'),'intensità di corrente'],['V · I','potenza elettrica'],['m · g','peso'],['F · s','lavoro']]).slice(0,5))
     : T(shuffle([['m/s','velocità'],['m/s²','accelerazione'],['kg/m³','densità'],['N/m²','pressione'],['J/s','potenza'],['N · m','lavoro (energia)'],['kg · m/s²','forza']]).slice(0,5)),
   strum:l=> l===4
     ? T(shuffle([['barometro','pressione dell\'aria'],['igrometro','umidità dell\'aria'],['anemometro','velocità del vento'],['pluviometro','quantità di pioggia'],['termometro','temperatura'],['anemoscopio','direzione del vento']]).slice(0,5))

@@ -14,7 +14,7 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: tangram, circuiti elettrici, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: tangram, linea del tempo.
 
 ## Giochi
 
@@ -26,7 +26,20 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 | `coppie.html` | **Caccia alle coppie** | Carte da abbinare (figura–nome, operazione–risultato, grandezza–unità, strumento–che cosa misura…). **Multitouch**: ogni squadra ha le sue carte e tutti giocano insieme; si trascina una carta sulla compagna oppure si toccano una dopo l'altra, e chi finisce per primo il round prende 2 punti in più. **LIM**: un solo tabellone, a turni, con carte **scoperte** oppure **coperte** (memory). |
 | `leve.html` | **Leve e bilance** | Oggetti veri da trascinare (bottiglia d'acqua da 1 kg, mattone 2 kg, zucca 3 kg, pesetto 4 kg, anguria 5 kg, secchio d'acqua 10 kg) per mettere in equilibrio una bilancia a piatti o una leva: **peso × distanza** uguale dai due lati. **Multitouch**: ogni squadra ha la sua leva con la stessa sfida; vince il punto chi la mette per prima in equilibrio. **LIM**: una leva, a turni, con rubapunto (anche con il pulsante «Passa»). |
 | `frazioni.html` | **Frazioni da spezzare** | Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita (tocco o strisciata, anche più dita insieme), oppure risposte da scegliere. **Multitouch**: stessa sfida per le due squadre, vince il punto chi risolve per primo. **LIM**: a turni, con rubapunto e pulsante «Passa». |
+| `circuiti.html` | **Circuiti elettrici** | Pezzi da trascinare dal vassoio nei buchi del circuito (o da toccare: prima il pezzo, poi il buco); gli interruttori si aprono e chiudono con un tocco. **Multitouch**: stessa sfida per le due squadre. **LIM**: a turni, con rubapunto e «Passa». In più, un **editor libero** per costruire qualsiasi circuito. |
 | `geopiano.html` | **Geopiano** | Una tavoletta con 9 × 9 chiodini: si tende l'elastico toccando un chiodino dopo l'altro (o trascinando il dito) e si chiude toccando il primo. Il gioco controlla da solo area, perimetro, lati, angoli retti, parallelismi e simmetrie. **Multitouch**: stessa sfida per le due squadre, ognuna sul suo geopiano. **LIM**: a turni, con rubapunto e «Passa». |
+
+### Circuiti elettrici: impostazioni
+- Un vero simulatore: le lampadine brillano di più o di meno secondo come sono collegate (legge di Ohm), il motore gira, il cicalino suona; un cortocircuito viene riconosciuto e segnalato.
+- **Disegno del circuito**: realistico (tavoletta verde, fili di rame, lampadine che si illuminano) oppure **schema elettrico** con i simboli normalizzati dei libri di testo (pila con trattino lungo + e corto −, lampadina ⊗, resistore rettangolare, motore M, interruttore aperto/chiuso).
+- **Livello** (3–4 tipi di sfida per livello, estratti a caso):
+  - *Base*: chiudi il circuito; trova l'oggetto conduttore (chiave, moneta, graffetta, forchetta) tra gli isolanti (gomma, plastica, legno, vetro, carta); fai suonare il cicalino.
+  - *Medio*: due lampadine in serie; accendi solo le lampadine richieste con gli interruttori; che cosa succede se apri un interruttore?; motore e lampadina.
+  - *Avanzato*: due lampadine in parallelo che brillano al massimo; tre lampadine e quattro interruttori; trova e togli il cortocircuito; quante lampadine sono accese?
+  - *Esperto*: due interruttori in serie (servono chiusi tutti e due); due interruttori in parallelo (ne basta uno); lampadina sempre accesa e motore comandato; che cosa succede con tre lampadine?
+  - *Campione*: legge di Ohm, I = V/R (scritta con la linea di frazione); resistori in serie; quale lampadina brilla di più?; interruttore generale più un interruttore per ogni lampadina.
+- **Editor libero** (pulsante «Apri l'editor» nelle impostazioni): si costruisce qualsiasi circuito sul reticolo con pila, filo, lampadina, interruttore, motore, cicalino, resistore e oggetti; a lato si leggono le misure (intensità di corrente in ampere in ogni componente) e l'eventuale cortocircuito.
+- **Aiuto «mostra la corrente»**: la corrente scorre animata nei fili.
 
 ### Geopiano: impostazioni
 - **Livello** (3–4 tipi di sfida per livello, estratti a caso):

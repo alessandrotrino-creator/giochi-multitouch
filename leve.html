@@ -187,7 +187,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <a class="home" href="index.html">← Tutti i giochi</a>
     <div class="brand">
       <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M26 58h12L32 44z" fill="#8D96A5"/><rect x="4" y="38" width="56" height="7" rx="3" fill="#C58A4A" transform="rotate(-8 32 41)"/><rect x="8" y="22" width="14" height="14" rx="3" fill="#2F6FDB" transform="rotate(-8 15 29)"/><rect x="42" y="14" width="14" height="18" rx="3" fill="#E8801F" transform="rotate(-8 49 23)"/></svg>
-      <div><h1>Leve e bilance</h1><p>Trascina gli oggetti sull'asse e porta la leva in equilibrio: peso × distanza deve essere uguale dai due lati.</p></div>
+      <div><h1>Leve e bilance</h1><p>Trascina gli oggetti sull'asse e porta la leva in equilibrio: forza · braccio deve essere uguale dai due lati.</p></div>
     </div>
     <div class="row">
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
@@ -307,7 +307,7 @@ function syncSetup(){
   $('#rules').innerHTML = (lim
     ? 'LIM a turni: una squadra alla volta porta la leva in equilibrio; se finisce il tempo (o preme «Passa»), l\'altra squadra può <b>rubare il punto</b> partendo da dove è rimasta la leva. Basta un tocco alla volta.'
     : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sulla sua leva, e giocano insieme. Si trascinano gli oggetti dal vassoio sull\'asse, a destra del fulcro; un oggetto già sull\'asse si sposta trascinandolo, oppure si toglie con un tocco. Vince il punto chi mette per primo la leva in equilibrio.')
-    + ' La regola: <b>peso × distanza</b> a sinistra = <b>peso × distanza</b> a destra. Nessun dato viene salvato o inviato.';
+    + ' La regola della leva: <b>F₁ · b₁ = F₂ · b₂</b> (forza per braccio a sinistra = forza per braccio a destra). Qui la forza è il peso degli oggetti, che dipende dalla loro massa in kg; il braccio è la distanza dal fulcro, in tacche. Nessun dato viene salvato o inviato.';
 }
 function renderSetup(){
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
@@ -444,8 +444,8 @@ function update(id){
   const pansel = bm.querySelectorAll('.slot.pan'); pansel.forEach(p=>p.style.setProperty('--a', ang + 'deg'));
   /* calcoli (aiuto) */
   if(P.aid){
-    const lt = C.N===1 ? `${C.left.map(o=>o.w).join(' + ')} = ${Ml} kg` : C.left.map(o=>`${o.w==='mys' ? '?' : o.w} × ${o.d}`).join(' + ') + (C.mys ? '' : ` = ${Ml}`);
-    const rl = C.rload.map(o=>C.N===1 ? `${o.w}` : `${o.w} × ${o.d}`); b.right.forEach((list,d)=>list.forEach(o=>rl.push(C.N===1 ? `${o.w}` : `${o.w} × ${d}`)));
+    const lt = C.N===1 ? `${C.left.map(o=>o.w).join(' + ')} = ${Ml} kg` : C.left.map(o=>`${o.w==='mys' ? '?' : o.w} · ${o.d}`).join(' + ') + (C.mys ? '' : ` = ${Ml}`);
+    const rl = C.rload.map(o=>C.N===1 ? `${o.w}` : `${o.w} · ${o.d}`); b.right.forEach((list,d)=>list.forEach(o=>rl.push(C.N===1 ? `${o.w}` : `${o.w} · ${d}`)));
     const rt = rl.length ? rl.join(' + ') + ` = ${Mr}${C.N===1 ? ' kg' : ''}` : '0';
     $('#c'+id).innerHTML = `<span>Sinistra: ${lt}</span><span class="${diff===0 ? 'ok' : ''}">Destra: ${rt}</span>`;
   } else $('#c'+id).innerHTML = `<span>${diff===0 && Mr ? '⚖ In equilibrio' : diff > 0 ? 'Pende a destra' : Mr ? 'Pende a sinistra' : ''}</span>`;

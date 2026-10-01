@@ -12,7 +12,9 @@ Ultimo aggiornamento: 30 settembre 2026.
 ## Decisioni
 - Ogni gioco è **un solo file HTML** senza build, come il laboratorio. Nessun dato salvato o inviato; solo le preferenze in `localStorage` (`duello-prefs`, `coppie-prefs`).
 - Il docente carica i file a mano dal sito di GitHub (Add file → Upload files): la cartella di lavoro è `Desktop\giochi multitouch`. Non lasciarci file di servizio (es. `.claude/`).
-- Notazione italiana: `·` per moltiplicare, `:` per dividere, virgola decimale (`Intl.NumberFormat('it-IT')`), frazioni disegnate in colonna.
+- Notazione italiana: `·` per moltiplicare, `:` per dividere nei calcoli, virgola decimale (`Intl.NumberFormat('it-IT')`), frazioni disegnate in colonna.
+- **Richiesta del docente (01/10/2026): notazioni e accortezze da docente di scuola media, riconosciute, «da manuale».** Le formule si scrivono con la **linea di frazione** (helper `frac`): v = s/t, d = m/V, p = F/S, I = V/R, aree b · h fratto 2, volumi fratto 3, Pick A = I + B/2 − 1. Niente «×» per moltiplicare (solo negli incroci di genetica Aa × Aa); le dimensioni si scrivono a parole («con le dimensioni di 3 cm, 4 cm e 5 cm», «rettangolo di lati 2 e 5»). Termini da libro: «intensità di corrente», «resistore», «braccio» della leva (F₁ · b₁ = F₂ · b₂), «indice» nelle formule chimiche, interruttori «in serie / in parallelo». Simboli normalizzati per gli schemi elettrici.
+- Il Laboratorio dei Solidi resta fuori da questo progetto (il docente ha detto di lasciarlo stare).
 - Multitouch vero: le risposte usano `pointerdown` (non `click`), così più dita contemporanee funzionano; `touch-action:none`, niente zoom, niente menu con la pressione lunga.
 - Modalità LIM proposte dal docente e da Claude: **a turni con rubapunto** e **con prenotazione** (pulsante per squadra o tasti A / L, anche con due tastiere USB).
 
@@ -56,6 +58,15 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Geometria: `simplify` (toglie punti doppi e allineati), `isSimple` (niente incroci), `area2`, `perim`, `rectil`, `isRect`, `isSquare`, `isPara`, `isTrap`, `isRightTri`, `isObtuse`, `isIso`, `interior` (Pick), `canon` (confronto di forme, con o senza spostamento). Figure modello in `TPL`.
 - Sfide `makeChallenge(l)`: `kind:'build'` con `test(a)` che restituisce '' oppure il motivo (mostrato se l'aiuto è attivo), oppure `kind:'choice'` (area o perimetro della figura grigia). Verificato con 2640 figure di prova: tutte le sfide hanno almeno una soluzione.
 - Preferenze `geopiano-prefs`, `window.__geoTest`.
+
+## `circuiti.html` (Circuiti elettrici) — creato l'01/10/2026
+- Reticolo di nodi 5 × 4 (`X(c)`, `Y(r)`), ogni componente sta su un lato tra due nodi: `{a, b, t, id?, on?, o?, r?, v?, placed?}` con `t` = `wire`, `bat` (il + è sul nodo `a`), `lamp`, `sw`, `motor`, `buzz`, `res`, `obj` (oggetti in `OBJ`, `c` = conduttore), `slot` (buco da riempire).
+- Simulazione `solve`: metodo dei nodi con eliminazione di Gauss; pila = 4,5 V con resistenza interna 0,1 Ω; lampadina 10 Ω, motore 8 Ω, cicalino 12 Ω. `sim` restituisce accese (`lit`), potenze (`P`), correnti (`I`) e `short` (corrente nella pila > 8 A). `truth` prova tutte le combinazioni degli interruttori (serie/parallelo).
+- Disegni: `partSVG` (realistico, corpi ingranditi con `SC = 1.45`) e `symSVG` (simboli normalizzati, sfondo bianco, classe `paper`); scelta con `P.draw` (`real` / `sym`), anche nell'editor.
+- Sfide `makeChallenge(l)`: `build` con `els`, `tray` e `test(els)` → '' o motivo; `choice` con 4 risposte. Verificato con un risolutore automatico (tutte le combinazioni di pezzi e interruttori): tutte risolvibili, nessuna già risolta all'inizio.
+- Editor libero (`#editor`, oggetto `ED`): tutti i 31 lati del reticolo sono buchi; tavolozza `TOOLS`; misure a lato (I in A per pila e utilizzatori).
+- Richiesta del docente: **notazioni da manuale** e **formule con la linea di frazione** (I = V/R con `frac`), «resistore», «intensità di corrente», «interruttori in serie / in parallelo» (non «circuito E/O»).
+- Preferenze `circuiti-prefs`, `window.__circTest`.
 
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
