@@ -75,6 +75,13 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Gesti: trascinare (un dito per pezzo), tocco = ruota di 45°, pressione lunga sul parallelogramma = capovolgi. La sagoma ha il bordo spesso (`.sil`) per non mostrare le giunture.
 - Verificato: nessuna sovrapposizione nelle sagome generate; prove nel browser con 2, 4 e 7 pezzi (ruotare + trascinare + aggancio → punto). Preferenze `tangram-prefs`, `window.__tgTest`.
 
+## `energia.html` (Città dell'energia) — creato l'01/10/2026
+- Richiesta del docente: **non un quiz** ma un gioco coinvolgente su energia, fossili, rinnovabili, centrali, nucleare; partita rapida; anche **una sola squadra**; **dati scientifici ufficiali** per CO₂, scorie e tutto il resto; richiami a documenti ufficiali (WMO, IPCC…) e a studiosi come Telmo Pievani; geotermico e maree come «botta di fortuna» rara.
+- Mappa 6 × 4 (`genMap`: fiume, costa, città, montagne, colline; rari `geo` e `baia`), regole di costruzione in `canBuild`. Centrali in `PL` con fonti nel commento (IPCC AR5 2014 per la CO₂ nel ciclo di vita, WNA per petrolio e scorie, IRENA 2023 e IEA/NEA per i costi). Budget `BUDGET0`/`BUDGETDAY`.
+- `simulate(team, day)`: 24 ore; prima rinnovabili non regolabili (sole, vento, geotermico, maree), poi nucleare e carbone (sempre al massimo), poi idroelettrico, gas, petrolio, batterie; l'energia in più carica le batterie o si spreca. `scoreOf` calcola i punti (blackout −2 per ora). `forecast(t)` mostra le previsioni mentre si costruisce.
+- **Mai citazioni inventate**: le idee degli studiosi sono riassunte con la fonte; le citazioni testuali vanno nell'array `CITAZIONI` (le inserisce il docente). Fatti in `FATTI`, ognuno con la fonte.
+- `P.nteams` (1 o 2) con `ACT()`; alla LIM con due squadre si costruisce a turno. Preferenze `energia-prefs`, `window.__enTest`.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 

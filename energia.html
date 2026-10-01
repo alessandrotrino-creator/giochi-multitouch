@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Città dell'energia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; la mappa è un paesaggio visto dall'alto, con il giorno e la notte */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8; --tc:var(--accent);
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+sub{font-size:.7em}
+
+/* ---------- impostazioni ---------- */
+#setup,#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(1000px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:64px;height:64px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700;line-height:1.4}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.pinfo{display:flex;gap:10px;align-items:flex-start;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:8px 10px;font-size:.9rem;line-height:1.35}
+.pinfo svg{width:58px;height:58px;flex:none;border-radius:10px}
+.pinfo b{font-family:var(--font-title);font-size:1.05rem}
+.tag{display:inline-block;font-size:.72rem;font-weight:800;border-radius:999px;padding:1px 8px;margin-left:4px;vertical-align:middle}
+.tag.r{background:var(--ok-soft);color:var(--ok)} .tag.f{background:var(--bad-soft);color:var(--bad)} .tag.n{background:#EDE7FB;color:#6A4CD8} .tag.a{background:var(--surface);color:var(--muted);border:1px solid var(--line)}
+
+/* ---------- partita ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(5px,1vh,10px);padding:clamp(8px,1.5vh,16px) clamp(8px,1.2vw,18px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 30%);--tc:var(--t1)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 30%);--tc:var(--t2)}
+#game.table .half.t1{transform:rotate(180deg)}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.1rem,2.6vh,1.8rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.money{font-family:var(--font-title);font-weight:800;font-size:clamp(1rem,2.4vh,1.5rem);background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:0 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.score{font-family:var(--font-title);font-size:clamp(1.6rem,4.5vh,3rem);font-weight:800;min-width:2ch;text-align:center;border-radius:14px;padding:0 12px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.mapw{flex:1.25;min-height:0;display:flex;align-items:center;justify-content:center;position:relative}
+.map{display:block;max-width:100%;max-height:100%;border-radius:16px;touch-action:none;box-shadow:0 4px 14px rgba(0,0,0,.15)}
+.map .tile{cursor:pointer}
+.map .sel{fill:none;stroke:var(--tc);stroke-width:6}
+.map .bad{fill:rgba(214,51,76,.35)}
+.spin{transform-box:fill-box;transform-origin:center;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.puff{animation:puff 2.4s ease-out infinite;opacity:0}
+.puff.p2{animation-delay:.8s} .puff.p3{animation-delay:1.6s}
+@keyframes puff{0%{opacity:.85;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(10px,-38px) scale(1.6)}}
+.off .spin{animation:none} .off .puff{display:none}
+.pal{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.card{display:flex;flex-direction:column;align-items:center;gap:0;width:clamp(62px,7.2vw,92px);border:3px solid var(--line);border-radius:12px;background:var(--surface);padding:2px 2px 4px;font-weight:800;font-size:clamp(.62rem,1.25vh,.78rem);line-height:1.1;text-align:center;touch-action:none}
+.card svg{width:100%;height:auto;aspect-ratio:1;border-radius:8px}
+.card .c{color:var(--muted)}
+.card.on{border-color:var(--tc);background:color-mix(in srgb,var(--tc) 14%,var(--surface))}
+.card.no{opacity:.4}
+.info{font-weight:700;font-size:clamp(.8rem,1.75vh,1.02rem);line-height:1.35;min-height:2.7em;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px 10px}
+.info b{font-family:var(--font-title)}
+.info .chain{color:var(--accent);font-weight:800}
+.info .warn{color:var(--bad);font-weight:800}
+.chartw{flex:.75;min-height:0;display:flex;flex-direction:column;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px 8px}
+.chartw svg{flex:1;min-height:0;width:100%}
+.fc{font-weight:800;font-size:clamp(.7rem,1.5vh,.92rem);line-height:1.3}
+.fc .okc{color:var(--ok)} .fc .koc{color:var(--bad)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:clamp(.6rem,1.25vh,.78rem);font-weight:800;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:3px;vertical-align:middle}
+.ready{align-self:center;border:0;border-radius:14px;background:var(--tc);color:#fff;font-family:var(--font-title);font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);padding:6px 26px;min-height:46px}
+.ready.done{background:var(--ok)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.45);font-family:var(--font-title);font-size:clamp(1.3rem,3.6vh,2.4rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);z-index:8;text-align:center;padding:20px}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.5rem,4.6vh,3rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:12px 22px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;width:min(92%,560px)}
+.banner small{display:block;font-family:var(--font-body);font-size:.42em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.45;text-align:left}
+.banner .pts{display:grid;grid-template-columns:1fr auto;gap:2px 12px;font-family:var(--font-body);font-size:.42em;font-weight:800;text-align:left;margin-top:8px}
+.banner .pts .neg{color:var(--bad)} .banner .pts .pos{color:var(--ok)}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.mid{width:clamp(120px,13vw,190px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:10px 8px;text-align:center;flex:none;overflow:auto}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 12px}
+.qnum{font-family:var(--font-title);font-size:1.25rem;font-weight:800}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.78rem;font-weight:800;text-transform:uppercase}
+.ev{font-weight:800;font-size:.85rem;line-height:1.3;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:6px 8px}
+.ev b{display:block;font-family:var(--font-title);font-size:1.05rem}
+.clock{font-family:var(--font-title);font-size:2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.timer{width:14px;height:22vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:20vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+.ctl.big{background:var(--accent);color:#fff;border-color:var(--accent);font-family:var(--font-title);font-size:1.15rem}
+
+/* ---------- fine ---------- */
+.result{font-size:clamp(2rem,6vw,3.4rem);text-align:center}
+.finals{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.final{border-radius:20px;padding:14px 18px;border:3px solid var(--line);background:var(--surface-2);display:flex;flex-direction:column;gap:8px}
+.final.t1{border-color:var(--t1)} .final.t2{border-color:var(--t2)}
+.final h3{font-size:1.4rem} .final.t1 h3{color:var(--t1)} .final.t2 h3{color:var(--t2)}
+.final .big{font-family:var(--font-title);font-size:2.6rem;font-weight:800;line-height:1}
+.mixbar{display:flex;height:22px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.mixbar i{display:block;height:100%}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.fact{background:var(--surface-2);border:1px solid var(--line);border-left:5px solid var(--accent);border-radius:12px;padding:10px 12px;line-height:1.45;font-weight:700}
+.fact .src{display:block;color:var(--muted);font-size:.85rem;font-weight:800;margin-top:4px}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+@media (max-width:760px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 12px} #game .timer{width:20vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni di Città dell'energia">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#9ED17B"/><circle cx="48" cy="14" r="8" fill="#FFD43B"/><rect x="8" y="34" width="12" height="22" fill="#5E6A82"/><rect x="22" y="26" width="12" height="30" fill="#4B5568"/><g fill="#FFE66B"><rect x="11" y="38" width="3" height="3"/><rect x="15" y="44" width="3" height="3"/><rect x="25" y="30" width="3" height="3"/><rect x="29" y="38" width="3" height="3"/></g><path d="M46 56V30" stroke="#fff" stroke-width="3"/><g stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M46 30l9-6M46 30l-1 11M46 30l-9-5"/></g></svg>
+      <div><h1>Città dell'energia</h1><p>Ogni squadra deve dare energia elettrica alla sua città per tutta la giornata: costruisci centrali solari, eoliche, idroelettriche, a carbone, a petrolio, a gas o nucleari, con un budget limitato. Poi guarda la giornata scorrere: basterà l'energia? Quanta CO<sub>2</sub> avrai prodotto?</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field" id="n2F"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+      <div class="field"><span>Squadre in gioco</span><div class="seg" id="nteams"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Partita</span><div class="seg" id="days"></div></div>
+      <div class="field"><span>Tempo per costruire</span><div class="seg" id="tplan"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>Le centrali</span><div class="plist" id="plist"></div></div>
+    <p class="note" id="rules"></p>
+    <button class="start" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ PARTITA ============ -->
+<section class="screen" id="game" aria-label="Città dell'energia">
+  <div class="half t1" id="h1"></div>
+  <div class="mid">
+    <div class="qnum" id="day"></div>
+    <div class="ev" id="ev"></div>
+    <div class="clock" id="clock"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl big hide" id="next">Avanti</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2"></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <h2>Lo sapevi?</h2>
+    <div class="facts" id="facts"></div>
+    <div class="actions"><button class="start" id="again">Nuova partita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:1});
+const N = x => NF.format(x);
+const CO2 = 'CO<sub>2</sub>';
+
+/* ===================================================================================
+   LO SAPEVI? — dati da documenti ufficiali (riassunti, con la fonte) e idee di studiosi.
+   Le citazioni testuali si possono aggiungere qui sotto in CITAZIONI, copiandole dai libri usati in classe:
+   {testo:'…', autore:'…', fonte:'titolo, editore, anno'} — compaiono tra i giorni e alla fine.
+   =================================================================================== */
+const CITAZIONI = [
+  /* esempio: {testo:'', autore:'Telmo Pievani', fonte:'La Terra dopo di noi, Contrasto, 2019'} */
+];
+const FATTI = [
+  {t:'Il 2024 è stato l\'anno più caldo mai registrato: la temperatura media globale è stata di circa 1,55 °C più alta della media del periodo 1850–1900. Gli ultimi dieci anni (2015–2024) sono i dieci più caldi mai misurati.', s:'Organizzazione Meteorologica Mondiale (WMO), State of the Global Climate 2024, 2025'},
+  {t:'Secondo gli scienziati dell\'IPCC è «inequivocabile» che le attività umane abbiano riscaldato l\'atmosfera, gli oceani e le terre emerse.', s:'IPCC, Sesto Rapporto di valutazione (AR6), Gruppo di lavoro I, 2021'},
+  {t:'La principale causa dell\'aumento dei gas serra è la combustione di carbone, petrolio e gas naturale per produrre energia, muovere i mezzi di trasporto e far funzionare le industrie.', s:'IPCC, AR6, Rapporto di sintesi, 2023 (in sintesi)'},
+  {t:'Nell\'Accordo di Parigi quasi tutti i Paesi del mondo si sono impegnati a mantenere l\'aumento della temperatura media globale ben al di sotto di 2 °C rispetto all\'epoca preindustriale, cercando di limitarlo a 1,5 °C.', s:'Accordo di Parigi sul clima, ONU, 2015'},
+  {t:'Prima della rivoluzione industriale nell\'aria c\'erano circa 280 parti per milione di anidride carbonica; oggi sono più di 420.', s:'NOAA, osservatorio di Mauna Loa (Hawaii), misure 2024'},
+  {t:'Il carbone si è formato dalle grandi foreste di circa 300 milioni di anni fa; petrolio e gas naturale da resti di piccoli organismi marini sepolti per milioni di anni. Noi li bruciamo in pochi secondi: per questo sono fonti non rinnovabili.', s:'Combustibili fossili: origine (testi di scienze per la scuola secondaria)'},
+  {t:'L\'Agenda 2030 dell\'ONU ha 17 obiettivi: il 7 chiede «energia pulita e accessibile» per tutti, il 13 la «lotta contro il cambiamento climatico».', s:'ONU, Agenda 2030 per lo sviluppo sostenibile, 2015'},
+  {t:'In sintesi, il filosofo della scienza Telmo Pievani invita a guardare la storia lunghissima della Terra: il pianeta esisteva molto prima di noi e continuerà anche dopo; siamo noi ad avere bisogno di un pianeta in salute, e prendercene cura significa prenderci cura di noi stessi.', s:'idea tratta da T. Pievani, La Terra dopo di noi (foto di F. Lanting), Contrasto, 2019'},
+  {t:'Una centrale nucleare non emette CO₂ mentre produce energia, ma lascia scorie radioattive che restano pericolose per migliaia di anni e vanno custodite con grande cura.', s:'Energia nucleare: vantaggi e problemi (testi di scienze)'},
+  {t:'Per produrre 1 kWh di energia elettrica, contando tutto il ciclo di vita dell\'impianto, si emettono circa 820 g di CO₂ con il carbone, 490 g con il gas naturale, 48 g con il fotovoltaico, 24 g con l\'idroelettrico, 12 g con il nucleare e 11 g con l\'eolico (valori mediani).', s:'IPCC, Quinto Rapporto (AR5), Gruppo di lavoro III, Allegato III, 2014'},
+  {t:'Un reattore nucleare da 1000 MW produce ogni anno circa 25–28 tonnellate di combustibile esaurito, molto radioattivo: va raffreddato e custodito per migliaia di anni.', s:'World Nuclear Association, Nuclear Fuel Cycle Overview'},
+  {t:'Nel 2023 in Italia si sono consumati 306,1 miliardi di kWh di energia elettrica; le fonti rinnovabili ne hanno coperto il 36,8%. La città del gioco consuma più o meno quanto una città italiana di circa 110.000 abitanti.', s:'Terna, consumi elettrici 2023'},
+  {t:'Tra il 2010 e il 2023 il costo per costruire un impianto fotovoltaico è sceso dell\'86% e quello di un parco eolico a terra del 49%.', s:'IRENA, Renewable Power Generation Costs in 2023, 2024'},
+  {t:'A Larderello, in Toscana, all\'inizio del Novecento si accesero le prime lampadine con l\'energia del calore della Terra: è stato il primo luogo al mondo a produrre elettricità geotermica.', s:'Storia dell\'energia geotermica in Italia'},
+  {t:'Il Sole è la fonte di quasi tutta l\'energia sulla Terra: anche il vento (l\'aria scaldata in modo diverso), l\'acqua dei fiumi (il ciclo dell\'acqua) e perfino i combustibili fossili (antiche piante che hanno fatto la fotosintesi) vengono, in fondo, dal Sole.', s:'Le fonti di energia (testi di scienze)'}
+];
+const allFacts = () => CITAZIONI.filter(c=>c.testo).map(c=>({t:`«${c.testo}»`, s:`${c.autore}${c.fonte ? ', ' + c.fonte : ''}`})).concat(FATTI);
+
+/* ---------- centrali: dati da fonti ufficiali ----------
+   cap = potenza massima in MW (1 MW = 1 milione di watt).
+   cost = costo di costruzione in milioni di euro (M€), = potenza × costo per kW (dollari ≈ euro, valori arrotondati):
+          fotovoltaico 758 $/kW, eolico a terra 1160 $/kW, idroelettrico 2806 $/kW, batterie 273 $/kWh (IRENA, Renewable Power Generation Costs in 2023);
+          nucleare 2157–6920 $/kW → qui 5000 (IEA/NEA, Projected Costs of Generating Electricity 2020);
+          carbone 900–2800 $/kW → qui 1900, gas a ciclo combinato 520–1800 $/kW → qui 1100 (IEA/NEA, intervalli per i Paesi OCSE);
+          petrolio: nessun dato specifico, stimato come il gas.
+   co2 = tonnellate di CO₂ equivalente per MWh nel ciclo di vita (costruzione, combustibile, funzionamento):
+          valori mediani IPCC AR5 (2014), Gruppo III, Allegato III, tabella A.III.2; petrolio: World Nuclear Association (2011), 733 t/GWh.
+   scorie nucleari: un reattore da 1000 MW produce circa 25–28 t di combustibile esaurito all'anno (World Nuclear Association)
+          → circa 3,5 g per MWh. */
+const PL = {
+  sol:{n:'Pannelli fotovoltaici', k:'r', cost:11, cap:15, co2:.048, on:['prato','collina','costa','montagna'], eff:{collina:1.2, prato:1, costa:1, montagna:.9}, ch:'energia luminosa del Sole → energia elettrica', pro:'il Sole è gratis; nel ciclo di vita circa 48 g di CO₂ per kWh (IPCC)', con:'producono solo di giorno, poco con le nuvole', col:'#F1C40F'},
+  eol:{n:'Pala eolica', k:'r', cost:14, cap:12, co2:.011, on:['costa','montagna','collina','prato'], eff:{costa:1.3, montagna:1.3, collina:1, prato:.6}, ch:'energia cinetica del vento → energia meccanica (rotazione) → energia elettrica', pro:'funziona anche di notte; circa 11 g di CO₂ per kWh nel ciclo di vita (IPCC)', con:'senza vento si ferma; rende di più sulla costa e in montagna', col:'#5DADE2'},
+  idro:{n:'Centrale idroelettrica', k:'r', cost:84, cap:30, co2:.024, on:['fiume'], ch:'energia potenziale dell\'acqua → energia cinetica → energia meccanica (turbina) → energia elettrica', pro:'si accende quando serve; circa 24 g di CO₂ per kWh (IPCC)', con:'costosa da costruire, serve un fiume; con la siccità produce meno', col:'#2471A3'},
+  carb:{n:'Centrale a carbone', k:'f', cost:76, cap:40, co2:.82, must:true, on:['prato','costa'], ch:'energia chimica del carbone → energia termica (vapore) → energia meccanica (turbina) → energia elettrica', pro:'produce sempre, giorno e notte', con:'circa 820 g di CO₂ per kWh (IPCC), la più inquinante; non si regola: brucia sempre al massimo', col:'#34495E'},
+  petr:{n:'Centrale a petrolio', k:'f', cost:33, cap:30, co2:.733, on:['prato','costa'], ch:'energia chimica del petrolio (olio combustibile) → energia termica → energia meccanica → energia elettrica', pro:'si accende quando serve', con:'circa 733 g di CO₂ per kWh (World Nuclear Association); in Italia oggi è quasi abbandonata', col:'#7D5A3C'},
+  gas:{n:'Centrale a gas naturale', k:'f', cost:33, cap:30, co2:.49, on:['prato','costa'], ch:'energia chimica del metano → energia termica → energia meccanica → energia elettrica', pro:'si regola in fretta; costa poco da costruire', con:'circa 490 g di CO₂ per kWh (IPCC): meno del carbone, ma è un combustibile fossile', col:'#E67E22'},
+  nuc:{n:'Piccola centrale nucleare', k:'n', cost:400, cap:80, co2:.012, waste:.0035, must:true, water:true, on:['prato','costa'], ch:'energia nucleare (fissione dell\'uranio) → energia termica → energia meccanica → energia elettrica', pro:'tantissima energia, circa 12 g di CO₂ per kWh (IPCC)', con:'costosissima, sempre accesa al massimo; scorie radioattive (circa 3,5 g per MWh) pericolose per migliaia di anni; serve acqua vicina per il raffreddamento', col:'#8E44AD'},
+  /* le due «botte di fortuna»: compaiono solo se la mappa ha una sorgente geotermica o una baia con forti maree */
+  geo:{n:'Centrale geotermica', k:'r', cost:115, cap:25, co2:.038, on:['geo'], rare:true, ch:'energia termica del calore interno della Terra (vapore) → energia meccanica (turbina) → energia elettrica', pro:'produce sempre, giorno e notte, con ogni tempo; circa 38 g di CO₂ per kWh (IPCC). In Italia c\'è a Larderello, in Toscana', con:'solo dove il calore della Terra arriva vicino alla superficie; costo circa 4589 $/kW (IRENA 2023)', col:'#C0392B'},
+  mar:{n:'Centrale mareomotrice', k:'r', cost:150, cap:30, co2:.017, on:['baia'], rare:true, ch:'energia cinetica delle correnti di marea → energia meccanica (turbina sott\'acqua) → energia elettrica', pro:'le maree si prevedono con anni di anticipo; circa 17 g di CO₂ per kWh (IPCC)', con:'produce a ondate, quando la marea sale o scende; solo in baie con maree fortissime; costo stimato (non ci sono dati IRENA)', col:'#16A085'},
+  bat:{n:'Batterie di accumulo', k:'a', cost:16, cap:20, store:60, co2:0, on:['prato','collina','costa'], ch:'energia elettrica in più → energia chimica (si carica) → energia elettrica quando serve', pro:'conservano l\'energia del Sole di mezzogiorno per la sera', con:'non producono energia: la conservano', col:'#27AE60'}
+};
+const BUDGET0 = 220, BUDGETDAY = 130;   /* milioni di euro: il primo giorno e quelli successivi */
+const KIND = {r:['rinnovabile','r'], f:['combustibile fossile','f'], n:['non rinnovabile','n'], a:['accumulo','a']};
+const ORDER = ['sol','eol','idro','geo','mar','carb','petr','gas','nuc','bat'];
+const STACK = ['sol','eol','idro','geo','mar','nuc','carb','petr','gas','bat'];
+const LEG = {sol:'Sole', eol:'vento', idro:'acqua', geo:'geotermico', mar:'maree', nuc:'nucleare', carb:'carbone', petr:'petrolio', gas:'gas', bat:'batterie'};
+const TER = {prato:'pianura', collina:'collina soleggiata', costa:'costa ventosa', fiume:'fiume', montagna:'montagna', citta:'città', geo:'sorgente geotermica', baia:'baia delle maree'};
+const palOf = () => ORDER.filter(k=>!PL[k].rare || S.map.includes(PL[k].on[0]));
+
+/* ---------- disegni ---------- */
+function terrSVG(t, x, y){
+  const g = (s) => `<g transform="translate(${x} ${y})">${s}</g>`;
+  if(t==='prato') return g('<rect width="100" height="100" fill="#9ED17B"/><path d="M15 70l4-8 4 8M60 30l4-8 4 8M75 80l4-8 4 8" stroke="#6FA84F" stroke-width="2.5" fill="none"/>');
+  if(t==='collina') return g('<rect width="100" height="100" fill="#B5DC8A"/><path d="M0 80Q30 30 60 70T100 60V100H0z" fill="#8CC56A"/><circle cx="78" cy="22" r="9" fill="#FFD43B" opacity=".85"/>');
+  if(t==='costa') return g('<rect width="100" height="100" fill="#F3DFA2"/><path d="M0 0H100V38Q75 50 50 40T0 44z" fill="#4FA3E0"/><path d="M10 22q8-5 16 0M50 16q8-5 16 0" stroke="#fff" stroke-width="2.5" fill="none"/><path d="M55 70h30M60 80h22" stroke="#C9A85C" stroke-width="2.5"/>');
+  if(t==='fiume') return g('<rect width="100" height="100" fill="#9ED17B"/><path d="M38 0Q55 25 42 50T48 100H66Q76 75 62 50T58 0z" fill="#4FA3E0"/><path d="M48 20q4 4 2 8M54 64q3 5 0 9" stroke="#fff" stroke-width="2" fill="none"/>');
+  if(t==='geo') return g('<rect width="100" height="100" fill="#C9B79C"/><ellipse cx="50" cy="64" rx="30" ry="12" fill="#E8DCC4"/><ellipse cx="50" cy="64" rx="16" ry="6" fill="#7FC8D8"/><circle class="puff" cx="44" cy="52" r="9" fill="#fff"/><circle class="puff p2" cx="56" cy="50" r="8" fill="#fff"/><circle class="puff p3" cx="50" cy="48" r="9" fill="#F4F6F8"/><path d="M12 88l8-6 8 6M74 86l8-6 8 6" stroke="#9C8B6E" stroke-width="2.5" fill="none"/><text x="50" y="18" text-anchor="middle" font-size="14" font-weight="800" fill="#7D3C1E">★</text>');
+  if(t==='baia') return g('<rect width="100" height="100" fill="#F3DFA2"/><path d="M0 0H100V70Q50 30 0 70z" fill="#2E86C1"/><path d="M14 30q8-5 16 0M60 24q8-5 16 0M34 48q8-5 16 0" stroke="#fff" stroke-width="2.5" fill="none"/><path d="M8 60Q50 24 92 60" stroke="#BFE3FA" stroke-width="2" stroke-dasharray="4 3" fill="none"/><text x="50" y="92" text-anchor="middle" font-size="14" font-weight="800" fill="#7D5A3C">★</text>');
+  if(t==='montagna') return g('<rect width="100" height="100" fill="#A9B4C2"/><path d="M0 100L35 30L55 60L72 38L100 100z" fill="#7C8798"/><path d="M35 30L27 46L35 42L42 46zM72 38L66 50L72 47L78 52z" fill="#fff"/>');
+  return g('<rect width="100" height="100" fill="#C9CED6"/><rect x="10" y="40" width="22" height="50" fill="#5E6A82"/><rect x="38" y="20" width="24" height="70" fill="#4B5568"/><rect x="68" y="50" width="22" height="40" fill="#6B7487"/>' + [[14,46],[22,46],[14,58],[22,58],[14,70],[42,26],[52,26],[42,38],[52,38],[42,50],[52,50],[42,62],[52,62],[72,56],[80,56],[72,68],[80,68]].map(([a,b])=>`<rect class="win" x="${a}" y="${b}" width="6" height="7"/>`).join(''));
+}
+function plantSVG(k, x, y, sz){
+  const s = (sz || 100)/100, g = (inner) => `<g transform="translate(${x} ${y}) scale(${s})">${inner}</g>`;
+  if(k==='sol') return g('<rect x="10" y="22" width="80" height="56" rx="4" fill="#1F3A68" stroke="#C9CED6" stroke-width="3" transform="skewX(-8) translate(6 0)"/><g stroke="#5D8BD6" stroke-width="2"><path d="M22 22l-8 56M42 22l-8 56M62 22l-8 56M82 22l-8 56M14 41h76M10 60h76"/></g>');
+  if(k==='eol') return g('<path d="M50 92V40" stroke="#fff" stroke-width="5"/><path d="M50 92V40" stroke="#C9CED6" stroke-width="2"/><g class="spin"><path d="M50 40L50 6M50 40L80 57M50 40L20 57" stroke="#fff" stroke-width="6" stroke-linecap="round"/><circle cx="50" cy="40" r="5" fill="#C9CED6"/></g>');
+  if(k==='idro') return g('<path d="M18 30h64l-8 50H26z" fill="#9AA2AE" stroke="#6B7280" stroke-width="2"/><path d="M26 40h48M28 52h44M30 64h40" stroke="#6B7280" stroke-width="2"/><path d="M40 80q10 12 20 0" stroke="#fff" stroke-width="3" fill="none"/><path d="M34 86q16 12 32 0" stroke="#BFE3FA" stroke-width="3" fill="none"/>');
+  if(k==='carb') return g('<rect x="14" y="48" width="56" height="40" fill="#5E6A82"/><rect x="70" y="20" width="12" height="68" fill="#4B5568"/><path d="M14 88l10-14h14l8 14z" fill="#222"/><circle class="puff" cx="76" cy="16" r="9" fill="#555"/><circle class="puff p2" cx="76" cy="16" r="9" fill="#666"/><circle class="puff p3" cx="76" cy="16" r="9" fill="#444"/><rect x="22" y="56" width="8" height="8" fill="#FFE66B"/><rect x="38" y="56" width="8" height="8" fill="#FFE66B"/>');
+  if(k==='petr') return g('<rect x="12" y="52" width="46" height="36" fill="#7D8796"/><ellipse cx="78" cy="62" rx="14" ry="6" fill="#B07A4A"/><rect x="64" y="62" width="28" height="26" fill="#9C6B3F"/><ellipse cx="78" cy="88" rx="14" ry="5" fill="#7D5A3C"/><rect x="40" y="24" width="10" height="28" fill="#5E6A82"/><circle class="puff" cx="45" cy="20" r="8" fill="#6E6E6E"/><circle class="puff p2" cx="45" cy="20" r="8" fill="#777"/>');
+  if(k==='gas') return g('<rect x="14" y="50" width="60" height="38" fill="#7D8796"/><rect x="58" y="26" width="10" height="24" fill="#5E6A82"/><circle class="puff" cx="63" cy="22" r="7" fill="#CFD3DA"/><circle class="puff p2" cx="63" cy="22" r="7" fill="#DDE1E6"/><path d="M32 82c-8-8 0-14 4-22 2 8 10 10 4 22z" fill="#5DADE2"/><path d="M34 82c-3-4 0-8 2-11 1 4 4 6 1 11z" fill="#FFE66B"/>');
+  if(k==='nuc') return g('<path d="M22 90Q30 55 22 22H58Q50 55 58 90z" fill="#D5DAE2" stroke="#9AA2AE" stroke-width="2"/><rect x="62" y="58" width="28" height="32" fill="#9AA2AE"/><circle class="puff" cx="40" cy="16" r="12" fill="#fff"/><circle class="puff p2" cx="40" cy="16" r="12" fill="#F4F6F8"/><circle class="puff p3" cx="40" cy="16" r="12" fill="#fff"/><circle cx="76" cy="72" r="7" fill="#FFD43B"/><path d="M76 72l-5-6a8 8 0 0 1 10 0zM76 72l7 2a8 8 0 0 1-5 8zM76 72l-2 8a8 8 0 0 1-5-8z" fill="#222"/>');
+  if(k==='geo') return g('<rect x="14" y="54" width="44" height="34" fill="#9AA2AE"/><path d="M62 88V40h12v48" fill="#C0392B"/><path d="M58 60h28" stroke="#7D8796" stroke-width="5"/><circle class="puff" cx="68" cy="34" r="10" fill="#fff"/><circle class="puff p2" cx="68" cy="34" r="9" fill="#F4F6F8"/><path d="M22 66h10M36 66h10" stroke="#FFE66B" stroke-width="6"/>');
+  if(k==='mar') return g('<path d="M8 50h84" stroke="#9AA2AE" stroke-width="8"/><rect x="44" y="20" width="12" height="30" fill="#7D8796"/><g transform="translate(50 72)"><g class="spin"><path d="M0 0L0 -18M0 0L16 9M0 0L-16 9" stroke="#16A085" stroke-width="6" stroke-linecap="round"/></g></g><path d="M50 50v14" stroke="#7D8796" stroke-width="4"/><path d="M10 92q10-6 20 0t20 0 20 0 20 0" stroke="#BFE3FA" stroke-width="3" fill="none"/>');
+  if(k==='bat') return g('<rect x="20" y="30" width="60" height="54" rx="6" fill="#27AE60" stroke="#1E8449" stroke-width="3"/><rect x="38" y="22" width="24" height="10" rx="2" fill="#1E8449"/><path d="M54 40l-14 22h12l-6 16 16-24H50z" fill="#FFE66B"/>');
+  return '';
+}
+const cardSVG = k => `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#DCEBCF"/>${k==='del' ? '<path d="M28 28l44 44M72 28L28 72" stroke="#D6334C" stroke-width="10" stroke-linecap="round"/>' : plantSVG(k, 0, 0, 100)}</svg>`;
+
+/* ---------- impostazioni ---------- */
+const P = {days:1, nteams:2, tplan:60, screen:'touch', layout:'side', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('energia-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+const save = ()=>{ try{ localStorage.setItem('energia-prefs', JSON.stringify(P)); }catch(e){} };
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim || P.nteams===1); $('#n2F').classList.toggle('hide', P.nteams===1);
+  $('#rules').innerHTML = (P.days===1 ? '<b>Partita rapida</b>: un solo giorno. ' : `<b>Campagna di ${P.days} giorni</b>: ogni giorno arrivano nuovi soldi, la città consuma un po' di più e cambia il tempo (nuvole, vento, siccità, caldo…). Le centrali costruite restano. `)
+    + (P.nteams===1 ? 'Si gioca <b>con una sola città</b>, tutti insieme: alla fine un giudizio dice com\'è andata. ' : lim ? 'Alla LIM le squadre costruiscono <b>a turno</b> (prima una, poi l\'altra); poi la giornata scorre per tutte e due le città.' : 'Sullo schermo multitouch le squadre costruiscono <b>insieme</b>, ognuna sulla sua città (stessa mappa e stesso tempo); quando tutte e due hanno premuto «Fatto!» (o finisce il tempo) la giornata scorre.')
+    + ' Si tocca una centrale nella tavolozza (compare la sua scheda) e poi un riquadro della mappa. Punti: energia fornita, nessun blackout, quota di rinnovabili e soldi risparmiati; si perdono punti per la CO₂ e per le scorie radioattive. Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#nteams', 'nteams', [[2,'Due squadre'],[1,'Una squadra (tutta la classe)']]);
+  seg('#days', 'days', [[1,'Rapida (1 giorno)'],[3,'Campagna di 3 giorni'],[5,'Campagna di 5 giorni']]);
+  seg('#tplan', 'tplan', [[45,'45 s'],[60,'60 s'],[90,'90 s'],[0,'Senza limite']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#plist').innerHTML = ORDER.map(k=>{ const p = PL[k], [kn, kc] = KIND[p.k]; return `<div class="pinfo">${cardSVG(k)}<div><b>${p.n}</b><span class="tag ${kc}">${kn}</span><br>${p.cost} M€ · ${p.store ? `${p.store} MWh di accumulo` : `fino a ${p.cap} MW`}<br><span style="color:var(--accent)">${p.ch}</span></div></div>`; }).join('');
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.2, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- mappa: 6 × 4 riquadri, uguale per le due squadre ---------- */
+const MC = 6, MR = 4;
+function genMap(){
+  const m = Array.from({length:MC*MR}, ()=>'prato');
+  const rc = rnd(1, 4); for(let r=0; r<MR; r++) m[r*MC + rc] = 'fiume';
+  const cc = rc <= 2 ? 5 : 0; for(let r=0; r<MR; r++) m[r*MC + cc] = 'costa';
+  const free = () => m.map((t,i)=>t==='prato' ? i : -1).filter(i=>i>=0);
+  /* città: due riquadri vicini nelle righe centrali */
+  for(let g=0; g<50; g++){ const r = rnd(1,2), c = rnd(0, MC-2), a = r*MC + c, b = a + 1; if(m[a]==='prato' && m[b]==='prato'){ m[a] = m[b] = 'citta'; break; } }
+  shuffle(free().filter(i=>i < MC)).slice(0,2).forEach(i=>m[i] = 'montagna');
+  shuffle(free()).slice(0,4).forEach(i=>m[i] = 'collina');
+  /* botte di fortuna (rare): una sorgente geotermica, una baia con forti maree */
+  if(Math.random() < 0.4){ const c = free(); if(c.length) m[pick(c)] = 'geo'; }
+  if(Math.random() < 0.4){ const c = m.map((t,i)=>t==='costa' ? i : -1).filter(i=>i>=0); if(c.length) m[pick(c)] = 'baia'; }
+  return m;
+}
+const neigh = i => { const r = Math.floor(i/MC), c = i % MC, o = []; if(r) o.push(i-MC); if(r < MR-1) o.push(i+MC); if(c) o.push(i-1); if(c < MC-1) o.push(i+1); return o; };
+function canBuild(k, map, i){
+  const t = map[i], p = PL[k];
+  if(t==='citta') return 'qui c\'è la città';
+  if(t==='geo' && k!=='geo') return 'qui c\'è una sorgente geotermica: si può costruire solo la centrale geotermica';
+  if(t==='baia' && k!=='mar') return 'qui ci sono maree fortissime: si può costruire solo la centrale mareomotrice';
+  if(!p.on.includes(t)) return k==='idro' ? 'una centrale idroelettrica si costruisce solo su un fiume' : t==='fiume' ? 'sul fiume si può costruire solo una centrale idroelettrica' : `non si può costruire su ${TER[t]}`;
+  if(p.water && t!=='costa' && !neigh(i).some(j=>map[j]==='fiume' || map[j]==='costa' || map[j]==='baia')) return 'la centrale nucleare ha bisogno di acqua vicina (fiume o mare) per il raffreddamento';
+  return '';
+}
+
+/* ---------- tempo e domanda ---------- */
+const EVENTS = [
+  {k:'sereno', n:'Giornata serena', t:'Sole pieno e un po\' di vento.'},
+  {k:'nuvole', n:'Giornata nuvolosa', t:'Le nuvole coprono il Sole: i pannelli producono molto meno.', sun:.35},
+  {k:'calma', n:'Niente vento', t:'L\'aria è ferma: le pale eoliche girano pochissimo.', wind:.15},
+  {k:'vento', n:'Giornata ventosa', t:'Vento forte tutto il giorno: le pale girano a tutta velocità.', wind:1.5},
+  {k:'siccita', n:'Siccità', t:'Il fiume ha poca acqua: la centrale idroelettrica produce meno della metà.', hydro:.4},
+  {k:'caldo', n:'Ondata di caldo', t:'Fa caldissimo: nel pomeriggio tutti accendono i condizionatori.', heat:true, sun:1.05},
+  {k:'inverno', n:'Giornata d\'inverno', t:'Il Sole è basso e la sera serve più energia per luci e riscaldamento.', sun:.6, winter:true}
+];
+const D0 = [40,38,36,35,35,38,50,64,74,78,80,82,85,83,80,78,82,94,104,108,100,84,64,50];
+function demand(day, ev){ return D0.map((d,h)=>{ let v = d*(1 + 0.1*(day-1)); if(ev.heat && h >= 11 && h <= 18) v *= 1.3; if(ev.winter && h >= 16 && h <= 22) v *= 1.2; return Math.round(v); }); }
+const sunAt = h => (h >= 6 && h <= 19) ? Math.max(0, Math.sin(Math.PI*(h-6)/13)) : 0;
+function windProfile(){ const ph = Math.random()*24, a = .2 + Math.random()*.15; return Array.from({length:24}, (_,h)=>Math.max(.05, Math.min(1, .5 + a*Math.sin(2*Math.PI*(h+ph)/24) + (Math.random()-.5)*.15))); }
+
+/* ---------- simulazione di una giornata, ora per ora ---------- */
+function simulate(team, day){
+  const ev = day.ev, D = day.D, W = day.W, out = {hours:[], dem:0, del:0, unmet:0, co2:0, bo:0, nucMWh:0, src:{}};
+  ORDER.forEach(k=>out.src[k] = 0);
+  const pl = team.map.map((k,i)=>k ? {k, eff:(PL[k].eff ? PL[k].eff[day.map[i]] || 1 : 1)} : null).filter(Boolean);
+  const nB = pl.filter(p=>p.k==='bat').length; let level = 0;
+  for(let h=0; h<24; h++){
+    const d = D[h], sun = sunAt(h)*(ev.sun || 1), wind = W[h]*(ev.wind || 1);
+    let sol = 0, eol = 0, nuc = 0, carb = 0, idroCap = 0, gasCap = 0, petrCap = 0, geo = 0, mar = 0;
+    const tide = Math.abs(Math.sin(2*Math.PI*(h + (day.tide || 0))/12.4));   /* la marea sale e scende due volte al giorno */
+    pl.forEach(p=>{ if(p.k==='geo') geo += PL.geo.cap; if(p.k==='mar') mar += PL.mar.cap*tide; if(p.k==='sol') sol += PL.sol.cap*p.eff*sun; if(p.k==='eol') eol += PL.eol.cap*p.eff*Math.min(1.3, wind); if(p.k==='nuc') nuc += PL.nuc.cap; if(p.k==='carb') carb += PL.carb.cap; if(p.k==='idro') idroCap += PL.idro.cap*(ev.hydro || 1); if(p.k==='gas') gasCap += PL.gas.cap; if(p.k==='petr') petrCap += PL.petr.cap; });
+    const fixed = sol + eol + geo + mar + nuc + carb;
+    const u = {sol:0, eol:0, geo:0, mar:0, nuc:0, carb:0, idro:0, gas:0, petr:0, bat:0};
+    let rest = d;
+    /* prima le rinnovabili, poi le centrali che non si spengono (nucleare, carbone) */
+    for(const [k, v] of [['sol',sol],['eol',eol],['geo',geo],['mar',mar],['nuc',nuc],['carb',carb]]){ const x = Math.min(rest, v); u[k] = x; rest -= x; }
+    let spare = fixed - (d - rest);
+    if(rest > 0){
+      /* poi quelle regolabili: idroelettrica, gas, petrolio, batterie */
+      for(const [k, v] of [['idro',idroCap],['gas',gasCap],['petr',petrCap]]){ const x = Math.min(rest, v); u[k] = x; rest -= x; }
+      const b = Math.min(rest, level, nB*PL.bat.cap); u.bat = b; level -= b; rest -= b;
+    } else if(spare > 0 && nB){ const c = Math.min(spare, nB*PL.bat.cap, nB*PL.bat.store - level); level += c; spare -= c; }
+    const unmet = Math.max(0, rest);
+    /* CO₂ nel ciclo di vita (IPCC): il carbone e il nucleare producono sempre al massimo, anche l'energia sprecata */
+    const prod = {...u, carb, nuc};
+    const co2 = ORDER.reduce((s,k)=>s + (prod[k] || 0)*(PL[k].co2 || 0), 0);
+    out.hours.push({h, d, u, unmet, co2, sun, wind, waste:Math.max(0, spare)});
+    out.dem += d; out.del += d - unmet; out.unmet += unmet; out.co2 += co2; out.nucMWh += nuc; if(unmet > d*0.02) out.bo++;
+    ORDER.forEach(k=>out.src[k] += u[k]);
+  }
+  const ren = out.src.sol + out.src.eol + out.src.idro + out.src.geo + out.src.mar;
+  out.cov = out.del / out.dem; out.ren = out.del ? ren / out.del : 0; out.nNuc = pl.filter(p=>p.k==='nuc').length;
+  out.wasteKg = out.nucMWh * PL.nuc.waste;   /* combustibile esaurito, in kg */
+  return out;
+}
+function scoreOf(r, budget){
+  const rows = [['Energia fornita: ' + Math.round(r.cov*100) + '%', Math.round(60*r.cov)], [r.bo ? `Blackout: ${r.bo} or${r.bo===1 ? 'a' : 'e'} al buio` : 'Nessun blackout: luci sempre accese', r.bo ? -2*r.bo : 15], ['Rinnovabili: ' + Math.round(r.ren*100) + '% dell\'energia', Math.round(20*r.ren)], [`${CO2} (ciclo di vita, dati IPCC): ${N(Math.round(r.co2))} t`, -Math.round(r.co2/60)]];
+  if(r.nNuc) rows.push([`Scorie radioattive: ${N(Math.round(r.wasteKg*10)/10)} kg di combustibile esaurito`, -Math.round(r.wasteKg)]);
+  rows.push([`Soldi risparmiati: ${budget} M€`, Math.floor(budget/25)]);
+  return {rows, tot:rows.reduce((s,x)=>s + x[1], 0)};
+}
+
+/* ---------- partita ---------- */
+const S = {day:0, days:1, map:[], teams:[], ph:'', t0:0, raf:0, tick:0, next:0, turn:0, dayData:null, hour:0, facts:[]};
+const nm = t => t===1 ? P.n1 : P.n2;
+const ACT = () => P.nteams===1 ? [1] : [1,2];   /* squadre in gioco */
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function buildHalf(t){
+  const h = $('#h'+t);
+  h.innerHTML = `<div class="team"><h2>${nm(t)}</h2><div class="money" id="m${t}"></div><div class="score" id="s${t}">0</div></div>
+    <div class="mapw"><svg class="map" id="map${t}" viewBox="0 0 ${MC*100} ${MR*100}"></svg></div>
+    <div class="pal" id="pal${t}"></div>
+    <div class="info" id="info${t}"></div>
+    <div class="chartw"><div class="fc" id="fc${t}"></div><div class="legend">${STACK.filter(k=>!PL[k].rare || S.map.includes(PL[k].on[0])).map(k=>`<span><i style="background:${PL[k].col}"></i>${LEG[k]}</span>`).join('')}<span><i style="background:#D6334C"></i>richiesta della città</span></div><svg id="ch${t}" viewBox="0 0 260 100" preserveAspectRatio="none"></svg></div>
+    <button class="ready" id="rd${t}">Fatto!</button>
+    <div class="banner" id="x${t}"></div><div class="lock" id="lk${t}"></div>`;
+  h.querySelector('#pal'+t).addEventListener('pointerdown', e=>{ const c = e.target.closest('.card'); if(!c) return; e.preventDefault(); if(!canPlan(t)) return; const T = S.teams[t-1]; T.sel = c.dataset.k; drawPal(t); infoCard(t, T.sel); beep([600], 0.03); });
+  h.querySelector('#map'+t).addEventListener('pointerdown', e=>{ const tl = e.target.closest('.tile'); if(!tl) return; e.preventDefault(); tapTile(t, +tl.dataset.i); });
+  h.querySelector('#rd'+t).addEventListener('pointerdown', e=>{ e.preventDefault(); ready(t); });
+}
+function start(){
+  clearTimeout(S.next); cancelAnimationFrame(S.raf); clearInterval(S.tick);
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.days = P.days; S.day = 0; S.map = genMap(); S.facts = shuffle(allFacts());
+  S.teams = ACT().map(()=>({map:Array(MC*MR).fill(null), budget:0, score:0, sel:'sol', ready:false, res:[], tot:{dem:0, del:0, co2:0, bo:0, src:Object.fromEntries(ORDER.map(k=>[k,0]))}}));
+  $('#game').classList.toggle('table', P.layout==='table' && P.screen==='touch');
+  ACT().forEach(buildHalf);
+  $('#h2').classList.toggle('hide', P.nteams===1); $('#game').classList.toggle('solo', P.nteams===1);
+  show('game');
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextDay();
+}
+function nextDay(){
+  clearTimeout(S.next); clearInterval(S.tick);
+  S.day++;
+  if(S.day > S.days){ finish(); return; }
+  const ev = S.days===1 ? pick(EVENTS.filter(e=>['sereno','nuvole','vento','caldo','calma'].includes(e.k))) : S.day===1 ? EVENTS[0] : pick(EVENTS.slice(1));
+  S.dayData = {ev, D:demand(S.day, ev), W:windProfile(), map:S.map, tide:Math.random()*12};
+  S.teams.forEach(T=>{ T.budget += S.day===1 ? BUDGET0 : BUDGETDAY; T.ready = false; });
+  $('#day').innerHTML = `<small>Giorno</small>${S.day} di ${S.days}`;
+  $('#ev').innerHTML = `<b>${ev.n}</b>${ev.t}`;
+  $('#next').classList.add('hide');
+  const fact = S.facts[(S.day-1) % S.facts.length];
+  const lucky = [S.map.includes('geo') ? 'una <b>sorgente geotermica</b> ★' : '', S.map.includes('baia') ? 'una <b>baia con forti maree</b> ★' : ''].filter(Boolean).join(' e ');
+  const howto = S.day===1 ? `<small style="border-top:1px solid var(--line);padding-top:6px"><b>Come si gioca:</b> 1) tocca una centrale nella tavolozza: compare la sua scheda; 2) tocca un riquadro della mappa per costruirla (costa milioni di euro); 3) guarda le <b>Previsioni</b>: di notte, a mezzogiorno e alla sera l'energia deve bastare (verde = basta, rosso = blackout); 4) premi «Fatto!».${lucky ? `<br><b>Botta di fortuna!</b> Sulla mappa c'è ${lucky}.` : ''}</small>` : (lucky && S.day===2 ? `<small>Ricorda la botta di fortuna: ${lucky}.</small>` : '');
+  ACT().forEach(t=>{ drawMap(t, null); drawPal(t); forecast(t); infoCard(t, S.teams[t-1].sel); $('#m'+t).textContent = `${S.teams[t-1].budget} M€`; $('#rd'+t).classList.remove('hide','done'); $('#rd'+t).textContent = 'Fatto!';
+    banner(t, `Giorno ${S.day}: ${ev.n}<small>${ev.t} La città chiede fino a ${Math.max(...S.dayData.D)} MW la sera. Hai ${S.teams[t-1].budget} M€.</small>${howto}${S.day > 1 ? `<small style="border-top:1px solid var(--line);padding-top:6px">Lo sapevi? ${fact.t}<br><i>Fonte: ${fact.s}</i></small>` : ''}`); });
+  S.ph = 'intro';
+  S.next = setTimeout(()=>{ unbanner(); plan(); }, S.day===1 ? 11000 : 7500);
+}
+function plan(){
+  S.ph = 'plan';
+  const turns = P.screen==='lim' && P.nteams===2;
+  if(turns){ S.turn = 1; lockFor(); } else { S.turn = 0; ACT().forEach(t=>lock(t, '')); }
+  startTimer(P.tplan, ()=>{ if(turns && S.turn===1){ S.turn = 2; lockFor(); startTimer(P.tplan, ()=>runDay()); } else runDay(); });
+}
+function lockFor(){ ACT().forEach(t=>lock(t, S.turn===t ? '' : `Costruisce ${nm(S.turn)}…`)); }
+function lock(t, msg){ const h = $('#h'+t); h.classList.toggle('locked', !!msg); $('#lk'+t).textContent = msg; }
+const canPlan = t => S.ph==='plan' && !S.teams[t-1].ready && (!(P.screen==='lim' && P.nteams===2) || S.turn===t);
+function startTimer(sec, cb){
+  cancelAnimationFrame(S.raf);
+  const bar = $('#tbar');
+  if(!sec){ bar.style.transform = 'scaleY(1)'; $('#clock').textContent = ''; return; }
+  S.t0 = performance.now(); const dur = sec*1000;
+  const tick = now=>{ if(S.ph!=='plan') return; const left = Math.max(0, dur - (now - S.t0)), f = left/dur; bar.style.transformOrigin = 'center bottom'; bar.style.transform = `scaleY(${f})`; bar.style.background = f < .25 ? 'var(--bad)' : 'var(--accent)'; $('#clock').textContent = Math.ceil(left/1000) + ' s'; if(left <= 0){ cb(); return; } S.raf = requestAnimationFrame(tick); };
+  S.raf = requestAnimationFrame(tick);
+}
+function ready(t){
+  if(!canPlan(t)) return;
+  S.teams[t-1].ready = true; $('#rd'+t).classList.add('done'); $('#rd'+t).textContent = 'Pronti ✓'; beep([520, 780], 0.08);
+  if(P.screen==='lim' && P.nteams===2){ if(S.turn===1){ S.turn = 2; lockFor(); startTimer(P.tplan, ()=>runDay()); } else runDay(); return; }
+  if(S.teams.every(T=>T.ready)) runDay();
+}
+function tapTile(t, i){
+  const T = S.teams[t-1], info = $('#info'+t);
+  if(!canPlan(t)){ if(T.map[i]) infoCard(t, T.map[i], i); return; }
+  if(T.sel==='del'){ if(T.map[i]){ const k = T.map[i]; T.map[i] = null; const back = Math.floor(PL[k].cost/2); T.budget += back; beep([400], 0.05); info.innerHTML = `Demolita: ${PL[k].n}. Ti restituiscono ${back} M€ (metà del costo).`; } drawMap(t, null); drawPal(t); forecast(t); $('#m'+t).textContent = `${T.budget} M€`; return; }
+  if(T.map[i]){ infoCard(t, T.map[i], i); return; }
+  const why = canBuild(T.sel, S.map, i);
+  if(why){ info.innerHTML = `<span class="warn">Non si può: ${why}.</span>`; flashBad(t, i); beep([220], 0.12); return; }
+  if(T.budget < PL[T.sel].cost){ info.innerHTML = `<span class="warn">Non bastano i soldi: ${PL[T.sel].n} costa ${PL[T.sel].cost} M€, ne hai ${T.budget}.</span>`; beep([220], 0.12); return; }
+  T.map[i] = T.sel; T.budget -= PL[T.sel].cost; beep([660, 880], 0.05);
+  $('#m'+t).textContent = `${T.budget} M€`; drawMap(t, null); drawPal(t); infoCard(t, T.sel, i); forecast(t);
+}
+function flashBad(t, i){ const svg = $('#map'+t); const r = document.createElementNS('http://www.w3.org/2000/svg', 'rect'); r.setAttribute('x', (i % MC)*100); r.setAttribute('y', Math.floor(i/MC)*100); r.setAttribute('width', 100); r.setAttribute('height', 100); r.setAttribute('class', 'bad'); svg.appendChild(r); setTimeout(()=>r.remove(), 500); }
+function infoCard(t, k, i){
+  const info = $('#info'+t);
+  if(k==='del'){ info.innerHTML = '<b>Demolisci</b>: tocca una centrale sulla mappa per toglierla (ti restituiscono metà del costo).'; return; }
+  const p = PL[k], [kn] = KIND[p.k];
+  const eff = i !== undefined && p.eff ? ` · qui rende il ${Math.round((p.eff[S.map[i]] || 1)*100)}%` : '';
+  info.innerHTML = `<b>${p.n}</b> (${kn}, ${p.cost} M€, ${p.store ? `${p.store} MWh` : `${p.cap} MW`}${eff}): <span class="chain">${p.ch}</span>. 👍 ${p.pro}. 👎 ${p.con}.`;
+}
+function drawPal(t){
+  const T = S.teams[t-1];
+  $('#pal'+t).innerHTML = palOf().concat(['del']).map(k=>`<div class="card${T.sel===k ? ' on' : ''}${k!=='del' && PL[k].cost > T.budget ? ' no' : ''}" data-k="${k}">${cardSVG(k)}<span>${k==='del' ? 'Demolisci' : PL[k].n.replace('Centrale ','').replace('Pannelli ','')}</span><span class="c">${k==='del' ? '' : PL[k].cost + ' M€'}</span></div>`).join('');
+}
+function drawMap(t, hr){
+  const T = S.teams[t-1]; let h = '';
+  S.map.forEach((ter,i)=>{ const x = (i % MC)*100, y = Math.floor(i/MC)*100; h += `<g class="tile" data-i="${i}">${terrSVG(ter, x, y)}${T.map[i] ? `<g class="${hr && !runs(T.map[i], hr) ? 'off' : ''}">${plantSVG(T.map[i], x+8, y+8, 84)}</g>` : ''}<rect x="${x}" y="${y}" width="100" height="100" fill="none" stroke="rgba(0,0,0,.08)"/></g>`; });
+  /* giorno e notte */
+  if(hr){ const night = 1 - Math.min(1, sunAt(hr.h)*1.6); h += `<rect width="${MC*100}" height="${MR*100}" fill="#0B1530" opacity="${(night*.55).toFixed(2)}" pointer-events="none"/>`; const sx = 30 + (hr.h-6)/13*(MC*100-60); if(hr.sun > 0) h += `<circle cx="${sx}" cy="${30 + 20*(1-hr.sun)}" r="18" fill="#FFD43B" pointer-events="none"/>`; else h += `<circle cx="${MC*100-40}" cy="34" r="14" fill="#F4F6F8" pointer-events="none"/><circle cx="${MC*100-34}" cy="30" r="12" fill="#0B1530" opacity=".55" pointer-events="none"/>`; }
+  const svg = $('#map'+t); svg.innerHTML = h;
+  const dark = hr && hr.unmet > hr.d*0.02;
+  svg.querySelectorAll('.win').forEach(w=>w.setAttribute('fill', dark ? '#30353F' : (hr && sunAt(hr.h) > .3 ? '#C9D6E8' : '#FFE66B')));
+}
+const runs = (k, hr) => ({sol:hr.u.sol > 0, eol:hr.wind > .1, idro:hr.u.idro > 0, geo:true, mar:hr.u.mar > 0, nuc:true, carb:true, gas:hr.u.gas > 0, petr:hr.u.petr > 0, bat:hr.u.bat > 0})[k];
+function drawChart(t, res, upto){
+  const svg = $('#ch'+t);
+  if(!res){ const D = S.dayData.D, mx = Math.max(...D)*1.25; svg.innerHTML = `<polyline points="${D.map((d,h)=>`${5 + h*10.4 + 5},${96 - d/mx*90}`).join(' ')}" fill="none" stroke="#D6334C" stroke-width="1.6" stroke-dasharray="3 2"/><text x="6" y="10" font-size="7" fill="currentColor" style="font-weight:800">Richiesta prevista ora per ora (MW): la sera serve più energia</text>`; return; }
+  const mx = Math.max(...res.hours.map(x=>x.d))*1.25; let h = '';
+  res.hours.forEach((x,i)=>{ if(i > upto) return; let y = 96; STACK.forEach(k=>{ const v = x.u[k]; if(v <= 0) return; const hh = v/mx*90; y -= hh; h += `<rect x="${5 + i*10.4 + 1}" y="${y}" width="8.4" height="${hh}" fill="${PL[k].col}"/>`; }); if(x.unmet > 0){ const hh = x.unmet/mx*90; h += `<rect x="${5 + i*10.4 + 1}" y="${y - hh}" width="8.4" height="${hh}" fill="none" stroke="#D6334C" stroke-width="1" stroke-dasharray="2 1.5"/>`; } });
+  h += `<polyline points="${res.hours.map((x,i)=>`${5 + i*10.4 + 5},${96 - x.d/mx*90}`).join(' ')}" fill="none" stroke="#D6334C" stroke-width="1.6"/>`;
+  [0,6,12,18,23].forEach(hh=>h += `<text x="${5 + hh*10.4 + 5}" y="100" font-size="6" text-anchor="middle" fill="currentColor">${hh}:00</text>`);
+  svg.innerHTML = h;
+}
+/* previsioni: con le centrali costruite fin qui, quanta energia ci sarà di notte, a mezzogiorno e alla sera? */
+function forecast(t){
+  const T = S.teams[t-1], r = simulate(T, S.dayData);
+  drawChart(t, r, 23);
+  const pts = [[3,'Notte'],[12,'Mezzogiorno'],[19,'Sera']].map(([h,n])=>{ const x = r.hours[h], ok = x.unmet <= x.d*0.02; return `<span class="${ok ? 'okc' : 'koc'}">${n} (ore ${h}): ${Math.round(x.d - x.unmet)} MW su ${x.d} ${ok ? '✓' : '✗'}</span>`; });
+  $('#fc'+t).innerHTML = `<b>Previsioni</b> ${pts.join(' · ')} · ${CO2} ${N(Math.round(r.co2))} t${r.bo ? ` · <span class="koc">${r.bo} ore di blackout</span>` : ' · <span class="okc">nessun blackout</span>'}`;
+}
+function runDay(){
+  if(S.ph!=='plan') return;
+  S.ph = 'sim'; cancelAnimationFrame(S.raf); $('#clock').textContent = '';
+  ACT().forEach(t=>{ lock(t, ''); $('#rd'+t).classList.add('hide'); });
+  const res = S.teams.map(T=>simulate(T, S.dayData));
+  S.hour = 0; beep([520, 660, 780], 0.08);
+  S.tick = setInterval(()=>{
+    const h = S.hour;
+    ACT().forEach(t=>{ const r = res[t-1], x = r.hours[h]; drawMap(t, x); drawChart(t, r, h); $('#info'+t).innerHTML = `<b>Ore ${h}:00</b> · richiesta ${Math.round(x.d)} MW · prodotta ${Math.round(x.d - x.unmet)} MW${x.unmet > x.d*0.02 ? ' · <span class="warn">BLACKOUT!</span>' : ''}${x.waste > 1 ? ` · sprecati ${Math.round(x.waste)} MW` : ''}`; });
+    $('#clock').textContent = `${String(h).padStart(2,'0')}:00`; ACT().forEach(t=>$('#fc'+t).innerHTML = '<b>La giornata scorre…</b> guarda le luci della città e il grafico');
+    $('#tbar').style.transform = `scaleY(${(h+1)/24})`;
+    if(res.some(r=>r.hours[h].unmet > r.hours[h].d*0.02)) beep([180], 0.06);
+    S.hour++;
+    if(S.hour >= 24){ clearInterval(S.tick); endDay(res); }
+  }, 650);
+}
+function endDay(res){
+  S.ph = 'res';
+  ACT().forEach(t=>{ const T = S.teams[t-1], r = res[t-1], sc = scoreOf(r, T.budget); T.score += sc.tot; T.res.push({r, sc}); T.tot.dem += r.dem; T.tot.del += r.del; T.tot.co2 += r.co2; T.tot.bo += r.bo; ORDER.forEach(k=>T.tot.src[k] += r.src[k]);
+    $('#s'+t).textContent = T.score;
+    banner(t, `${r.bo ? 'Ci sono stati blackout!' : 'Città sempre illuminata!'}<div class="pts">${sc.rows.map(([a,b])=>`<span>${a}</span><b class="${b < 0 ? 'neg' : 'pos'}">${b > 0 ? '+' : ''}${b}</b>`).join('')}<span>Punti del giorno</span><b>${sc.tot}</b></div>`); });
+  beep([523, 659, 784], 0.12);
+  $('#next').classList.remove('hide'); $('#next').textContent = S.day >= S.days ? 'Risultati finali' : 'Giorno successivo';
+}
+$('#next').onclick = ()=>{ if(S.ph!=='res') return; unbanner(); nextDay(); };
+$('#stop').onclick = ()=>{ clearInterval(S.tick); cancelAnimationFrame(S.raf); clearTimeout(S.next); finish(); };
+function banner(t, html){ const b = $('#x'+t); b.innerHTML = html; b.classList.add('show'); }
+function unbanner(){ ACT().forEach(t=>$('#x'+t).classList.remove('show')); }
+function finish(){
+  S.ph = 'end'; clearInterval(S.tick); cancelAnimationFrame(S.raf);
+  const [a,b] = S.teams.map(T=>T.score);
+  const perDay = a / Math.max(1, S.teams[0].res.length);
+  $('#res').textContent = P.nteams===1 ? (perDay >= 75 ? 'Città modello!' : perDay >= 55 ? 'Buona gestione dell\'energia!' : 'Si può fare meglio: riprova!') : a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = S.teams.map((T,i)=>{ const t = i+1, tot = T.tot.del || 1, ren = (T.tot.src.sol + T.tot.src.eol + T.tot.src.idro + T.tot.src.geo + T.tot.src.mar)/tot, fos = (T.tot.src.carb + T.tot.src.gas + T.tot.src.petr)/tot;
+    return `<div class="final t${t}"><h3>${nm(t)}</h3><div class="big">${T.score} punti</div>
+      <div class="mixbar">${STACK.map(k=>T.tot.src[k] > 0 ? `<i style="width:${T.tot.src[k]/tot*100}%;background:${PL[k].col}" title="${PL[k].n}"></i>` : '').join('')}</div>
+      <div>Energia da fonti <b>rinnovabili</b>: <b>${Math.round(ren*100)}%</b> · da <b>combustibili fossili</b>: <b>${Math.round(fos*100)}%</b></div>
+      <div>${CO2} emessa: <b>${N(Math.round(T.tot.co2))} t</b> · ore di blackout: <b>${T.tot.bo}</b> · energia fornita: <b>${Math.round(T.tot.del/(T.tot.dem || 1)*100)}%</b></div></div>`; }).join('');
+  $('#facts').innerHTML = shuffle(allFacts()).slice(0, 4).map(f=>`<div class="fact">${f.t}<span class="src">Fonte: ${f.s}</span></div>`).join('');
+  if(P.nteams===1 || a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on')) e.preventDefault(); });
+window.addEventListener('resize', ()=>{});
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__enTest = {simulate, scoreOf, genMap, canBuild, demand, EVENTS, windProfile, PL, S, P};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>
