@@ -90,6 +90,24 @@ Ultimo aggiornamento: 30 settembre 2026.
   - **Laboratorio** (`#lab`, `LABS`, `labOpen`, `labLoop`): ogni mini gioco ha `init`, `step(s,dt)`, `scene(s,t)` (SVG 400 × 300), `ctrls` (range, seg, btn), `goals` `{t, f, hold, why}`, `chain`/`plant` per la catena (`s.stage` passi accesi). `catena` e `sole` sono `custom`. Le stelle restano solo durante la sessione (`L.stars`), non vengono salvate.
   - Verificato in browser: tutorial completo; tutte le sfide di tutti i mini giochi risolvibili; partita a 2 squadre, a 1 squadra, a tavolo, alla LIM, 1600 × 900 e 1366 × 768.
 
+## `zoo.html` (Lo zoo della classificazione) — creato il 01/10/2026
+- **Richiesta del docente**: «divertente e carino», sugli animali: invertebrati e phyla, vertebrati e classi, classificazione nei gruppi giusti. Il docente vuole **entrambi i nomi «cnidari» e «celenterati»**: nel gioco si scrive sempre «Cnidari (celenterati)».
+- **Disegni**: `DRAW[k]()` restituisce SVG 100 × 100 in stile adesivo (contorno #2E3047). Funzioni di aiuto `fish`, `bird`, `frog`, `insect`, `dup` (tubo con contorno), `E`/`EW` (occhi), `CK` (guance). Gli artropodi sono visti dall'alto e il numero di zampe e antenne è quello giusto (aragosta e gambero 10, porcellino di terra 14, mosca 2 ali).
+- **Dati degli animali**: `ROWS` contiene `[chiave, articolo, nome, gruppo foglia, d, indizio1, indizio2, x]`, dove `d` è 1 per un animale tipico, 2 per uno meno noto, 3 per un trabocchetto, e `x` è la spiegazione speciale del trabocchetto.
+- **Gruppi**: `GR` (`n`, `s` singolare con articolo, `col`, `need` per il suggerimento quando si sbaglia, `why`, `traits` per l'identikit dal più vago al più preciso).
+- **Argomenti**: `TOPICS` (vi, cla, phy, art, mol, pes), ognuno con la funzione `of(a)` che dice in quale recinto va l'animale per quell'argomento.
+- **Chiavi dicotomiche**: `KEYTREE`. La risposta giusta si calcola con `leavesOf`.
+- **Modalità**:
+  - `smista`: recinti `.pen`; trascinamento per `pointerId` con copia `.ghost` e `elementFromPoint`, oppure tocco sull'animale e poi sul recinto. Alla LIM i turni sono a tempo.
+  - `ident`: indizi a tempo, `clueTime`; l'ultimo indizio è la sagoma. Alla LIM a turni con rubapunto.
+  - `chiave`: ogni squadra ha la sua sequenza di animali; alla LIM a turni per animale.
+- **Pool degli animali**: `poolFor(topic, lv)`. Livello 1 solo `d` = 1; livello 2 `d` ≤ 2; livello 3 tutti; livelli 4 e 5 `d` ≥ 2. Se restano meno di 6 animali si allarga.
+- **Preferenze e test**: preferenze in `zoo-prefs`; per le verifiche c'è `window.__zooTest`.
+- **Verificato in browser**:
+  - i 91 disegni;
+  - le tre modalità;
+  - LIM, tavolo (anche il trascinamento dalla metà capovolta) e 1366 × 768.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 

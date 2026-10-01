@@ -28,6 +28,7 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 | `frazioni.html` | **Frazioni da spezzare** | Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita (tocco o strisciata, anche più dita insieme), oppure risposte da scegliere. **Multitouch**: stessa sfida per le due squadre, vince il punto chi risolve per primo. **LIM**: a turni, con rubapunto e pulsante «Passa». |
 | `circuiti.html` | **Circuiti elettrici** | Pezzi da trascinare dal vassoio nei buchi del circuito (o da toccare: prima il pezzo, poi il buco); gli interruttori si aprono e chiudono con un tocco. **Multitouch**: stessa sfida per le due squadre. **LIM**: a turni, con rubapunto e «Passa». In più, un **editor libero** per costruire qualsiasi circuito. |
 | `energia.html` | **Città dell'energia** | Gioco di strategia, non un quiz: ogni squadra costruisce centrali sulla mappa con un budget e poi guarda scorrere la giornata (alba, giorno, sera, notte) con il grafico della richiesta e della produzione ora per ora. **Multitouch**: due squadre insieme, stessa mappa e stesso tempo. **LIM**: le squadre costruiscono a turno. Anche **una sola squadra** (tutta la classe) a schermo intero. |
+| `zoo.html` | **Lo zoo della classificazione** | 91 animali disegnati da classificare. **Smistamento**: si trascinano gli animali nei recinti, con più dita insieme. **Identikit**: indizi uno alla volta, vince chi indovina prima il gruppo. **Chiave dicotomica**: domande sì/no fino al gruppo. **LIM**: a turni, con rubapunto nell'identikit. Anche **una sola squadra**. |
 | `tangram.html` | **Tangram** | I sette pezzi classici da trascinare sulla sagoma grigia: un tocco ruota il pezzo di 45°, tenendo premuto il parallelogramma lo si capovolge; i pezzi si agganciano da soli agli angoli vicini. Ogni modo corretto di riempire la sagoma va bene. **Multitouch**: stessa sagoma per le due squadre, più dita insieme. **LIM**: a turni, con rubapunto e «Passa». |
 | `geopiano.html` | **Geopiano** | Una tavoletta con 9 × 9 chiodini: si tende l'elastico toccando un chiodino dopo l'altro (o trascinando il dito) e si chiude toccando il primo. Il gioco controlla da solo area, perimetro, lati, angoli retti, parallelismi e simmetrie. **Multitouch**: stessa sfida per le due squadre, ognuna sul suo geopiano. **LIM**: a turni, con rubapunto e «Passa». |
 
@@ -51,6 +52,35 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
   - **Tutto viene dal Sole?**: si dividono le fonti in due cesti, da una parte quelle che vengono dall'energia del Sole, dall'altra nucleare, geotermia e maree.
 - **Punti del giorno**: energia fornita, nessun blackout (ogni ora al buio toglie punti), quota di rinnovabili, soldi risparmiati; si perdono punti per la CO₂ e per le scorie radioattive.
 - **Dati usati (fonti ufficiali)**: emissioni di CO₂ nel ciclo di vita in g/kWh, valori mediani IPCC AR5 2014 (carbone 820, gas 490, fotovoltaico 48, geotermico 38, idroelettrico 24, maree 17, nucleare 12, eolico 11; petrolio 733 dalla World Nuclear Association); combustibile nucleare esaurito circa 25–28 t all'anno per un reattore da 1000 MW (World Nuclear Association); costi di costruzione IRENA 2023 (fotovoltaico 758 $/kW, eolico 1160 $/kW, idroelettrico 2806 $/kW, geotermico 4589 $/kW, batterie 273 $/kWh) e IEA/NEA (nucleare 2157–6920 $/kW; carbone e gas: intervalli OCSE, valori indicativi); consumi elettrici Terna 2023. Il costo della centrale mareomotrice e della centrale a petrolio è stimato. Nelle schede «Lo sapevi?»: Organizzazione Meteorologica Mondiale, IPCC, Accordo di Parigi, Agenda 2030, NOAA, e un'idea di Telmo Pievani (*La Terra dopo di noi*, Contrasto, 2019) riassunta, non citata alla lettera. Nel file c'è un elenco `CITAZIONI` dove il docente può aggiungere citazioni testuali dai libri usati in classe.
+
+### Lo zoo della classificazione: impostazioni
+- **Argomenti** (se ne possono scegliere più di uno, si giocano uno dopo l'altro):
+  - vertebrati o invertebrati;
+  - classi dei vertebrati: pesci, anfibi, rettili, uccelli, mammiferi;
+  - phyla degli invertebrati: poriferi, cnidari (celenterati), platelminti, nematodi, anellidi, molluschi, artropodi, echinodermi;
+  - classi degli artropodi: insetti, aracnidi, crostacei, miriapodi;
+  - classi dei molluschi: gasteropodi, bivalvi, cefalopodi;
+  - pesci ossei e cartilaginei.
+- **Livelli**:
+  - Base: animali tipici.
+  - Medio: anche animali meno noti.
+  - Avanzato: anche i «trabocchetti».
+  - Esperto: quasi solo animali difficili.
+  - Campione: come Esperto, più veloce e gli errori tolgono un punto.
+  - Crescente: si parte facile e si sale.
+- **Trabocchetti**: delfino, balenottera, pipistrello, ornitorinco, pinguino, struzzo, cavalluccio marino, salamandra, tritone, orbettino, ragno, zecca, porcellino di terra, corallo, attinia, tenia, sanguisuga, oloturia, limaccia, patella, nautilo…
+- **Durata per argomento**:
+  - Smistamento: 60 s, 90 s o 2 minuti.
+  - Identikit: 5, 8 o 12 animali.
+  - Chiave dicotomica: 4, 6 o 10 animali.
+- **Punti**:
+  - Smistamento: 1 per animale, 2 per un trabocchetto.
+  - Identikit: da 6 punti con il primo indizio fino a 1 con l'ultimo (la sagoma).
+  - Chiave: 3 punti senza errori, 2 con un errore, 1 con più errori.
+- **Spiegazioni**: dopo ogni risposta compare la spiegazione con le caratteristiche del gruppo, come sul libro: «Il pipistrello è un mammifero. Vola, ma non ha le penne…».
+- **Riepilogo finale**: gli animali sbagliati, con la spiegazione.
+- **📖 Album degli animali**: si filtra per gruppo; ogni animale ha la sua scheda con il percorso di classificazione (es. Invertebrati › Artropodi › Insetti) e due curiosità.
+- Gli artropodi sono disegnati visti dall'alto, così si possono contare le zampe e le antenne.
 
 ### Tangram: impostazioni
 - Le sagome vengono **create dal gioco ogni volta** unendo i pezzi lato contro lato: c'è sempre una soluzione, e ogni sfida è nuova.
