@@ -81,6 +81,14 @@ Ultimo aggiornamento: 30 settembre 2026.
 - `simulate(team, day)`: 24 ore; prima rinnovabili non regolabili (sole, vento, geotermico, maree), poi nucleare e carbone (sempre al massimo), poi idroelettrico, gas, petrolio, batterie; l'energia in più carica le batterie o si spreca. `scoreOf` calcola i punti (blackout −2 per ora). `forecast(t)` mostra le previsioni mentre si costruisce.
 - **Mai citazioni inventate**: le idee degli studiosi sono riassunte con la fonte; le citazioni testuali vanno nell'array `CITAZIONI` (le inserisce il docente). Fatti in `FATTI`, ognuno con la fonte.
 - `P.nteams` (1 o 2) con `ACT()`; alla LIM con due squadre si costruisce a turno. Preferenze `energia-prefs`, `window.__enTest`.
+- 01/10/2026, richieste del docente: «indicatori immediatamente percepibili, anche nel gioco», tutto «più facilmente consultabile e selezionabile», tutorial con le motivazioni delle scelte, mini giochi su ogni centrale e sui legami tra energie, «sempre fruibili e piacevoli anche graficamente».
+  - **Indicatori**: `dashPlan`/`dashSim` in `#dash{t}`. In pianificazione: Notte, Mezzogiorno, Sera, CO₂, Rinnovabili. Durante la simulazione: Adesso, CO₂ finora, Batterie (`hours[h].bat/batMax`).
+  - **Mappa con rendimento**: `drawMap` mostra la percentuale `effAt` quando una centrale è selezionata; grigio dove `canBuild` vieta.
+  - **Tavolozza e scheda**: nomi brevi `SHORT`. Scheda in `infoCard`: trasforma, dove rende (`WHERE`), pro e contro, costo, potenza, CO₂. Pulsante `? Guida` (`guide`).
+  - **Layout**: `#game.table` e `#game.solo` usano una griglia con la mappa a sinistra.
+  - **Tutorial**: `startTutorial`, `TUT` (11 passi con `hl` per evidenziare e `wait` come condizione), `tutCheck`, `tutRender`. Usa `TUT_MAP`, il budget 300, e `#h2` come pannello guida; «Fatto!» compare solo dal passo `TUT_FATTO`.
+  - **Laboratorio** (`#lab`, `LABS`, `labOpen`, `labLoop`): ogni mini gioco ha `init`, `step(s,dt)`, `scene(s,t)` (SVG 400 × 300), `ctrls` (range, seg, btn), `goals` `{t, f, hold, why}`, `chain`/`plant` per la catena (`s.stage` passi accesi). `catena` e `sole` sono `custom`. Le stelle restano solo durante la sessione (`L.stars`), non vengono salvate.
+  - Verificato in browser: tutorial completo; tutte le sfide di tutti i mini giochi risolvibili; partita a 2 squadre, a 1 squadra, a tavolo, alla LIM, 1600 × 900 e 1366 × 768.
 
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
