@@ -14,7 +14,7 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, circuiti elettrici, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: tangram, circuiti elettrici, linea del tempo.
 
 ## Giochi
 
@@ -26,6 +26,18 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 | `coppie.html` | **Caccia alle coppie** | Carte da abbinare (figura–nome, operazione–risultato, grandezza–unità, strumento–che cosa misura…). **Multitouch**: ogni squadra ha le sue carte e tutti giocano insieme; si trascina una carta sulla compagna oppure si toccano una dopo l'altra, e chi finisce per primo il round prende 2 punti in più. **LIM**: un solo tabellone, a turni, con carte **scoperte** oppure **coperte** (memory). |
 | `leve.html` | **Leve e bilance** | Oggetti veri da trascinare (bottiglia d'acqua da 1 kg, mattone 2 kg, zucca 3 kg, pesetto 4 kg, anguria 5 kg, secchio d'acqua 10 kg) per mettere in equilibrio una bilancia a piatti o una leva: **peso × distanza** uguale dai due lati. **Multitouch**: ogni squadra ha la sua leva con la stessa sfida; vince il punto chi la mette per prima in equilibrio. **LIM**: una leva, a turni, con rubapunto (anche con il pulsante «Passa»). |
 | `frazioni.html` | **Frazioni da spezzare** | Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita (tocco o strisciata, anche più dita insieme), oppure risposte da scegliere. **Multitouch**: stessa sfida per le due squadre, vince il punto chi risolve per primo. **LIM**: a turni, con rubapunto e pulsante «Passa». |
+| `geopiano.html` | **Geopiano** | Una tavoletta con 9 × 9 chiodini: si tende l'elastico toccando un chiodino dopo l'altro (o trascinando il dito) e si chiude toccando il primo. Il gioco controlla da solo area, perimetro, lati, angoli retti, parallelismi e simmetrie. **Multitouch**: stessa sfida per le due squadre, ognuna sul suo geopiano. **LIM**: a turni, con rubapunto e «Passa». |
+
+### Geopiano: impostazioni
+- **Livello** (3–4 tipi di sfida per livello, estratti a caso):
+  - *Base*: copia la figura del modello; rettangolo con l'area data; figura con un certo numero di lati.
+  - *Medio*: figura con l'area data (anche «che non sia un rettangolo»); figura con il perimetro dato (lati orizzontali e verticali); triangolo rettangolo con l'area data; che area ha questa figura?
+  - *Avanzato*: rettangolo con area e perimetro dati; quadrato «storto»; figura simmetrica rispetto a un asse; parallelogramma non rettangolo.
+  - *Esperto*: area data con il perimetro più piccolo possibile; triangolo isoscele; trapezio; triangolo ottusangolo.
+  - *Campione*: area data con un numero preciso di chiodini interni (teorema di Pick); Pitagora (ipotenusa o lato obliquo lungo 5); perimetro di una figura con lati obliqui; stessa area ma perimetro più grande.
+  - *Crescente*: dal base al campione.
+- **Aiuto «mostra area e perimetro»**: sì (si vedono lati, area e perimetro, e il motivo per cui una figura non va bene) o no.
+- **Sfide**: 5, 8 o 10. **Tempo**: per sfida (multitouch) oppure per turno (LIM). Riepilogo finale con una soluzione per ogni sfida.
 
 ### Frazioni da spezzare: impostazioni
 - **Livello** (ogni livello ha 3–4 tipi di sfida, estratti a caso; nelle domande a scelta ci sono sempre 2 risposte plausibili e 1 molto sbagliata):

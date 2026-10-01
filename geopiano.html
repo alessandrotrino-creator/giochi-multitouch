@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Geopiano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; il geopiano è una tavoletta di legno con chiodini e un elastico del colore della squadra */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8;
+  --wood:#E2BF8C; --wood2:#CFA46B; --peg:#7A818C; --peg2:#C9CED6; --tc:var(--accent);
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --wood:#8E6A40; --wood2:#765632; --peg:#C9CED6; --peg2:#F0F2F5; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --wood:#8E6A40; --wood2:#765632; --peg:#C9CED6; --peg2:#F0F2F5; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:60px;height:60px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.lvdesc{margin:0;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.45}
+.howto{display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:var(--muted);font-weight:800}
+.howto svg{width:150px;height:150px;flex:none;--tc:var(--accent)}
+
+/* ---------- geopiano ---------- */
+.task{font-weight:800;text-align:center;font-size:clamp(1rem,2.5vh,1.45rem);line-height:1.3;min-height:1.3em}
+.task b{color:var(--accent)}
+.play{flex:1;min-height:0;display:flex;gap:clamp(6px,1vw,14px);align-items:stretch;justify-content:center}
+.ref{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:6px 8px;font-weight:800;font-size:.85rem;color:var(--muted)}
+.ref:empty{display:none}
+.ref svg{width:clamp(80px,14vh,140px);height:auto}
+.stage{flex:1;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center}
+.geo{display:block;touch-action:none;max-width:100%;max-height:100%}
+.geo .wood{fill:var(--wood);stroke:var(--wood2);stroke-width:.12}
+.geo .grid{stroke:var(--wood2);stroke-width:.03;opacity:.7}
+.geo .peg{fill:var(--peg)} .geo .peg2{fill:var(--peg2)}
+.geo .axis{stroke:var(--accent);stroke-width:.06;stroke-dasharray:.25 .18}
+.geo .model{fill:color-mix(in srgb,var(--muted) 22%,transparent);stroke:var(--muted);stroke-width:.09;stroke-dasharray:.22 .14;stroke-linejoin:round}
+.geo .band{fill:none;stroke:var(--tc);stroke-width:.14;stroke-linejoin:round;stroke-linecap:round}
+.geo .band.closed{fill:color-mix(in srgb,var(--tc) 28%,transparent)}
+.geo .band.bad{stroke:var(--bad);fill:color-mix(in srgb,var(--bad) 18%,transparent)}
+.geo .pre{stroke:var(--tc);stroke-width:.1;stroke-dasharray:.2 .12;opacity:.8;stroke-linecap:round}
+.geo .vx{fill:var(--tc);stroke:var(--surface);stroke-width:.05}
+.geo .vx.first{stroke:var(--ink);stroke-width:.07}
+.tools{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.tools button{border:2px solid var(--line);background:var(--surface);border-radius:14px;font-weight:800;padding:8px 18px;min-height:48px;font-size:1rem}
+.aid{text-align:center;font-weight:800;font-size:clamp(.9rem,2vh,1.2rem);min-height:1.5em;color:var(--muted)}
+.aid .bad{color:var(--bad)} .aid .ok{color:var(--ok)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2vh,12px)}
+.opts:empty{display:none}
+.opt{border:3px solid var(--line);background:var(--surface);border-radius:16px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.3rem,3.6vh,2.3rem);min-height:clamp(54px,8vh,80px);display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 4px 0 var(--line)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.t1 .opt{border-color:color-mix(in srgb,var(--t1) 40%,var(--line))} .t2 .opt{border-color:color-mix(in srgb,var(--t2) 40%,var(--line))}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 40%);--tc:var(--t1)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 40%);--tc:var(--t2)}
+#game.table .half.t1{transform:rotate(180deg)}
+.board{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);flex:1;min-height:0;position:relative}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.8rem,6vh,4rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 26px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;max-width:92%}
+.banner small{display:block;font-family:var(--font-body);font-size:.4em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.35}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:36vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(150px,16vw,250px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.msg{text-align:center;font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+#lim.turn1{--tc:var(--t1)} #lim.turn2{--tc:var(--t2)}
+#bdL.dim{opacity:.4;pointer-events:none}
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni del Geopiano">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2" y="2" width="60" height="60" rx="8" fill="#E2BF8C" stroke="#CFA46B" stroke-width="2"/><polygon points="14,48 50,48 50,26 30,14" fill="rgba(47,111,219,.25)" stroke="#2F6FDB" stroke-width="3.5" stroke-linejoin="round"/><g fill="#7A818C"><circle cx="14" cy="14" r="2.5"/><circle cx="30" cy="14" r="2.5"/><circle cx="50" cy="14" r="2.5"/><circle cx="14" cy="30" r="2.5"/><circle cx="30" cy="30" r="2.5"/><circle cx="50" cy="30" r="2.5"/><circle cx="14" cy="48" r="2.5"/><circle cx="30" cy="48" r="2.5"/><circle cx="50" cy="48" r="2.5"/></g></svg>
+      <div><h1>Geopiano</h1><p>Tendi l'elastico tra i chiodini e costruisci la figura richiesta: aree, perimetri, triangoli, quadrilateri, simmetrie.</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="row">
+      <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
+      <div class="field"><span>Aiuto: mostra area e perimetro</span><div class="seg" id="aid"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeCF"><span>Tempo per sfida</span><div class="seg" id="timeC"></div></div>
+      <div class="field" id="timeTF"><span>Tempo per turno</span><div class="seg" id="timeT"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>Come si costruisce una figura</span><div class="howto" id="howto"></div></div>
+    <p class="note" id="rules"></p>
+    <button class="start" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Geopiano">
+  <div class="half t1" id="h1">
+    <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="board" id="bd1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="board" id="bd2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Geopiano alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpass">Passa</button> <button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="bdL"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
+const N = x => NF.format(x);
+const G = 8;   /* chiodini da 0 a 8 in ogni direzione: 8 × 8 quadretti */
+
+/* ---------- geometria sul reticolo ---------- */
+const cross = (p,q,r) => (q[0]-p[0])*(r[1]-q[1]) - (q[1]-p[1])*(r[0]-q[0]);
+function simplify(pts){
+  const a = pts.slice(); let ch = true;
+  while(ch && a.length >= 3){ ch = false; for(let i=0; i<a.length; i++){ const p = a[(i-1+a.length) % a.length], q = a[i], r = a[(i+1) % a.length]; if((q[0]===p[0] && q[1]===p[1]) || cross(p,q,r)===0){ a.splice(i,1); ch = true; break; } } }
+  return a;
+}
+const area2 = a => Math.abs(a.reduce((s,p,i)=>{ const q = a[(i+1) % a.length]; return s + p[0]*q[1] - q[0]*p[1]; }, 0));
+const edges = a => a.map((p,i)=>{ const q = a[(i+1) % a.length]; return [q[0]-p[0], q[1]-p[1]]; });
+const len2 = v => v[0]*v[0] + v[1]*v[1];
+const perim = a => edges(a).reduce((s,v)=>s + Math.sqrt(len2(v)), 0);
+const rectil = a => edges(a).every(v=>v[0]===0 || v[1]===0);
+const par = (u,v) => u[0]*v[1] - u[1]*v[0] === 0;
+function dots(a){ return a.map((p,i)=>{ const pr = a[(i-1+a.length) % a.length], nx = a[(i+1) % a.length]; return (pr[0]-p[0])*(nx[0]-p[0]) + (pr[1]-p[1])*(nx[1]-p[1]); }); }
+function segX(p1,p2,p3,p4){
+  const o = (a,b,c) => Math.sign(cross(a,b,c)), on = (a,b,c) => Math.min(a[0],b[0]) <= c[0] && c[0] <= Math.max(a[0],b[0]) && Math.min(a[1],b[1]) <= c[1] && c[1] <= Math.max(a[1],b[1]);
+  const d1 = o(p3,p4,p1), d2 = o(p3,p4,p2), d3 = o(p1,p2,p3), d4 = o(p1,p2,p4);
+  if(d1*d2 < 0 && d3*d4 < 0) return true;
+  return (d1===0 && on(p3,p4,p1)) || (d2===0 && on(p3,p4,p2)) || (d3===0 && on(p1,p2,p3)) || (d4===0 && on(p1,p2,p4));
+}
+function isSimple(a){
+  const n = a.length; if(n < 3) return false;
+  if(new Set(a.map(p=>p.join(','))).size !== n) return false;
+  for(let i=0; i<n; i++) for(let j=i+1; j<n; j++){ if(j===i+1 || (i===0 && j===n-1)) continue; if(segX(a[i], a[(i+1)%n], a[j], a[(j+1)%n])) return false; }
+  return true;
+}
+const isRect = a => a.length===4 && dots(a).every(d=>d===0);
+const isSquare = a => isRect(a) && new Set(edges(a).map(len2)).size===1;
+const isPara = a => a.length===4 && (()=>{ const e = edges(a); return e[0][0]===-e[2][0] && e[0][1]===-e[2][1] && e[1][0]===-e[3][0] && e[1][1]===-e[3][1]; })();
+const isTrap = a => a.length===4 && (()=>{ const e = edges(a), p1 = par(e[0],e[2]), p2 = par(e[1],e[3]); return p1 !== p2; })();
+const isRightTri = a => a.length===3 && dots(a).some(d=>d===0);
+const isObtuse = a => a.length===3 && dots(a).some(d=>d < 0);
+const isIso = a => a.length===3 && new Set(edges(a).map(len2)).size < 3;
+const boundary = a => edges(a).reduce((s,v)=>s + gcd(Math.abs(v[0]), Math.abs(v[1])), 0);
+const interior = a => (area2(a) - boundary(a) + 2) / 2;   /* teorema di Pick */
+/* forma canonica per confrontare due poligoni (con o senza spostamento) */
+function canon(a, move){
+  const mx = move ? Math.min(...a.map(p=>p[0])) : 0, my = move ? Math.min(...a.map(p=>p[1])) : 0;
+  const b = a.map(p=>[p[0]-mx, p[1]-my]), out = [];
+  [b, b.slice().reverse()].forEach(c=>{ for(let i=0; i<c.length; i++) out.push(c.slice(i).concat(c.slice(0,i)).map(p=>p.join(',')).join(';')); });
+  return out.sort()[0];
+}
+const Ptxt = a => rectil(a) ? N(perim(a)) : `circa ${N(Math.round(perim(a)*100)/100)}`;
+const minPerim = n => 2*Math.ceil(2*Math.sqrt(n));
+
+/* ---------- figure modello ---------- */
+const TPL = [
+  [[0,0],[2,0],[2,1],[1,1],[1,3],[0,3]],
+  [[0,0],[3,0],[3,1],[2,1],[2,3],[1,3],[1,1],[0,1]],
+  [[0,0],[3,0],[0,2]],
+  [[0,0],[4,0],[3,2],[1,2]],
+  [[1,0],[3,1],[2,3],[0,2]],
+  [[0,1],[1,0],[2,1],[2,3],[0,3]],
+  [[1,0],[3,0],[4,1],[3,2],[1,2],[0,1]],
+  [[0,0],[3,0],[4,2],[1,2]],
+  [[0,0],[1,1],[2,0],[3,1],[3,2],[0,2]],
+  [[0,0],[4,0],[4,1],[1,1],[1,3],[0,3]]
+];
+const place = (t, x0, y0) => t.map(([x,y])=>[x+x0, y+y0]);
+function placeRandom(t, maxX){
+  const w = Math.max(...t.map(p=>p[0])), h = Math.max(...t.map(p=>p[1]));
+  return place(t, rnd(0, (maxX===undefined ? G : maxX) - w), rnd(0, G - h));
+}
+
+/* ---------- impostazioni ---------- */
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('geopiano-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('geopiano-prefs', JSON.stringify(P)); }catch(e){} };
+const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+const LVD = {
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dal copiare una figura fino al teorema di Pick.',
+  1:'Base: copia la figura; costruisci un rettangolo con l\'area data; costruisci una figura con un certo numero di lati.',
+  2:'Medio: figura con l\'area data (anche «che non sia un rettangolo»); figura con il perimetro dato; triangolo rettangolo con l\'area data; che area ha questa figura?',
+  3:'Avanzato: rettangolo con area e perimetro dati; quadrato «storto»; figura simmetrica rispetto a un asse; parallelogramma (non rettangolo) con l\'area data.',
+  4:'Esperto: area data con il perimetro più piccolo possibile; triangolo isoscele; trapezio; triangolo ottusangolo.',
+  5:'Campione: area data con un numero preciso di chiodini all\'interno (teorema di Pick); Pitagora (lati lunghi 5 in obliquo); perimetro con i lati obliqui; stessa area ma perimetro più grande.'
+};
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim);
+  $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
+  $('#lvdesc').textContent = LVD[P.lvl];
+  $('#rules').innerHTML = (lim
+    ? 'LIM a turni: una squadra alla volta costruisce la figura; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dall\'elastico com\'è. Basta un tocco alla volta.'
+    : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sul suo geopiano, e giocano insieme. Vince il punto chi costruisce per primo la figura giusta; una risposta sbagliata (nelle domande a scelta) blocca la squadra per 2 secondi.')
+    + ' Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
+  seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#timeC', 'timeC', [[0,'Senza limite'],[60,'60 s'],[90,'90 s'],[120,'2 minuti']]);
+  seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#howto').innerHTML = geoSVG({pts:[[1,4],[4,4],[4,2],[2,1]], closed:true}, null, 5) + '<span>Tocca un chiodino dopo l\'altro (oppure trascina il dito da un chiodino al successivo, come se tirassi l\'elastico).<br>Per chiudere la figura tocca di nuovo il primo chiodino.<br>«Annulla» toglie l\'ultimo pezzo, «Ricomincia» libera tutto il geopiano.</span>';
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- disegno del geopiano ---------- */
+function geoSVG(band, ch, size){
+  const n = size || G;
+  let h = `<rect class="wood" x="-.6" y="-.6" width="${n+1.2}" height="${n+1.2}" rx=".35"/>`;
+  for(let i=0; i<=n; i++) h += `<path class="grid" d="M${i} 0V${n}M0 ${i}H${n}"/>`;
+  if(ch && ch.axis!==undefined) h += `<path class="axis" d="M${ch.axis} -.5V${n+.5}"/>`;
+  if(ch && ch.model) h += `<polygon class="model" points="${ch.model.map(p=>p.join(',')).join(' ')}"/>`;
+  for(let x=0; x<=n; x++) for(let y=0; y<=n; y++) h += `<circle class="peg" cx="${x}" cy="${y}" r=".13"/><circle class="peg2" cx="${x-.03}" cy="${y-.03}" r=".05"/>`;
+  if(band && band.pts.length){
+    const pts = band.pts.map(p=>p.join(',')).join(' ');
+    h += band.closed ? `<polygon class="band closed${band.bad ? ' bad' : ''}" points="${pts}"/>` : `<polyline class="band" points="${pts}"/>`;
+    if(!band.closed) h += band.pts.map((p,i)=>`<circle class="vx${i===0 ? ' first' : ''}" cx="${p[0]}" cy="${p[1]}" r="${i===0 ? .2 : .15}"/>`).join('');
+  }
+  h += `<line class="pre hide" x1="0" y1="0" x2="0" y2="0"/>`;
+  return `<svg class="geo" viewBox="-.7 -.7 ${n+1.4} ${n+1.4}" aria-label="Geopiano">${h}</svg>`;
+}
+const miniSVG = pts => { const w = Math.max(...pts.map(p=>p[0])), h = Math.max(...pts.map(p=>p[1])), n = Math.max(w,h,3); return `<svg viewBox="-.5 -.5 ${n+1} ${n+1}" class="geo"><rect class="wood" x="-.5" y="-.5" width="${n+1}" height="${n+1}" rx=".3"/>${Array.from({length:n+1}, (_,i)=>`<path class="grid" d="M${i} 0V${n}M0 ${i}H${n}"/>`).join('')}<polygon class="model" points="${pts.map(p=>p.join(',')).join(' ')}" style="stroke-dasharray:none;fill:color-mix(in srgb,var(--accent) 30%,transparent);stroke:var(--accent)"/>${Array.from({length:(n+1)*(n+1)}, (_,k)=>`<circle class="peg" cx="${k % (n+1)}" cy="${Math.floor(k/(n+1))}" r=".12"/>`).join('')}</svg>`; };
+
+/* ---------- sfide ----------
+   kind 'build': test(a) riceve il poligono semplificato e restituisce '' se va bene, altrimenti un suggerimento;
+   kind 'choice': 4 risposte (giusta, 2 plausibili, 1 molto sbagliata) su una figura modello disegnata sul geopiano */
+const nameK = {3:'triangolo', 4:'quadrilatero', 5:'pentagono', 6:'esagono', 7:'ettagono', 8:'ottagono'};
+const need = (ok, msg) => ok ? '' : msg;
+const areaMsg = (a, A) => area2(a)===2*A ? '' : `l'area è ${N(area2(a)/2)}: ne serve ${N(A)}`;
+function numOpts(right, near, far){
+  const seen = new Set([right]), l = [{h:N(right), ok:true}];
+  near.forEach(v=>{ if(l.length < 3 && v > 0 && !seen.has(v)){ seen.add(v); l.push({h:N(v)}); } });
+  for(const v of [right+1, right-1, right+2, right+0.5]) if(l.length < 3 && v > 0 && !seen.has(v)){ seen.add(v); l.push({h:N(v)}); }
+  let f = far; while(seen.has(f)) f += 1; l.push({h:N(f)});
+  return shuffle(l);
+}
+function makeChallenge(l){
+  for(let g=0; g<300; g++){
+    const v = rnd(0, l===1 ? 2 : 3);
+    if(l===1){
+      if(v===0){ const t = pick(TPL); return {l, kind:'build', ref:t, task:'Costruisci sul geopiano <b>la stessa figura</b> del modello (puoi metterla dove vuoi, ma non girarla).', test:a=>need(canon(a,true)===canon(simplify(t),true), 'non è uguale al modello: controlla i lati'), sol:'la stessa figura del modello, spostata'}; }
+      if(v===1){ const A = pick([4,6,8,9,10,12]); return {l, kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>!isRect(a) ? 'non è un rettangolo' : areaMsg(a, A), sol:`per esempio ${pick([[1,A],[2,A/2],[3,A/3],[4,A/4]].filter(([x,y])=>Number.isInteger(y) && y <= 8 && x <= 8)).join(' × ')}`}; }
+      const k = rnd(3,6); return {l, kind:'build', task:`Costruisci un <b>${nameK[k]}</b> (una figura con ${k} lati).`, test:a=>need(a.length===k, `ha ${a.length} lati: ne servono ${k}`), sol:`una figura qualsiasi con ${k} lati`};
+    }
+    if(l===2){
+      if(v===0){ const A = pick([5,6,7,8,9,10]), noRect = Math.random() < 0.5; return {l, kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b>${noRect ? ' che <b>non sia un rettangolo</b>' : ''}.`, test:a=>noRect && isRect(a) ? 'è un rettangolo: serve un\'altra figura' : areaMsg(a, A), sol:noRect ? 'per esempio una figura a L o un triangolo' : 'per esempio un rettangolo'}; }
+      if(v===1){ const Pp = pick([10,12,14,16,18]); return {l, kind:'build', task:`Costruisci una figura con <b>perimetro ${Pp}</b>, usando solo lati orizzontali e verticali.`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : need(perim(a)===Pp, `il perimetro è ${N(perim(a))}: ne serve ${Pp}`), sol:`per esempio un rettangolo ${Pp/2 - 2} × 2`}; }
+      if(v===2){ const A = pick([2,3,4,6]); return {l, kind:'build', task:`Costruisci un <b>triangolo rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isRightTri(a) ? 'non ha un angolo retto' : areaMsg(a, A), sol:`per esempio con i cateti 2 e ${A}`}; }
+      const t = pick(TPL), m = placeRandom(t), A = area2(m)/2, B = boundary(m);
+      return {l, kind:'choice', model:m, opts:numOpts(A, [B, A+1, A-1].filter(x=>x!==A), A*4 + 2), task:'Qual è l\'<b>area</b> della figura (in quadretti)?', sol:`${N(A)} quadretti`};
+    }
+    if(l===3){
+      if(v===0){ const a = rnd(2,6), b = rnd(2,6), A = a*b, Pp = 2*(a+b); return {l, kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A}</b> e perimetro <b>${Pp}</b>.`, test:x=>!isRect(x) ? 'non è un rettangolo' : areaMsg(x, A) || need(Math.abs(perim(x)-Pp) < 1e-9, `il perimetro è ${Ptxt(x)}: ne serve ${Pp}`), sol:`un rettangolo ${Math.min(a,b)} × ${Math.max(a,b)}`}; }
+      if(v===1){ const [S,u] = pick([[2,'1 e 1'],[5,'1 e 2'],[8,'2 e 2'],[10,'1 e 3'],[13,'2 e 3']]); return {l, kind:'build', task:`Costruisci un <b>quadrato «storto»</b> (con i lati obliqui) di area <b>${S} quadretti</b>.`, test:a=>!isSquare(a) ? 'non è un quadrato: lati uguali e angoli retti' : rectil(a) ? 'è un quadrato «dritto»: i lati devono essere obliqui' : areaMsg(a, S), sol:`ogni lato si sposta di ${u} chiodini`}; }
+      if(v===2){ const t = pick(TPL), w = Math.max(...t.map(p=>p[0])); if(w > 4) continue; const m = place(t, 4 - w - rnd(0, Math.min(1, 4-w)), rnd(0, G - Math.max(...t.map(p=>p[1])))); const mir = m.map(([x,y])=>[8-x, y]);
+        return {l, kind:'build', axis:4, model:m, task:'Costruisci la figura <b>simmetrica</b> di quella grigia rispetto all\'asse tratteggiato.', test:a=>need(canon(a,false)===canon(simplify(mir),false), 'non è la figura simmetrica: ogni punto deve stare alla stessa distanza dall\'asse, dall\'altra parte'), sol:'la figura riflessa a destra dell\'asse'}; }
+      const A = pick([4,6,8,9]); return {l, kind:'build', task:`Costruisci un <b>parallelogramma</b> che <b>non sia un rettangolo</b>, con area <b>${A} quadretti</b>.`, test:a=>!isPara(a) ? 'non è un parallelogramma: i lati opposti devono essere paralleli e uguali' : isRect(a) ? 'è un rettangolo: inclina i lati' : areaMsg(a, A), sol:`per esempio base ${A % 3===0 ? 3 : 2}, altezza ${A % 3===0 ? A/3 : A/2}, spostando il lato di sopra di un chiodino`};
+    }
+    if(l===4){
+      if(v===0){ const A = pick([6,8,10,12,15,16]), mp = minPerim(A); return {l, kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b> e il <b>perimetro più piccolo possibile</b> (solo lati orizzontali e verticali).`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : areaMsg(a, A) || need(perim(a)===mp, `perimetro ${N(perim(a))}: si può fare più piccolo`), sol:`perimetro ${mp}: una figura il più possibile simile a un quadrato`}; }
+      if(v===1){ const A = pick([3,4,6,8]); return {l, kind:'build', task:`Costruisci un <b>triangolo isoscele</b> (che non sia rettangolo) con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isIso(a) ? 'non è isoscele: servono due lati uguali' : isRightTri(a) ? 'è rettangolo: serve un triangolo isoscele senza angolo retto' : areaMsg(a, A), sol:`per esempio base 2 e altezza ${A}, con il vertice in mezzo`}; }
+      if(v===2){ const A = pick([4,5,6,8,9]); return {l, kind:'build', task:`Costruisci un <b>trapezio</b> con area <b>${A} quadretti</b>.`, test:a=>!isTrap(a) ? 'non è un trapezio: serve una sola coppia di lati paralleli' : areaMsg(a, A), sol:`per esempio basi 1 e ${A-1}, altezza 2`}; }
+      const A = pick([2,3,4,5,6]); return {l, kind:'build', task:`Costruisci un <b>triangolo ottusangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isObtuse(a) ? 'non ha un angolo ottuso (più grande di un angolo retto)' : areaMsg(a, A), sol:`per esempio base 2, altezza ${A}, con il vertice spostato fuori dalla base`};
+    }
+    /* livello 5 */
+    if(v===0){ const [A,I] = pick([[4,0],[5,0],[6,0],[3,1],[4,1],[5,1],[6,1],[4,2],[5,2],[6,2],[6,3]]); return {l, kind:'build', pick:true, task:`Costruisci una figura con area <b>${A} quadretti</b> che abbia esattamente <b>${I} chiodin${I===1 ? 'o' : 'i'} all'interno</b> (non sul bordo).`, test:a=>areaMsg(a, A) || need(interior(a)===I, `dentro ci sono ${interior(a)} chiodini: ne servono ${I}`), sol:`teorema di Pick: area = interni + bordo : 2 − 1, quindi servono ${2*A - 2*I + 2} chiodini sul bordo`}; }
+    if(v===1){ if(Math.random() < 0.5) return {l, kind:'build', task:'Costruisci un <b>triangolo rettangolo</b> con l\'<b>ipotenusa lunga 5</b>, che non sia né orizzontale né verticale.', test:a=>{ if(a.length!==3 || !isRightTri(a)) return 'non è un triangolo rettangolo'; const e = edges(a).map(len2), h = Math.max(...e), hv = edges(a)[e.indexOf(h)]; return h!==25 ? `l'ipotenusa è lunga ${N(Math.round(Math.sqrt(h)*100)/100)}: ne serve 5` : (hv[0]===0 || hv[1]===0) ? 'l\'ipotenusa deve essere obliqua' : ''; }, sol:'cateti 3 e 4: 3² + 4² = 25 = 5²'};
+      return {l, kind:'build', task:'Costruisci un <b>quadrato storto</b> con il <b>lato lungo 5</b>.', test:a=>!isSquare(a) ? 'non è un quadrato' : rectil(a) ? 'deve essere storto (lati obliqui)' : need(len2(edges(a)[0])===25, `il lato è lungo ${N(Math.round(Math.sqrt(len2(edges(a)[0]))*100)/100)}: ne serve 5`), sol:'ogni lato si sposta di 3 e di 4 chiodini: √(3² + 4²) = 5; area 25'}; }
+    if(v===2){ const sh = pick([[[0,0],[4,0],[0,3]], [[0,0],[4,0],[4,3]], [[0,0],[3,0],[3,4]], [[0,3],[2,3],[6,0],[0,0]], [[0,0],[4,3],[4,6],[0,6]]]); const m = placeRandom(sh), Pv = perim(m); if(!Number.isInteger(Math.round(Pv*1e6)/1e6)) continue;
+      const rect = edges(m).reduce((s,v)=>s + (v[0]===0 || v[1]===0 ? Math.sqrt(len2(v)) : Math.abs(v[0]) + Math.abs(v[1])), 0);
+      return {l, kind:'choice', model:m, opts:numOpts(Math.round(Pv), [Math.round(rect), Math.round(Pv) - 1].filter(x=>x!==Math.round(Pv)), Math.round(area2(m)/2) * 4 + 1), task:'Qual è il <b>perimetro</b> della figura? (I lati obliqui sono ipotenuse.)', sol:`perimetro ${N(Math.round(Pv))}: il lato obliquo è lungo 5 (3² + 4² = 5²)`}; }
+    const a0 = rnd(2,4), b0 = rnd(2,4), A = a0*b0, P0 = 2*(a0+b0), x0 = rnd(0, 8-a0), y0 = rnd(0, 8-b0), m = [[x0,y0],[x0+a0,y0],[x0+a0,y0+b0],[x0,y0+b0]];
+    return {l, kind:'build', model:m, task:`La figura grigia ha area ${A} e perimetro ${P0}. Costruisci una figura con la <b>stessa area</b> ma con il <b>perimetro più grande</b> (solo lati orizzontali e verticali).`, test:x=>!rectil(x) ? 'usa solo lati orizzontali e verticali' : areaMsg(x, A) || need(perim(x) > P0, `il perimetro è ${N(perim(x))}: deve essere più di ${P0}`), sol:`per esempio un rettangolo 1 × ${A}${A > 8 ? ' (non entra: allora una figura a L)' : ''}`};
+  }
+  return makeChallenge(Math.max(1, l-1));
+}
+
+/* ---------- tabellone ---------- */
+const BD = {};
+function mkBoard(id){
+  const host = $('#bd'+id);
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="play"><div class="ref" id="rf${id}"></div><div class="stage" id="st${id}"></div></div><div class="tools" id="tl${id}"><button data-t="undo">↶ Annulla</button><button data-t="clear">Ricomincia</button></div><div class="aid" id="a${id}"></div><div class="opts" id="o${id}"></div>`;
+  BD[id] = {id, host, pts:[], closed:false, bad:false, phase:'build', lock:false, msg:''};
+  host.querySelectorAll('#tl'+id+' button').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); if(!canPlay(id)) return; const b = BD[id]; if(bt.dataset.t==='undo'){ if(b.closed){ b.closed = false; b.bad = false; } else b.pts.pop(); } else { b.pts = []; b.closed = false; b.bad = false; } b.msg = ''; draw(id); beep([420], 0.04); }));
+  bindBoard(id);
+}
+const teamOf = id => id==='L' ? S.turn : id;
+function setupBoard(id){
+  const C = S.ch, b = BD[id];
+  Object.assign(b, {pts:[], closed:false, bad:false, phase:'build', lock:false, msg:''});
+  $('#k'+id).innerHTML = C.task;
+  $('#rf'+id).innerHTML = C.ref ? `<span>Modello</span>${miniSVG(C.ref)}` : '';
+  $('#tl'+id).classList.toggle('hide', C.kind==='choice');
+  const ob = $('#o'+id);
+  ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
+  ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
+  draw(id);
+}
+function draw(id){
+  const C = S.ch, b = BD[id];
+  $('#st'+id).innerHTML = geoSVG({pts:b.pts, closed:b.closed, bad:b.bad}, C);
+  sizeBoard(id);
+  const aid = $('#a'+id);
+  if(C.kind==='choice'){ aid.innerHTML = ''; return; }
+  if(b.msg){ aid.innerHTML = `<span class="bad">${b.msg}</span>`; return; }
+  if(!b.closed){ aid.innerHTML = b.pts.length ? (b.pts.length >= 3 ? 'Per chiudere tocca il primo chiodino (quello cerchiato).' : 'Continua a tendere l\'elastico…') : 'Tocca un chiodino per cominciare.'; return; }
+  const a = simplify(b.pts);
+  aid.innerHTML = P.aid && a.length >= 3 ? `Lati: ${a.length} · Area: ${N(area2(a)/2)} · Perimetro: ${Ptxt(a)}${C.pick ? ` · Chiodini interni: ${interior(a)}` : ''}` : '';
+}
+function sizeBoard(id){
+  const st = $('#st'+id), r = st.getBoundingClientRect(), s = Math.max(120, Math.min(r.width, r.height) - 4), svg = st.querySelector('svg');
+  if(svg){ svg.setAttribute('width', s); svg.setAttribute('height', s); }
+}
+window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) sizeBoard(id); }));
+function closeAndCheck(id){
+  const C = S.ch, b = BD[id];
+  b.closed = true; const a = simplify(b.pts);
+  let msg = '';
+  if(a.length < 3) msg = 'non è una figura: servono almeno 3 lati';
+  else if(!isSimple(a)) msg = 'l\'elastico si incrocia: la figura non è valida';
+  else msg = C.test(a);
+  if(msg){ b.bad = true; b.msg = P.aid ? `Non va bene: ${msg}. Usa «Annulla» per correggere.` : 'Non è la figura richiesta. Usa «Annulla» per correggere.'; beep([220], 0.15); draw(id); return; }
+  b.bad = false; b.msg = ''; draw(id); win(id);
+}
+function choose(id, bt){
+  const b = BD[id]; if(!canPlay(id) || bt.disabled) return;
+  if(S.ch.opts[+bt.dataset.k].ok){ bt.classList.add('right'); win(id); return; }
+  bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
+  if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+/* elastico: tocco su un chiodino = aggiungi; trascinando si tira l'elastico fino al chiodino dove si alza il dito */
+const drags = new Map();
+function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase==='build' && !b.lock && (id!=='L' || S.turn); }
+function bindBoard(id){
+  const st = $('#st'+id);
+  const toGrid = (svg, x, y) => { const pt = svg.createSVGPoint(); pt.x = x; pt.y = y; const m = svg.getScreenCTM(); if(!m) return null; const p = pt.matrixTransform(m.inverse()); return [p.x, p.y]; };
+  const pegAt = (svg, x, y) => { const p = toGrid(svg, x, y); if(!p) return null; const q = [Math.round(p[0]), Math.round(p[1])]; if(q[0] < 0 || q[1] < 0 || q[0] > G || q[1] > G) return null; return Math.hypot(p[0]-q[0], p[1]-q[1]) <= 0.45 ? q : null; };
+  const tapPeg = q => {
+    const b = BD[id]; if(b.closed) return;
+    const last = b.pts[b.pts.length-1];
+    if(b.pts.length >= 3 && q[0]===b.pts[0][0] && q[1]===b.pts[0][1]){ beep([700, 900], 0.05); closeAndCheck(id); return; }
+    if(last && q[0]===last[0] && q[1]===last[1]) return;
+    b.pts.push(q); b.msg = ''; beep([560 + b.pts.length*20], 0.03); draw(id);
+  };
+  st.addEventListener('pointerdown', e=>{
+    const svg = st.querySelector('svg'); if(!svg || S.ch.kind!=='build' || !canPlay(id)) return;
+    const q = pegAt(svg, e.clientX, e.clientY); if(!q) return;
+    e.preventDefault();
+    const b = BD[id]; if(b.closed){ b.msg = P.aid ? b.msg : b.msg; return; }
+    tapPeg(q);
+    if(BD[id].closed) return;
+    try{ st.setPointerCapture(e.pointerId); }catch(err){}
+    drags.set(e.pointerId, {id, from:q});
+  });
+  st.addEventListener('pointermove', e=>{
+    const d = drags.get(e.pointerId); if(!d || !canPlay(id)) return;
+    const svg = st.querySelector('svg'), b = BD[id], last = b.pts[b.pts.length-1]; if(!svg || !last || b.closed) return;
+    const p = toGrid(svg, e.clientX, e.clientY), ln = svg.querySelector('.pre'); if(!p || !ln) return;
+    ln.classList.remove('hide'); ln.setAttribute('x1', last[0]); ln.setAttribute('y1', last[1]); ln.setAttribute('x2', p[0]); ln.setAttribute('y2', p[1]);
+  });
+  const up = e=>{
+    const d = drags.get(e.pointerId); if(!d) return; drags.delete(e.pointerId);
+    const svg = st.querySelector('svg'); if(svg){ const ln = svg.querySelector('.pre'); if(ln) ln.classList.add('hide'); }
+    if(!canPlay(id) || e.type==='pointercancel' || !svg) return;
+    const q = pegAt(svg, e.clientX, e.clientY); if(q && !(q[0]===d.from[0] && q[1]===d.from[1])) tapPeg(q);
+  };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+}
+
+/* ---------- partita ---------- */
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const nm = t => t===1 ? P.n1 : P.n2;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.clear(); }
+function start(){
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.list = Array.from({length:P.num}, (_,i)=> P.lvl===0 ? 1 + Math.floor(5*i/P.num) : P.lvl);
+  Object.assign(S, {i:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextChallenge();
+}
+function nextChallenge(){
+  clearTimeout(S.next);
+  S.i++;
+  if(S.i >= S.list.length){ finish(); return; }
+  S.ch = makeChallenge(S.list[S.i]);
+  S.log.push({ch:S.ch, who:0});
+  if(P.screen==='lim') limChallenge(); else touchChallenge();
+}
+function finish(){
+  stopAll();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+function win(id){
+  const team = teamOf(id);
+  S.playing = false; cancelAnimationFrame(S.raf);
+  BD[id].phase = 'done';
+  S.score[team-1]++; S.log[S.i].who = team;
+  beep([660, 880, 1100], 0.1);
+  if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
+  $('#s'+team).textContent = S.score[team-1];
+  banner(team, 'Giusto! +1', true);
+  banner(3-team, `Punto a ${nm(team)}<small>Soluzione: ${S.ch.sol}</small>`);
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 3800);
+}
+
+/* ---------- multitouch ---------- */
+function banner(t, html, ok){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!ok); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function touchChallenge(){
+  $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
+  S.playing = false;
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1);
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(draw); }, 2200);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeC){ setBar(1); return; }
+  const dur = P.timeC*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>{ $('#h'+t).classList.toggle('locked', S.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; });
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: a turni, con rubapunto ---------- */
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#lim').classList.toggle('turn1', S.turn===1); $('#lim').classList.toggle('turn2', S.turn===2); $('#bdL').classList.toggle('dim', !S.turn); }
+function limChallenge(){
+  $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
+  S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
+  limSides(); setupBoard('L');
+  $('#lmsg').innerHTML = `Tocca a <b>${nm(S.turn)}</b>`;
+  limTimer(P.timeT);
+}
+function limTimer(sec, keep){
+  cancelAnimationFrame(S.raf);
+  if(!sec){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(!keep){ S.t0 = performance.now(); S.dur = sec*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limFail('Tempo scaduto!'); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limFail(why){
+  if(!S.playing) return;
+  beep([330, 262], 0.14);
+  if(!S.stolen){
+    S.stolen = true; S.turn = 3 - S.turn; BD.L.phase = 'build';
+    limSides(); draw('L');
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
+    return;
+  }
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, 5000);
+}
+$('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#bdL').classList.toggle('dim', S.paused || !S.turn);
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; if(P.timeT) limTimer(S.dur/1000, true); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on')) e.preventDefault(); });
+[1,2,'L'].forEach(mkBoard);
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__geoTest = {makeChallenge, simplify, isSimple, area2, perim, rectil, isRect, isSquare, isPara, isTrap, isRightTri, isObtuse, isIso, interior, canon, TPL, P, S, BD};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

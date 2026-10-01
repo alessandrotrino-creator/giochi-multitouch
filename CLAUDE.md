@@ -50,6 +50,13 @@ Ultimo aggiornamento: 30 settembre 2026.
 - `sizeObjs` adatta i disegni alla scena; più nastri vanno uno sotto l'altro, lunghi uguali (per confrontare a occhio).
 - Verificato: 400 sfide per livello, tutte risolvibili, risposte sempre 4 e diverse con una sola giusta; prove nel browser di strisciata, divisione libera, confronto. Preferenze `frazioni-prefs`, `window.__frazTest`.
 
+## `geopiano.html` (Geopiano) — creato l'01/10/2026
+- Griglia 9 × 9 chiodini (`G = 8` quadretti), disegnata in SVG da `geoSVG` (legno, chiodini, asse `axis`, figura modello `model`, elastico `band`). L'SVG viene ridisegnato a ogni chiodino: per le coordinate usare sempre `st.querySelector('svg').getScreenCTM()` (funziona anche con la metà ruotata).
+- Elastico: tocco su un chiodino = aggiungi; trascinando si vede l'elastico tirato (`.pre`) e si aggiunge il chiodino dove si alza il dito; toccando il primo chiodino si chiude e parte il controllo. «Annulla» riapre / toglie l'ultimo, «Ricomincia» libera tutto.
+- Geometria: `simplify` (toglie punti doppi e allineati), `isSimple` (niente incroci), `area2`, `perim`, `rectil`, `isRect`, `isSquare`, `isPara`, `isTrap`, `isRightTri`, `isObtuse`, `isIso`, `interior` (Pick), `canon` (confronto di forme, con o senza spostamento). Figure modello in `TPL`.
+- Sfide `makeChallenge(l)`: `kind:'build'` con `test(a)` che restituisce '' oppure il motivo (mostrato se l'aiuto è attivo), oppure `kind:'choice'` (area o perimetro della figura grigia). Verificato con 2640 figure di prova: tutte le sfide hanno almeno una soluzione.
+- Preferenze `geopiano-prefs`, `window.__geoTest`.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 
