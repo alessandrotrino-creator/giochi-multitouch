@@ -68,6 +68,13 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Richiesta del docente: **notazioni da manuale** e **formule con la linea di frazione** (I = V/R con `frac`), «resistore», «intensità di corrente», «interruttori in serie / in parallelo» (non «circuito E/O»).
 - Preferenze `circuiti-prefs`, `window.__circTest`.
 
+## `tangram.html` (Tangram) — creato l'01/10/2026
+- Pezzi presi dal quadrato classico di lato 8 (`RAW`), centrati sul baricentro (`LOCAL`); posizione `{type, rot (passi di 45°), flip, x, y}`, vertici con `verts`. Aree in triangoli piccoli: `UNITS` (ST 1, MT/SQ/PA 2, BT 4, quadrato 16). `SQUARE()` è il quadrato classico (secondo BT `rot:6`, secondo ST `rot:2`).
+- Sagome casuali `genShape(types)`: ogni pezzo si attacca a un lato libero di uguale lunghezza (orientato al contrario), senza sovrapposizioni (`overlap`, asse separatore); si preferiscono le sagome compatte.
+- Controllo `covered`: campionamento a passo 0,25 sulla sagoma; va bene se la sagoma è coperta una volta sola e nulla esce (tolleranza 1,2%) — quindi anche soluzioni diverse da quella generata. `snap` aggancia il vertice più vicino (entro 0,75) a un vertice della sagoma o di un altro pezzo.
+- Gesti: trascinare (un dito per pezzo), tocco = ruota di 45°, pressione lunga sul parallelogramma = capovolgi. La sagoma ha il bordo spesso (`.sil`) per non mostrare le giunture.
+- Verificato: nessuna sovrapposizione nelle sagome generate; prove nel browser con 2, 4 e 7 pezzi (ruotare + trascinare + aggancio → punto). Preferenze `tangram-prefs`, `window.__tgTest`.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 

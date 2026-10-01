@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Tangram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; i sette pezzi hanno i colori classici del tangram, la sagoma è grigio ardesia su un tavolo chiaro */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8;
+  --desk:#F4EFE6; --desk2:#E9E1D3; --sil:#4B5568; --tc:var(--accent);
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --desk:#262D40; --desk2:#1E2434; --sil:#8C97AD; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --desk:#262D40; --desk2:#1E2434; --sil:#8C97AD; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 .1em;font-size:.92em;font-family:var(--font-title);font-weight:800}
+.frac span:first-child{border-bottom:.09em solid currentColor;padding:0 .14em .05em}
+.frac span:last-child{padding:.05em .14em 0}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:60px;height:60px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.lvdesc{margin:0;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.45}
+.howto{display:flex;gap:16px;align-items:center;flex-wrap:wrap;color:var(--muted);font-weight:800;line-height:1.5}
+.howto svg{width:150px;height:150px;flex:none}
+
+/* ---------- tavolo del tangram ---------- */
+.task{font-weight:800;text-align:center;font-size:clamp(1rem,2.5vh,1.45rem);line-height:1.3;min-height:1.3em}
+.task b{color:var(--accent)}
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;border-radius:18px;background:radial-gradient(circle at 40% 40%,var(--desk),var(--desk2));border:2px solid var(--line);overflow:hidden}
+.tg{display:block;touch-action:none;max-width:100%;max-height:100%}
+.tg .sil{fill:var(--sil);stroke:var(--sil);stroke-width:.16;stroke-linejoin:round}
+.tg .hint{fill:none;stroke:var(--desk);stroke-width:.07;stroke-dasharray:.25 .2;opacity:.9}
+.tg .pc{stroke:rgba(0,0,0,.35);stroke-width:.07;stroke-linejoin:round;cursor:grab}
+.tg .pc.drag{filter:drop-shadow(0 .25px .5px rgba(0,0,0,.4));cursor:grabbing}
+.tg .ro .pc{cursor:default}
+.tg .glow{fill:none;stroke:#FFE66B;stroke-width:.3;opacity:.9}
+.tg .lab{font-family:var(--font-title);font-weight:800;font-size:1.3px;text-anchor:middle;dominant-baseline:central;fill:var(--ink)}
+.aid{text-align:center;font-weight:800;font-size:clamp(.85rem,1.9vh,1.15rem);min-height:1.4em;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2vh,12px)}
+.opts:empty{display:none}
+.opt{border:3px solid var(--line);background:var(--surface);border-radius:16px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.1rem,3.2vh,2rem);min-height:clamp(52px,7.5vh,76px);display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 4px 0 var(--line);text-align:center;line-height:1.15}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.t1 .opt{border-color:color-mix(in srgb,var(--t1) 40%,var(--line))} .t2 .opt{border-color:color-mix(in srgb,var(--t2) 40%,var(--line))}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 40%);--tc:var(--t1)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 40%);--tc:var(--t2)}
+#game.table .half.t1{transform:rotate(180deg)}
+.board{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);flex:1;min-height:0;position:relative}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.8rem,6vh,4rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 26px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;max-width:92%}
+.banner small{display:block;font-family:var(--font-body);font-size:.4em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.35}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:36vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(150px,16vw,250px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.msg{text-align:center;font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+#lim.turn1{--tc:var(--t1)} #lim.turn2{--tc:var(--t2)}
+#bdL.dim{opacity:.4;pointer-events:none}
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni del Tangram">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 8 8" aria-hidden="true"><polygon points="0,0 8,0 4,4" fill="#E74C3C"/><polygon points="0,0 4,4 0,8" fill="#3498DB"/><polygon points="8,4 8,8 4,8" fill="#2ECC71"/><polygon points="4,4 6,6 4,8 2,6" fill="#F1C40F"/><polygon points="8,0 8,4 6,6 6,2" fill="#9B59B6"/><polygon points="4,4 6,2 6,6" fill="#E67E22"/><polygon points="0,8 2,6 4,8" fill="#1ABC9C"/></svg>
+      <div><h1>Tangram</h1><p>Ricomponi la sagoma con i sette pezzi del tangram e scopri le aree: figure diverse possono avere la stessa area (equiscomposizione).</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="row">
+      <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
+      <div class="field"><span>Aiuto: linee dentro la sagoma</span><div class="seg" id="aid"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeCF"><span>Tempo per sfida</span><div class="seg" id="timeC"></div></div>
+      <div class="field" id="timeTF"><span>Tempo per turno</span><div class="seg" id="timeT"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>Come si gioca</span><div class="howto" id="howto"></div></div>
+    <p class="note" id="rules"></p>
+    <button class="start" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Tangram">
+  <div class="half t1" id="h1">
+    <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="board" id="bd1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="board" id="bd2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Tangram alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpass">Passa</button> <button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="bdL"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
+const N = x => NF.format(x);
+
+/* ---------- i sette pezzi, presi dal quadrato classico di lato 8 ----------
+   unità d'area: il triangolo piccolo vale 1 (il quadrato intero vale 16) */
+const RAW = {BT:[[0,0],[8,0],[4,4]], MT:[[8,4],[8,8],[4,8]], SQ:[[4,4],[6,6],[4,8],[2,6]], PA:[[8,0],[8,4],[6,6],[6,2]], ST:[[4,4],[6,2],[6,6]]};
+const UNITS = {BT:4, MT:2, SQ:2, PA:2, ST:1};
+const NAME = {BT:'triangolo grande', MT:'triangolo medio', SQ:'quadrato', PA:'parallelogramma', ST:'triangolo piccolo'};
+const COLORS = ['#E74C3C','#3498DB','#2ECC71','#F1C40F','#9B59B6','#E67E22','#1ABC9C'];
+const LOCAL = {}; Object.keys(RAW).forEach(k=>{ const v = RAW[k], cx = v.reduce((s,p)=>s+p[0],0)/v.length, cy = v.reduce((s,p)=>s+p[1],0)/v.length; LOCAL[k] = v.map(([x,y])=>[x-cx, y-cy]); });
+const CANON = Object.fromEntries(Object.keys(RAW).map(k=>{ const v = RAW[k]; return [k, [v.reduce((s,p)=>s+p[0],0)/v.length, v.reduce((s,p)=>s+p[1],0)/v.length]]; }));
+/* vertici di un pezzo in una posizione: rotazione a passi di 45°, eventuale capovolgimento */
+function verts(p){
+  const a = p.rot*Math.PI/4, c = Math.cos(a), s = Math.sin(a);
+  return LOCAL[p.type].map(([x,y])=>{ if(p.flip) x = -x; return [x*c - y*s + p.x, x*s + y*c + p.y]; });
+}
+/* due poligoni convessi si sovrappongono? (teorema dell'asse separatore) */
+function overlap(A, B){
+  for(const P of [A, B]) for(let i=0; i<P.length; i++){
+    const p = P[i], q = P[(i+1) % P.length], nx = q[1]-p[1], ny = p[0]-q[0];
+    let a1 = Infinity, a2 = -Infinity, b1 = Infinity, b2 = -Infinity;
+    A.forEach(v=>{ const d = v[0]*nx + v[1]*ny; a1 = Math.min(a1,d); a2 = Math.max(a2,d); });
+    B.forEach(v=>{ const d = v[0]*nx + v[1]*ny; b1 = Math.min(b1,d); b2 = Math.max(b2,d); });
+    if(a2 <= b1 + 1e-6 || b2 <= a1 + 1e-6) return false;
+  }
+  return true;
+}
+const inside = (P, x, y) => { let s = 0; for(let i=0; i<P.length; i++){ const p = P[i], q = P[(i+1) % P.length], c = (q[0]-p[0])*(y-p[1]) - (q[1]-p[1])*(x-p[0]); if(Math.abs(c) < 1e-12) continue; const sg = Math.sign(c); if(s && sg !== s) return false; s = sg; } return true; };
+const bbox = list => { let x1 = Infinity, y1 = Infinity, x2 = -Infinity, y2 = -Infinity; list.forEach(V=>V.forEach(([x,y])=>{ x1 = Math.min(x1,x); y1 = Math.min(y1,y); x2 = Math.max(x2,x); y2 = Math.max(y2,y); })); return {x1, y1, x2, y2, w:x2-x1, h:y2-y1}; };
+/* sagoma casuale: i pezzi si attaccano lato contro lato (lati della stessa lunghezza), senza sovrapporsi */
+function genShape(types){
+  for(let att=0; att<300; att++){
+    const placed = [{type:types[0], rot:rnd(0,7), x:0, y:0}]; let ok = true;
+    for(let i=1; i<types.length && ok; i++){
+      const t = types[i], cands = [];
+      placed.forEach(P=>{ const PV = verts(P);
+        for(let e=0; e<PV.length; e++){ const a = PV[e], b = PV[(e+1) % PV.length], el = Math.hypot(b[0]-a[0], b[1]-a[1]);
+          for(let rot=0; rot<8; rot++){ const NV = verts({type:t, rot, x:0, y:0});
+            for(let f=0; f<NV.length; f++){ const c = NV[f], d = NV[(f+1) % NV.length];
+              if(Math.abs(Math.hypot(d[0]-c[0], d[1]-c[1]) - el) > 1e-6) continue;
+              if(Math.abs((d[0]-c[0]) + (b[0]-a[0])) > 1e-6 || Math.abs((d[1]-c[1]) + (b[1]-a[1])) > 1e-6) continue;
+              const np = {type:t, rot, x:b[0]-c[0], y:b[1]-c[1]}, nv = verts(np);
+              if(placed.some(Q=>overlap(verts(Q), nv))) continue;
+              const bb = bbox(placed.map(verts).concat([nv])); cands.push({np, score:bb.w*bb.h + Math.abs(bb.w-bb.h)*2 + Math.random()*4});
+            } } } });
+      if(!cands.length){ ok = false; break; }
+      cands.sort((u,v)=>u.score - v.score); placed.push(pick(cands.slice(0, 3)).np);
+    }
+    if(!ok) continue;
+    const bb = bbox(placed.map(verts)); if(Math.max(bb.w, bb.h) > 16.5) continue;
+    return placed.map(p=>({...p, x:p.x - bb.x1, y:p.y - bb.y1}));
+  }
+  return null;
+}
+/* il quadrato classico: il secondo triangolo grande e il secondo piccolo sono ruotati */
+const SQUARE = () => [{type:'BT', rot:0, x:CANON.BT[0], y:CANON.BT[1]}, {type:'BT', rot:6, x:4/3, y:4}, {type:'MT', rot:0, x:CANON.MT[0], y:CANON.MT[1]}, {type:'SQ', rot:0, x:CANON.SQ[0], y:CANON.SQ[1]}, {type:'PA', rot:0, x:CANON.PA[0], y:CANON.PA[1]}, {type:'ST', rot:0, x:CANON.ST[0], y:CANON.ST[1]}, {type:'ST', rot:2, x:2, y:22/3}];
+const unitsOf = list => list.reduce((s,p)=>s + UNITS[p.type], 0);
+
+/* ---------- impostazioni ---------- */
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:120, timeT:60, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('tangram-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('tangram-prefs', JSON.stringify(P)); }catch(e){} };
+const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+const LVD = {
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dalla sagoma di 2 pezzi a quella di 7.',
+  1:'Base: sagome di 2 pezzi (con le linee di aiuto, se attive); quanti triangoli piccoli servono per coprire un pezzo?',
+  2:'Medio: sagome di 3 pezzi; che frazione del quadrato è un pezzo?',
+  3:'Avanzato: sagome di 4 o 5 pezzi; due figure hanno la stessa area? (equiscomposizione)',
+  4:'Esperto: sagome di 6 pezzi; se il triangolo piccolo vale 1, quanto vale la sagoma?',
+  5:'Campione: sagome con tutti e 7 i pezzi, oppure «ricomponi il quadrato»; che frazione del quadrato è la sagoma?'
+};
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim);
+  $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
+  $('#lvdesc').textContent = LVD[P.lvl];
+  $('#rules').innerHTML = (lim
+    ? 'LIM a turni: una squadra alla volta; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dai pezzi come sono. Basta un tocco alla volta.'
+    : 'Multitouch: le due squadre hanno la stessa sagoma, ognuna sul suo tavolo, e giocano insieme: più dita possono spostare più pezzi nello stesso momento. Vince il punto chi completa per primo la sagoma.')
+    + ' Ogni modo corretto di riempire la sagoma va bene, anche se è diverso da quello pensato dal gioco. Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
+  seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#timeC', 'timeC', [[0,'Senza limite'],[90,'90 s'],[120,'2 minuti'],[180,'3 minuti']]);
+  seg('#timeT', 'timeT', [[0,'Senza limite'],[45,'45 s'],[60,'60 s'],[90,'90 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#howto').innerHTML = `<svg viewBox="-.5 -.5 9 9" class="tg">${SQUARE().map((p,i)=>`<polygon points="${verts(p).map(v=>v.join(',')).join(' ')}" fill="${COLORS[i]}" stroke="rgba(0,0,0,.3)" stroke-width=".07"/>`).join('')}</svg><span>Trascina i pezzi sulla sagoma grigia. <b>Un tocco</b> sul pezzo lo ruota di 45°. <b>Tieni premuto</b> il parallelogramma (viola) per capovolgerlo. I pezzi si agganciano da soli agli angoli vicini.<br>Se il triangolo piccolo vale 1: triangolo medio, quadrato e parallelogramma valgono 2, il triangolo grande 4, il quadrato intero 16.</span>`;
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- sfide ---------- */
+const ALL = ['BT','BT','MT','SQ','PA','ST','ST'];
+const subset = n => { for(let g=0; g<50; g++){ const s = shuffle(ALL).slice(0, n); if(n < 7 || true) return s; } };
+const fracOf = u => { const g = (a,b)=>b ? g(b, a % b) : a, k = g(u, 16); return [u/k, 16/k]; };
+function opts4(right, near, far){ const seen = new Set([right]), l = [{h:right, ok:true}]; near.forEach(h=>{ if(l.length < 3 && !seen.has(h)){ seen.add(h); l.push({h}); } }); l.push({h:far}); return shuffle(l); }
+function makeChallenge(l){
+  for(let g=0; g<100; g++){
+    const v = rnd(0, 2);   /* 0 e 1: sagoma da comporre; 2: domanda sulle aree */
+    if(v < 2){
+      if(l===5 && Math.random() < 0.3) return {l, kind:'build', target:SQUARE(), task:'Ricomponi il <b>quadrato</b> con tutti e sette i pezzi.', sol:'i due triangoli grandi formano metà quadrato (lungo la diagonale); gli altri cinque pezzi riempiono l\'altra metà'};
+      const n = l===1 ? 2 : l===2 ? 3 : l===3 ? rnd(4,5) : l===4 ? 6 : 7;
+      const types = l===1 ? pick([['ST','ST'],['ST','ST'],['BT','BT'],['MT','ST'],['SQ','ST'],['PA','ST'],['MT','SQ']]) : subset(n);
+      const target = genShape(types); if(!target) continue;
+      return {l, kind:'build', target, task:`Componi la <b>sagoma</b> con questi ${types.length} pezzi.`, sol:'una delle soluzioni possibili è mostrata dalle linee di aiuto'};
+    }
+    /* domande sulle aree */
+    if(l===1){ const t = pick(['BT','MT','SQ','PA']), u = UNITS[t]; const shape = [{type:t, rot:rnd(0,1)*2, x:0, y:0}];
+      return {l, kind:'choice', show:shape, opts:opts4(String(u), [String(u*2), String(u+1), String(u===4 ? 3 : 4)], String(u*8)), task:`Quanti <b>triangoli piccoli</b> servono per coprire il ${NAME[t]}?`, sol:`${u}: il ${NAME[t]} vale ${u} triangoli piccoli`}; }
+    if(l===2){ const t = pick(['BT','MT','SQ','PA','ST']), [a,b] = fracOf(UNITS[t]); const [c,d] = fracOf(UNITS[t]*2), [e,f] = fracOf(Math.max(1, UNITS[t]/2));
+      return {l, kind:'choice', show:SQUARE(), hi:SQUARE().findIndex(p=>p.type===t), opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(1,7)], frac(b,a)), task:`Che frazione del quadrato intero è il <b>${NAME[t]}</b> evidenziato?`, sol:`${frac(a,b)}: il quadrato vale 16 triangoli piccoli, il ${NAME[t]} ne vale ${UNITS[t]}`}; }
+    if(l===3){ const same = Math.random() < 0.6;
+      let A, B;
+      if(same){ const pairs = [[['MT'],['SQ']],[['MT'],['PA']],[['SQ'],['PA']],[['ST','ST'],['MT']],[['ST','ST'],['SQ']],[['BT'],['MT','SQ']],[['BT'],['ST','ST','PA']],[['MT','ST'],['SQ','ST']],[['BT'],['ST','ST','MT']]]; const [x,y] = pick(pairs); A = genShape(x); B = genShape(y); }
+      else { const pairs = [[['MT'],['ST']],[['BT'],['MT','ST']],[['SQ','ST'],['MT','SQ']],[['PA'],['ST']],[['BT'],['PA','SQ','ST']]]; const [x,y] = pick(pairs); A = genShape(x); B = genShape(y); }
+      if(!A || !B) continue;
+      const uA = unitsOf(A), uB = unitsOf(B), right = uA===uB ? 'sì, hanno la stessa area' : uA > uB ? 'no, A ha l\'area maggiore' : 'no, B ha l\'area maggiore';
+      const others = ['sì, hanno la stessa area', 'no, A ha l\'area maggiore', 'no, B ha l\'area maggiore'].filter(x=>x!==right);
+      return {l, kind:'choice', show:A, show2:B, opts:opts4(right, others, 'non si può sapere senza misurare'), task:'Le figure <b>A</b> e <b>B</b> hanno la stessa area?', sol:`A vale ${uA} triangoli piccoli, B ne vale ${uB}${uA===uB ? ': sono equiscomposte, cioè equivalenti' : ''}`}; }
+    if(l===4){ const types = subset(rnd(3,6)), shape = genShape(types); if(!shape) continue; const u = unitsOf(shape);
+      return {l, kind:'choice', show:shape, opts:opts4(String(u), [String(types.length), String(u+2), String(u-1)], String(u*4)), task:'Se il triangolo piccolo vale 1, <b>quanto vale l\'area</b> di questa sagoma?', sol:`${u}: ${types.map(t=>`${NAME[t]} (${UNITS[t]})`).join(' + ')}`}; }
+    const types = subset(rnd(3,6)), shape = genShape(types); if(!shape) continue; const u = unitsOf(shape), [a,b] = fracOf(u), [c,d] = fracOf(Math.min(15, u+1)), [e,f] = fracOf(u*2 <= 16 ? u*2 : Math.max(1, u-2));
+    return {l, kind:'choice', show:shape, opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(types.length, 7)], frac(b, a)), task:'Che <b>frazione del quadrato intero</b> è questa sagoma?', sol:`la sagoma vale ${u} triangoli piccoli su 16: ${frac(u,16)}${a!==u ? ` = ${frac(a,b)}` : ''}`};
+  }
+  return makeChallenge(Math.max(1, l-1));
+}
+
+/* ---------- tavolo ---------- */
+const BD = {};
+function mkBoard(id){
+  const host = $('#bd'+id);
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"></div><div class="aid" id="a${id}"></div><div class="opts" id="o${id}"></div>`;
+  BD[id] = {id, host, pcs:[], phase:'build', lock:false, vb:null};
+  bindBoard(id);
+}
+const teamOf = id => id==='L' ? S.turn : id;
+function setupBoard(id){
+  const C = S.ch, b = BD[id];
+  b.phase = 'build'; b.lock = false;
+  $('#k'+id).innerHTML = C.task;
+  const ob = $('#o'+id);
+  ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
+  ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
+  if(C.kind==='build'){
+    /* la sagoma a sinistra, i pezzi da usare a destra */
+    const tb = bbox(C.target.map(verts)), sx = 1.2, W = tb.w + 2.4 + 17, Hh = Math.max(tb.h + 2.4, 19);
+    b.vb = {W, H:Hh, ox:sx, oy:(Hh - tb.h)/2, tx:tb.w + 2.4};
+    /* posti di partenza nella zona a destra: i pezzi grandi in alto, così non coprono la sagoma */
+    const cells = [[4.6,3.4],[12.4,3.4],[4.6,9.5],[12.4,9.5],[4.6,15.2],[12.4,15.2],[8.5,12.4]];
+    const order = C.target.map((p,i)=>i).sort((a,c)=>UNITS[C.target[c].type] - UNITS[C.target[a].type] || Math.random() - .5);
+    b.pcs = C.target.map((p,i)=>{ const cell = cells[order.indexOf(i)] || [8.5,8]; return {type:p.type, rot:C.l >= 3 ? rnd(0,7) : (p.type==='PA' ? 0 : rnd(0,3)*2), flip:false, x:b.vb.tx + cell[0], y:cell[1] * Hh/19, col:COLORS[ALL.indexOf(p.type) + (i > 0 && C.target.slice(0,i).some(q=>q.type===p.type) ? 1 : 0)]}; });
+  } else b.pcs = [];
+  draw(id);
+}
+function shapeSVG(list, ox, oy, hi, label){
+  return `<g class="ro" transform="translate(${ox} ${oy})">${list.map((p,i)=>`<polygon class="pc" points="${verts(p).map(v=>v.join(',')).join(' ')}" fill="${i===hi ? '#FFE66B' : COLORS[ALL.indexOf(p.type) + (list.slice(0,i).some(q=>q.type===p.type) ? 1 : 0)]}" ${hi!==undefined && i!==hi ? 'opacity=".45"' : ''}/>`).join('')}${label ? `<text class="lab" x="${bbox(list.map(verts)).w/2}" y="-1.2">${label}</text>` : ''}</g>`;
+}
+function draw(id){
+  const C = S.ch, b = BD[id], st = $('#st'+id);
+  let h = '', W, Hh;
+  if(C.kind==='build'){
+    W = b.vb.W; Hh = b.vb.H;
+    const tv = C.target.map(p=>verts({...p, x:p.x + b.vb.ox, y:p.y + b.vb.oy}));
+    h += tv.map(V=>`<polygon class="sil" points="${V.map(v=>v.join(',')).join(' ')}"/>`).join('');
+    if(P.aid && C.l <= 2) h += tv.map(V=>`<polygon class="hint" points="${V.map(v=>v.join(',')).join(' ')}"/>`).join('');
+    h += `<path d="M${b.vb.tx - .3} .5V${Hh - .5}" stroke="var(--desk2)" stroke-width=".12" stroke-dasharray=".3 .3"/>`;
+    h += b.pcs.map((p,i)=>`<polygon class="pc" data-i="${i}" points="${verts(p).map(v=>v.join(',')).join(' ')}" fill="${p.col}"/>`).join('');
+  } else {
+    const A = C.show, bbA = bbox(A.map(verts));
+    if(C.show2){ const bbB = bbox(C.show2.map(verts)); W = bbA.w + bbB.w + 5; Hh = Math.max(bbA.h, bbB.h) + 4; h += shapeSVG(A, 1.5, 3, undefined, 'A') + shapeSVG(C.show2, bbA.w + 3.5, 3, undefined, 'B'); }
+    else { W = bbA.w + 3; Hh = bbA.h + 3; h += shapeSVG(A, 1.5, 1.5, C.hi); }
+  }
+  st.innerHTML = `<svg class="tg" viewBox="0 0 ${W} ${Hh}">${h}</svg>`;
+  const svg = st.querySelector('svg'), r = st.getBoundingClientRect(); let w = r.width - 8, hh = w*Hh/W; if(hh > r.height - 8){ hh = r.height - 8; w = hh*W/Hh; } svg.setAttribute('width', Math.max(100, w)); svg.setAttribute('height', Math.max(80, hh));
+  if(C.kind==='build'){ const on = b.pcs.filter(p=>p.x < b.vb.tx - .3).length; $('#a'+id).textContent = `Pezzi sulla sagoma: ${on} di ${b.pcs.length}`; }
+  else $('#a'+id).textContent = '';
+}
+window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) draw(id); }));
+/* controllo: la sagoma deve essere coperta tutta, una volta sola, e niente deve uscire */
+function covered(id){
+  const C = S.ch, b = BD[id];
+  const tv = C.target.map(p=>verts({...p, x:p.x + b.vb.ox, y:p.y + b.vb.oy})), pv = b.pcs.map(verts), bb = bbox(tv);
+  let tot = 0, err = 0;
+  for(let x = bb.x1 - .6 + .1234; x < bb.x2 + .6; x += .25) for(let y = bb.y1 - .6 + .0789; y < bb.y2 + .6; y += .25){
+    const inT = tv.some(V=>inside(V, x, y)), cov = pv.reduce((s,V)=>s + (inside(V, x, y) ? 1 : 0), 0);
+    if(inT) tot++;
+    if((inT && cov!==1) || (!inT && cov > 0)) err++;
+  }
+  return err <= Math.max(2, tot*0.012);
+}
+/* aggancio: il pezzo spostato si sposta di poco perché un suo vertice coincida con un vertice vicino (della sagoma o di un altro pezzo) */
+function snap(id, i){
+  const b = BD[id], p = b.pcs[i], pv = verts(p);
+  const others = S.ch.target.flatMap(q=>verts({...q, x:q.x + b.vb.ox, y:q.y + b.vb.oy})).concat(b.pcs.flatMap((q,j)=>j===i ? [] : verts(q)));
+  let best = null;
+  pv.forEach(a=>others.forEach(o=>{ const d = Math.hypot(o[0]-a[0], o[1]-a[1]); if(d < .75 && (!best || d < best.d)) best = {d, dx:o[0]-a[0], dy:o[1]-a[1]}; }));
+  if(best){ p.x += best.dx; p.y += best.dy; }
+}
+function afterMove(id){ draw(id); if(S.ch.kind==='build' && S.playing && !S.paused && BD[id].phase==='build' && covered(id)) win(id); }
+function choose(id, bt){
+  const b = BD[id]; if(!canPlay(id) || bt.disabled) return;
+  if(S.ch.opts[+bt.dataset.k].ok){ bt.classList.add('right'); win(id); return; }
+  bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
+  if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+/* trascinamento: ogni dito sposta il suo pezzo; tocco = ruota di 45°; pressione lunga sul parallelogramma = capovolgi */
+const drags = new Map();
+function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase==='build' && !b.lock && (id!=='L' || S.turn); }
+function bindBoard(id){
+  const st = $('#st'+id);
+  const toLocal = (x, y) => { const svg = st.querySelector('svg'); if(!svg) return null; const pt = svg.createSVGPoint(); pt.x = x; pt.y = y; const m = svg.getScreenCTM(); if(!m) return null; const q = pt.matrixTransform(m.inverse()); return [q.x, q.y]; };
+  st.addEventListener('pointerdown', e=>{
+    const el = e.target.closest && e.target.closest('.pc[data-i]'); if(!el || S.ch.kind!=='build' || !canPlay(id)) return;
+    e.preventDefault();
+    const i = +el.dataset.i, p0 = toLocal(e.clientX, e.clientY); if(!p0) return;
+    const b = BD[id]; const pc = b.pcs.splice(i, 1)[0]; b.pcs.push(pc); const ni = b.pcs.length - 1;   /* il pezzo toccato va sopra gli altri */
+    drags.forEach(d=>{ if(d.id===id && d.i > i) d.i--; });
+    try{ st.setPointerCapture(e.pointerId); }catch(err){}
+    const d = {id, i:ni, start:p0, ox:pc.x, oy:pc.y, moved:false, flipped:false, timer:0};
+    if(pc.type==='PA') d.timer = setTimeout(()=>{ if(!d.moved && drags.get(e.pointerId)===d){ pc.flip = !pc.flip; d.flipped = true; beep([500, 700], 0.05); draw(id); } }, 550);
+    drags.set(e.pointerId, d); draw(id);
+  });
+  st.addEventListener('pointermove', e=>{
+    const d = drags.get(e.pointerId); if(!d || !canPlay(id)) return;
+    const p = toLocal(e.clientX, e.clientY); if(!p) return;
+    const dx = p[0] - d.start[0], dy = p[1] - d.start[1];
+    if(!d.moved && Math.hypot(dx, dy) < .35) return;
+    d.moved = true; clearTimeout(d.timer);
+    const pc = BD[id].pcs[d.i]; pc.x = d.ox + dx; pc.y = d.oy + dy;
+    const el = st.querySelector(`.pc[data-i="${d.i}"]`); if(el){ el.setAttribute('points', verts(pc).map(v=>v.join(',')).join(' ')); el.classList.add('drag'); }
+  });
+  const up = e=>{
+    const d = drags.get(e.pointerId); if(!d) return; drags.delete(e.pointerId); clearTimeout(d.timer);
+    if(!canPlay(id) || e.type==='pointercancel'){ draw(id); return; }
+    const b = BD[id], pc = b.pcs[d.i];
+    if(!d.moved && !d.flipped){ pc.rot = (pc.rot + 1) % 8; beep([620], 0.03); }
+    else if(d.moved){ snap(id, d.i); beep([560], 0.03); }
+    /* niente pezzi fuori dal tavolo */
+    pc.x = Math.max(.5, Math.min(b.vb.W - .5, pc.x)); pc.y = Math.max(.5, Math.min(b.vb.H - .5, pc.y));
+    afterMove(id);
+  };
+  st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+}
+
+/* ---------- partita ---------- */
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const nm = t => t===1 ? P.n1 : P.n2;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>clearTimeout(d.timer)); drags.clear(); }
+function start(){
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.list = Array.from({length:P.num}, (_,i)=> P.lvl===0 ? 1 + Math.floor(5*i/P.num) : P.lvl);
+  Object.assign(S, {i:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextChallenge();
+}
+function nextChallenge(){
+  clearTimeout(S.next);
+  S.i++;
+  if(S.i >= S.list.length){ finish(); return; }
+  S.ch = makeChallenge(S.list[S.i]);
+  S.log.push({ch:S.ch, who:0});
+  if(P.screen==='lim') limChallenge(); else touchChallenge();
+}
+function finish(){
+  stopAll();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+function win(id){
+  const team = teamOf(id);
+  if(BD[id].phase==='done') return;
+  S.playing = false; cancelAnimationFrame(S.raf);
+  BD[id].phase = 'done';
+  S.score[team-1]++; S.log[S.i].who = team;
+  beep([660, 880, 1100], 0.1);
+  if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
+  $('#s'+team).textContent = S.score[team-1];
+  banner(team, 'Giusto! +1', true);
+  banner(3-team, `Punto a ${nm(team)}<small>${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'La sagoma è stata completata'}</small>`);
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 3800);
+}
+
+/* ---------- multitouch ---------- */
+function banner(t, html, ok){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!ok); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function touchChallenge(){
+  $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
+  S.playing = false;
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1);
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(draw); }, 2200);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeC){ setBar(1); return; }
+  const dur = P.timeC*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>{ showSolution(t); banner(t, `Tempo scaduto!<small>${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'Ecco una soluzione possibile'}</small>`); }); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+/* a tempo scaduto i pezzi vanno al loro posto */
+function showSolution(id){ const C = S.ch, b = BD[id]; if(C.kind!=='build') return; b.pcs = C.target.map((p,i)=>({...p, x:p.x + b.vb.ox, y:p.y + b.vb.oy, col:b.pcs.find(q=>q.type===p.type) ? b.pcs.filter(q=>q.type===p.type)[C.target.slice(0,i).filter(q=>q.type===p.type).length].col : COLORS[0]})); draw(id); }
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>{ $('#h'+t).classList.toggle('locked', S.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; });
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: a turni, con rubapunto ---------- */
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#lim').classList.toggle('turn1', S.turn===1); $('#lim').classList.toggle('turn2', S.turn===2); $('#bdL').classList.toggle('dim', !S.turn); }
+function limChallenge(){
+  $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
+  S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
+  limSides(); setupBoard('L');
+  $('#lmsg').innerHTML = `Tocca a <b>${nm(S.turn)}</b>`;
+  limTimer(P.timeT);
+}
+function limTimer(sec, keep){
+  cancelAnimationFrame(S.raf);
+  if(!sec){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(!keep){ S.t0 = performance.now(); S.dur = sec*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limFail('Tempo scaduto!'); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limFail(why){
+  if(!S.playing) return;
+  beep([330, 262], 0.14);
+  if(!S.stolen){
+    S.stolen = true; S.turn = 3 - S.turn; BD.L.phase = 'build';
+    limSides(); draw('L');
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    limTimer(P.timeT ? Math.min(P.timeT, 45) : 0);
+    return;
+  }
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); showSolution('L');
+  $('#lmsg').innerHTML = `${why} Nessun punto. ${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'Ecco una soluzione possibile.'}`;
+  S.next = setTimeout(nextChallenge, 5000);
+}
+$('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#bdL').classList.toggle('dim', S.paused || !S.turn);
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; if(P.timeT) limTimer(S.dur/1000, true); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on')) e.preventDefault(); });
+[1,2,'L'].forEach(mkBoard);
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__tgTest = {makeChallenge, genShape, verts, overlap, covered, snap, SQUARE, P, S, BD, draw, afterMove};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

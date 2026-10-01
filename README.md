@@ -14,7 +14,7 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: tangram, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: linea del tempo.
 
 ## Giochi
 
@@ -27,7 +27,20 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 | `leve.html` | **Leve e bilance** | Oggetti veri da trascinare (bottiglia d'acqua da 1 kg, mattone 2 kg, zucca 3 kg, pesetto 4 kg, anguria 5 kg, secchio d'acqua 10 kg) per mettere in equilibrio una bilancia a piatti o una leva: **peso × distanza** uguale dai due lati. **Multitouch**: ogni squadra ha la sua leva con la stessa sfida; vince il punto chi la mette per prima in equilibrio. **LIM**: una leva, a turni, con rubapunto (anche con il pulsante «Passa»). |
 | `frazioni.html` | **Frazioni da spezzare** | Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita (tocco o strisciata, anche più dita insieme), oppure risposte da scegliere. **Multitouch**: stessa sfida per le due squadre, vince il punto chi risolve per primo. **LIM**: a turni, con rubapunto e pulsante «Passa». |
 | `circuiti.html` | **Circuiti elettrici** | Pezzi da trascinare dal vassoio nei buchi del circuito (o da toccare: prima il pezzo, poi il buco); gli interruttori si aprono e chiudono con un tocco. **Multitouch**: stessa sfida per le due squadre. **LIM**: a turni, con rubapunto e «Passa». In più, un **editor libero** per costruire qualsiasi circuito. |
+| `tangram.html` | **Tangram** | I sette pezzi classici da trascinare sulla sagoma grigia: un tocco ruota il pezzo di 45°, tenendo premuto il parallelogramma lo si capovolge; i pezzi si agganciano da soli agli angoli vicini. Ogni modo corretto di riempire la sagoma va bene. **Multitouch**: stessa sagoma per le due squadre, più dita insieme. **LIM**: a turni, con rubapunto e «Passa». |
 | `geopiano.html` | **Geopiano** | Una tavoletta con 9 × 9 chiodini: si tende l'elastico toccando un chiodino dopo l'altro (o trascinando il dito) e si chiude toccando il primo. Il gioco controlla da solo area, perimetro, lati, angoli retti, parallelismi e simmetrie. **Multitouch**: stessa sfida per le due squadre, ognuna sul suo geopiano. **LIM**: a turni, con rubapunto e «Passa». |
+
+### Tangram: impostazioni
+- Le sagome vengono **create dal gioco ogni volta** unendo i pezzi lato contro lato: c'è sempre una soluzione, e ogni sfida è nuova.
+- **Livello** (sagome da comporre e domande sulle aree, estratte a caso):
+  - *Base*: sagome di 2 pezzi; quanti triangoli piccoli servono per coprire un pezzo?
+  - *Medio*: sagome di 3 pezzi; che frazione del quadrato intero è un pezzo? (il triangolo grande è un quarto, il triangolo piccolo un sedicesimo…)
+  - *Avanzato*: sagome di 4 o 5 pezzi; due figure hanno la stessa area? (equiscomposizione)
+  - *Esperto*: sagome di 6 pezzi; se il triangolo piccolo vale 1, quanto vale l'area della sagoma?
+  - *Campione*: sagome con tutti e 7 i pezzi oppure «ricomponi il quadrato»; che frazione del quadrato è la sagoma?
+  - *Crescente*: dal base al campione.
+- **Aiuto «linee dentro la sagoma»**: nei livelli base e medio si vedono i contorni dei pezzi dentro la sagoma.
+- **Tempo**: per sfida (multitouch) oppure per turno (LIM). A tempo scaduto i pezzi vanno da soli al loro posto, per mostrare una soluzione.
 
 ### Circuiti elettrici: impostazioni
 - Un vero simulatore: le lampadine brillano di più o di meno secondo come sono collegate (legge di Ohm), il motore gira, il cicalino suona; un cortocircuito viene riconosciuto e segnalato.
