@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Frazioni da spezzare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* stessa identità degli altri giochi; gli oggetti da dividere sono cibo e nastri disegnati, la parte "presa" prende il colore della squadra */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD;
+  --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8;
+  --table:#F3E6D3; --table2:#E9D6BC; --tc:var(--accent);
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --table:#3A3026; --table2:#2E261E; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2;
+  --table:#3A3026; --table2:#2E261E; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+.screen{position:fixed;inset:0;display:none}
+.screen.on{display:flex}
+.hide{display:none!important}
+.frac{display:inline-flex;flex-direction:column;align-items:center;vertical-align:middle;line-height:1;margin:0 .1em;font-size:.92em;font-family:var(--font-title);font-weight:800}
+.frac span:first-child{border-bottom:.09em solid currentColor;padding:0 .14em .05em}
+.frac span:last-child{padding:.05em .14em 0}
+
+/* ---------- impostazioni ---------- */
+#setup{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(980px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
+.home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+.brand{display:flex;align-items:center;gap:14px}
+.brand svg{width:60px;height:60px;flex:none}
+.brand h1{font-size:2.1rem}
+.brand p{margin:2px 0 0;color:var(--muted);font-weight:700}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:8px;min-width:0}
+.field > span{font-weight:800;font-size:.95rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.field input[type=text]{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);-webkit-user-select:text;user-select:text}
+#n1{border-color:var(--t1)} #n2{border-color:var(--t2)}
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface-2);flex-wrap:wrap;align-self:flex-start}
+.seg button{border:0;background:transparent;padding:10px 16px;font-weight:800;min-height:46px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+.start{align-self:center;border:0;border-radius:18px;background:var(--accent);color:#fff;font-family:var(--font-title);font-size:1.7rem;padding:14px 48px;box-shadow:0 8px 20px rgba(106,76,216,.35)}
+.note{color:var(--muted);font-size:.95rem;margin:0;line-height:1.5}
+.lvdesc{margin:0;font-weight:800;color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px 14px;line-height:1.45}
+.objs{display:flex;flex-wrap:wrap;gap:14px}
+.objs .o{display:flex;flex-direction:column;align-items:center;gap:4px;width:110px;font-weight:800;font-size:.85rem;color:var(--muted);text-align:center}
+.objs .o svg{width:90px;height:64px}
+
+/* ---------- oggetti da dividere ---------- */
+.stage{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,28px);flex-wrap:wrap;border-radius:18px;padding:clamp(8px,1.5vh,16px);background:radial-gradient(circle at 50% 40%,var(--table),var(--table2));border:2px solid var(--line);position:relative;overflow:hidden}
+.objw{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0;min-height:0;max-height:100%}
+.objw .lab{font-family:var(--font-title);font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem)}
+.objw svg{display:block;max-width:100%;touch-action:none}
+.part{stroke:#6B4423;stroke-width:1.2;transition:fill .12s;cursor:pointer}
+.ro .part{cursor:default}
+.pizza .part{fill:#F7D774} .choc .part{fill:#7A4A2B;stroke:#4A2A15} .bar .part{fill:#F6C6D6;stroke:#B0577A} .set .part{fill:#DDA75E;stroke:#9A6A2E}
+.part.on{fill:var(--tc)!important}
+.deco{pointer-events:none}
+.task{font-weight:800;text-align:center;font-size:clamp(1rem,2.6vh,1.5rem);line-height:1.3;min-height:1.3em}
+.task b{color:var(--accent)}
+.tools{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;min-height:0}
+.cut{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:4px 8px 4px 14px;font-weight:800}
+.cut button{width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);font-size:1.5rem;font-weight:800;line-height:1}
+.cut output{min-width:1.6em;text-align:center;font-family:var(--font-title);font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+.aid{text-align:center;font-weight:800;font-size:clamp(.9rem,2.1vh,1.25rem);min-height:1.5em;color:var(--muted)}
+.aid .ok{color:var(--ok)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2vh,12px)}
+.opts:empty{display:none}
+.opt{border:3px solid var(--line);background:var(--surface);border-radius:16px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.3rem,3.6vh,2.3rem);min-height:clamp(54px,8vh,84px);display:flex;align-items:center;justify-content:center;padding:6px;box-shadow:0 4px 0 var(--line)}
+.opt svg{height:clamp(52px,9vh,92px);width:auto}
+.opt .wd{font-family:var(--font-body);font-size:.62em}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft);color:var(--bad)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft);color:var(--ok)}
+.t1 .opt{border-color:color-mix(in srgb,var(--t1) 40%,var(--line))} .t2 .opt{border-color:color-mix(in srgb,var(--t2) 40%,var(--line))}
+
+/* ---------- multitouch ---------- */
+#game{flex-direction:row;touch-action:none}
+#game.table{flex-direction:column}
+.half{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px) clamp(10px,1.4vw,22px);position:relative;min-width:0;min-height:0}
+.half.t1{background:linear-gradient(180deg,var(--t1-soft),var(--bg) 40%);--tc:var(--t1)}
+.half.t2{background:linear-gradient(180deg,var(--t2-soft),var(--bg) 40%);--tc:var(--t2)}
+#game.table .half.t1{transform:rotate(180deg)}
+.board{display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);flex:1;min-height:0;position:relative}
+.team{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.team h2{font-size:clamp(1.2rem,2.8vh,2rem);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t1 .team h2{color:var(--t1)} .t2 .team h2{color:var(--t2)}
+.score{font-family:var(--font-title);font-size:clamp(2rem,5.5vh,3.8rem);font-weight:800;min-width:2ch;text-align:center;border-radius:16px;padding:0 14px;color:#fff;line-height:1.2;font-variant-numeric:tabular-nums}
+.t1 .score{background:var(--t1)} .t2 .score{background:var(--t2)}
+.lock{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(15,21,36,.35);font-family:var(--font-title);font-size:clamp(1.4rem,4vh,2.6rem);color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4);pointer-events:none;z-index:8}
+.half.locked .lock{display:flex}
+.banner{position:absolute;left:50%;top:45%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-family:var(--font-title);font-weight:800;font-size:clamp(1.8rem,6vh,4rem);color:var(--ink);background:var(--surface);border:3px solid var(--line);border-radius:22px;padding:10px 26px;text-align:center;line-height:1.1;box-shadow:0 12px 30px rgba(0,0,0,.18);transition:all .25s;z-index:9;max-width:92%}
+.banner small{display:block;font-family:var(--font-body);font-size:.4em;font-weight:800;color:var(--muted);margin-top:6px;line-height:1.35}
+.banner.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.banner.win{color:var(--ok);border-color:var(--ok)}
+.mid{width:clamp(96px,10vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);padding:12px 6px;text-align:center;flex:none}
+#game.table .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px}
+.qnum{font-family:var(--font-title);font-size:1.2rem;font-weight:800;font-variant-numeric:tabular-nums}
+.qnum small{display:block;color:var(--muted);font-family:var(--font-body);font-size:.8rem;font-weight:800;text-transform:uppercase}
+.timer{width:14px;height:36vh;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.timer i{position:absolute;left:0;right:0;bottom:0;height:100%;background:var(--accent);border-radius:10px}
+#game.table .timer{width:30vw;height:14px}
+#game.table .timer i{top:0;bottom:0;right:auto;width:100%;height:auto}
+.ctl{border:2px solid var(--line);background:var(--surface-2);border-radius:14px;font-weight:800;padding:8px 10px;min-height:46px;font-size:.9rem}
+
+/* ---------- LIM ---------- */
+#lim{flex-direction:row;touch-action:none}
+.side{width:clamp(150px,16vw,250px);flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(10px,2vh,20px);padding:16px;text-align:center;transition:background .2s}
+.side.t1{background:var(--t1-soft)} .side.t2{background:var(--t2-soft)}
+.side h2{font-size:clamp(1.3rem,3vh,2.1rem);word-break:break-word}
+.side.t1 h2{color:var(--t1)} .side.t2 h2{color:var(--t2)}
+.side .score{font-size:clamp(3rem,10vh,6rem);padding:0 22px}
+.side.turn.t1{background:var(--t1)} .side.turn.t2{background:var(--t2)}
+.side.turn h2,.side.turn .flag{color:#fff}
+.side.turn .score{background:#fff} .side.turn.t1 .score{color:var(--t1)} .side.turn.t2 .score{color:var(--t2)}
+.side .flag{font-weight:800;font-size:clamp(1rem,2.4vh,1.4rem);min-height:1.4em}
+.center{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1.2vh,12px);padding:clamp(10px,1.8vh,20px);min-width:0;min-height:0}
+.center .top{display:flex;align-items:center;gap:12px;justify-content:space-between}
+.msg{text-align:center;font-weight:800;font-size:clamp(1rem,2.6vh,1.6rem);min-height:1.4em}
+.hbar{height:12px;border-radius:10px;background:var(--surface-2);border:1px solid var(--line);position:relative;overflow:hidden}
+.hbar i{position:absolute;left:0;top:0;bottom:0;width:100%;background:var(--accent);border-radius:10px}
+#lim.turn1{--tc:var(--t1)} #lim.turn2{--tc:var(--t2)}
+#bdL.dim{opacity:.4;pointer-events:none}
+
+/* ---------- fine ---------- */
+#end{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.result{font-size:clamp(2rem,6vw,3.6rem);text-align:center}
+.finals{display:flex;justify-content:center;gap:18px;flex-wrap:wrap}
+.final{border-radius:20px;padding:14px 26px;color:#fff;text-align:center;min-width:220px}
+.final.t1{background:var(--t1)} .final.t2{background:var(--t2)}
+.final b{display:block;font-family:var(--font-title);font-size:3.4rem;line-height:1}
+.final span{font-weight:800;font-size:1.1rem}
+.actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn2{border:2px solid var(--line);background:var(--surface-2);border-radius:16px;font-weight:800;padding:12px 22px;font-size:1.1rem;min-height:50px}
+details{border:1px solid var(--line);border-radius:16px;padding:10px 16px;background:var(--surface-2)}
+summary{font-weight:800;cursor:pointer}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
+td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+@media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
+@media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+
+<!-- ============ IMPOSTAZIONI ============ -->
+<section class="screen on" id="setup" aria-label="Impostazioni di Frazioni da spezzare">
+  <div class="card0">
+    <a class="home" href="index.html">← Tutti i giochi</a>
+    <div class="brand">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="#F7D774" stroke="#C98B4B" stroke-width="5"/><path d="M32 32V4A28 28 0 0 1 56.2 18z" fill="#2F6FDB"/><path d="M32 32L56.2 18A28 28 0 0 1 56.2 46z" fill="#E8801F"/><path d="M32 4v56M7.8 18l48.4 28M7.8 46l48.4-28" stroke="#8A5A2B" stroke-width="1.5"/><circle cx="20" cy="40" r="4" fill="#C0392B"/><circle cx="24" cy="22" r="3.5" fill="#C0392B"/></svg>
+      <div><h1>Frazioni da spezzare</h1><p>Dividi pizze, tavolette di cioccolato, nastri e biscotti: colora con le dita la frazione richiesta, oppure riconoscila.</p></div>
+    </div>
+    <div class="row">
+      <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
+      <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+    </div>
+    <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="row">
+      <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
+      <div class="field"><span>Aiuto: mostra la frazione colorata</span><div class="seg" id="aid"></div></div>
+    </div>
+    <div class="row">
+      <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
+      <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
+    </div>
+    <div class="row">
+      <div class="field" id="timeCF"><span>Tempo per sfida</span><div class="seg" id="timeC"></div></div>
+      <div class="field" id="timeTF"><span>Tempo per turno</span><div class="seg" id="timeT"></div></div>
+      <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
+    </div>
+    <div class="field"><span>Gli oggetti da dividere</span><div class="objs" id="objs"></div></div>
+    <p class="note" id="rules"></p>
+    <button class="start" id="go">Inizia</button>
+  </div>
+</section>
+
+<!-- ============ MULTITOUCH ============ -->
+<section class="screen" id="game" aria-label="Frazioni da spezzare">
+  <div class="half t1" id="h1">
+    <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="board" id="bd1"></div>
+    <div class="banner" id="x1"></div>
+    <div class="lock">Pausa</div>
+  </div>
+  <div class="mid">
+    <div class="qnum" id="rn"></div>
+    <div class="timer" aria-hidden="true"><i id="tbar"></i></div>
+    <button class="ctl" id="pause">Pausa</button>
+    <button class="ctl" id="stop">Fine</button>
+  </div>
+  <div class="half t2" id="h2">
+    <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="board" id="bd2"></div>
+    <div class="banner" id="x2"></div>
+    <div class="lock">Pausa</div>
+  </div>
+</section>
+
+<!-- ============ LIM ============ -->
+<section class="screen" id="lim" aria-label="Frazioni da spezzare alla LIM">
+  <div class="side t1" id="L1"><h2 id="ln1"></h2><div class="score" id="ls1">0</div><div class="flag" id="lf1"></div></div>
+  <div class="center">
+    <div class="top"><div class="qnum" id="lrn"></div><div><button class="ctl" id="lpass">Passa</button> <button class="ctl" id="lpause">Pausa</button> <button class="ctl" id="lstop">Fine</button></div></div>
+    <div class="msg" id="lmsg"></div>
+    <div class="hbar" id="lbarW"><i id="lbar"></i></div>
+    <div class="board" id="bdL"></div>
+  </div>
+  <div class="side t2" id="L2"><h2 id="ln2"></h2><div class="score" id="ls2">0</div><div class="flag" id="lf2"></div></div>
+</section>
+
+<!-- ============ FINE ============ -->
+<section class="screen" id="end" aria-label="Risultato">
+  <div class="card0">
+    <h1 class="result" id="res"></h1>
+    <div class="finals" id="finals"></div>
+    <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
+  </div>
+</section>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const rnd = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+const gcd = (a,b) => b ? gcd(b, a%b) : Math.abs(a);
+const lcm = (a,b) => a*b/gcd(a,b);
+const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const sameV = (a,b,c,d) => a*d === b*c;
+
+/* ---------- disegni degli oggetti ----------
+   ogni oggetto ha parti cliccabili (.part, data-i) e decorazioni non cliccabili (.deco) */
+const OBJN = {pizza:['la pizza','della pizza'], choc:['la tavoletta di cioccolato','della tavoletta di cioccolato'], bar:['il nastro','del nastro'], set:['i biscotti','dei biscotti']};
+function chocGrid(p){ for(const r of [3,2,4,1]) if(p % r===0 && p/r <= 6 && (r===1 || p/r >= r)) return [r, p/r]; return [1, p]; }
+function drawWhole(type, p, on, off, opt){
+  const o = opt || {};
+  if(type==='pizza'){
+    let h = '';
+    if(p===1) h += `<circle class="part${on.has(off) ? ' on' : ''}" data-i="${off}" cx="0" cy="0" r="46"/>`;
+    else for(let i=0; i<p; i++){ const a1 = -Math.PI/2 + 2*Math.PI*i/p, a2 = -Math.PI/2 + 2*Math.PI*(i+1)/p, lg = (a2-a1) > Math.PI ? 1 : 0;
+      h += `<path class="part${on.has(off+i) ? ' on' : ''}" data-i="${off+i}" d="M0 0L${(46*Math.cos(a1)).toFixed(2)} ${(46*Math.sin(a1)).toFixed(2)}A46 46 0 ${lg} 1 ${(46*Math.cos(a2)).toFixed(2)} ${(46*Math.sin(a2)).toFixed(2)}Z"/>`; }
+    const pep = [[-18,-20],[16,-24],[24,6],[-6,4],[-24,14],[8,26],[-10,-36],[32,-8]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="5" fill="#C0392B" opacity=".8"/>`).join('');
+    return `<svg viewBox="-54 -54 108 108" class="pizza" width="${o.w||''}">${h}<g class="deco">${pep}<circle cx="0" cy="0" r="47" fill="none" stroke="#C98B4B" stroke-width="7"/></g></svg>`;
+  }
+  if(type==='choc'){
+    const [r,c] = chocGrid(p), s = 22; let h = '';
+    for(let i=0; i<p; i++){ const x = 4 + (i % c)*s, y = 4 + Math.floor(i/c)*s; h += `<rect class="part${on.has(off+i) ? ' on' : ''}" data-i="${off+i}" x="${x}" y="${y}" width="${s-2}" height="${s-2}" rx="2"/>`; }
+    const deco = Array.from({length:p}, (_,i)=>{ const x = 4 + (i % c)*s, y = 4 + Math.floor(i/c)*s; return `<rect x="${x+3}" y="${y+3}" width="${s-8}" height="${s-8}" rx="1.5" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1.5"/>`; }).join('');
+    return `<svg viewBox="0 0 ${c*s+6} ${r*s+6}" class="choc" width="${o.w||''}"><rect x="1" y="1" width="${c*s+4}" height="${r*s+4}" rx="4" fill="#4A2A15"/>${h}<g class="deco">${deco}</g></svg>`;
+  }
+  if(type==='bar'){
+    const W = 240, H = 44; let h = '';
+    for(let i=0; i<p; i++) h += `<rect class="part${on.has(off+i) ? ' on' : ''}" data-i="${off+i}" x="${4 + W*i/p}" y="4" width="${W/p}" height="${H}"/>`;
+    return `<svg viewBox="0 0 ${W+8} ${H+8}" class="bar" width="${o.w||''}">${h}<g class="deco"><path d="M4 12h${W}M4 40h${W}" stroke="#fff" stroke-opacity=".45" stroke-width="2" stroke-dasharray="4 4"/><rect x="4" y="4" width="${W}" height="${H}" fill="none" stroke="#B0577A" stroke-width="2.5" rx="3"/></g></svg>`;
+  }
+  /* set: biscotti al cioccolato */
+  const cols = p <= 4 ? p : p <= 9 ? Math.ceil(p/2) > 5 ? 5 : Math.ceil(p/2) : p <= 12 ? 6 : p <= 18 ? 6 : 8, rows = Math.ceil(p/cols), s = 26; let h = '', deco = '';
+  for(let i=0; i<p; i++){ const cx = 15 + (i % cols)*s, cy = 15 + Math.floor(i/cols)*s; h += `<circle class="part${on.has(off+i) ? ' on' : ''}" data-i="${off+i}" cx="${cx}" cy="${cy}" r="11"/>`; deco += `<circle cx="${cx-4}" cy="${cy-3}" r="1.8" fill="#4A2A15"/><circle cx="${cx+4}" cy="${cy-1}" r="1.6" fill="#4A2A15"/><circle cx="${cx-1}" cy="${cy+4}" r="1.7" fill="#4A2A15"/>`; }
+  return `<svg viewBox="0 0 ${cols*s+4} ${rows*s+4}" class="set" width="${o.w||''}">${h}<g class="deco">${deco}</g></svg>`;
+}
+/* un oggetto può essere fatto di più interi (frazioni maggiori di 1) */
+function objHTML(o, oi, ro){
+  const wh = o.wholes || 1; let h = '';
+  for(let k=0; k<wh; k++) h += drawWhole(o.type, o.p, o.on, k*o.p);
+  return `<div class="objw${ro ? ' ro' : ''}" data-o="${oi}">${o.label ? `<div class="lab">${o.label}</div>` : ''}<div style="display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:0">${h}</div></div>`;
+}
+/* miniatura per le risposte "quale figura…" */
+const mini = (type, p, k) => drawWhole(type, p, new Set(shuffle([...Array(p).keys()]).slice(0,k)), 0);
+const miniOrdered = (type, p, k) => drawWhole(type, p, new Set([...Array(k).keys()]), 0);
+
+/* ---------- impostazioni ---------- */
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+try{ const s = JSON.parse(localStorage.getItem('frazioni-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
+if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+const save = ()=>{ try{ localStorage.setItem('frazioni-prefs', JSON.stringify(P)); }catch(e){} };
+const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
+const LVD = {
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dal colorare una frazione fino ai problemi.',
+  1:'Base: colora la frazione su un oggetto già diviso; riconosci la frazione colorata; colora la frazione di un gruppo di biscotti.',
+  2:'Medio: dividi tu l\'oggetto in parti uguali e colora; scegli la figura che mostra la frazione; frazione di una quantità (per esempio i 3/4 di 12 biscotti).',
+  3:'Avanzato: frazioni equivalenti (2/3 su una tavoletta da 12 quadretti); confronta due frazioni; riduci ai minimi termini.',
+  4:'Esperto: addizioni e sottrazioni di frazioni da colorare; problemi inversi (6 biscotti sono i 2/5 della scatola: quanti sono in tutto?).',
+  5:'Campione: frazioni maggiori dell\'intero (7/4 di pizza); frazione di una frazione (la metà di 2/3); problemi («quanto resta della torta?»); la frazione più grande.'
+};
+function seg(id, key, items){
+  const box = $(id);
+  box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
+}
+function syncSetup(){
+  const lim = P.screen==='lim';
+  $('#layoutF').classList.toggle('hide', lim);
+  $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
+  $('#lvdesc').textContent = LVD[P.lvl];
+  $('#rules').innerHTML = (lim
+    ? 'LIM a turni: una squadra alla volta risolve la sfida; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b>. Basta un tocco alla volta.'
+    : 'Multitouch: le due squadre hanno la stessa sfida e giocano insieme, ognuna nella sua metà. Per colorare si toccano le parti o ci si striscia sopra con il dito (anche più dita insieme); un secondo tocco toglie il colore. Vince il punto chi risolve per primo; una risposta sbagliata blocca la squadra per 2 secondi.')
+    + ' Nessun dato viene salvato o inviato.';
+}
+function renderSetup(){
+  seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
+  seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
+  seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
+  seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
+  seg('#timeC', 'timeC', [[0,'Senza limite'],[60,'60 s'],[90,'90 s'],[120,'2 minuti']]);
+  seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
+  seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
+  $('#objs').innerHTML = [['pizza',8,3,'pizza'],['choc',12,5,'tavoletta di cioccolato'],['bar',5,2,'nastro'],['set',6,2,'biscotti']].map(([t,p,k,n])=>`<div class="o" style="--tc:var(--accent)">${miniOrdered(t,p,k)}<span>${n}</span></div>`).join('');
+  $('#n1').value = P.n1; $('#n2').value = P.n2;
+  syncSetup();
+}
+$('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
+$('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- suoni ---------- */
+let AC = null;
+function beep(freqs, dur){
+  if(!P.sound) return;
+  try{
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f,i)=>{ const o = AC.createOscillator(), g = AC.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, AC.currentTime + i*dur); g.gain.exponentialRampToValueAtTime(0.22, AC.currentTime + i*dur + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, AC.currentTime + (i+1)*dur); o.connect(g).connect(AC.destination); o.start(AC.currentTime + i*dur); o.stop(AC.currentTime + (i+1)*dur + 0.05); });
+  }catch(e){}
+}
+
+/* ---------- sfide ----------
+   kind 'color': si colora objs[0] finché colorate/parti (per intero) = n/d (vale anche una frazione equivalente);
+   kind 'choice': si sceglie tra 4 risposte (giusta, 2 plausibili, 1 molto sbagliata). */
+const T3 = ['pizza','choc','bar'];
+const prefilled = (p, k, ordered) => new Set(ordered ? [...Array(k).keys()] : shuffle([...Array(p).keys()]).slice(0,k));
+function fopts(right, near, far){
+  const key = ([a,b]) => `${a}/${b}`, seen = new Set([key(right)]), list = [{h:frac(...right), ok:true}];
+  for(const f of near){ if(list.length >= 3) break; if(f[0] > 0 && f[1] > 0 && !seen.has(key(f)) && !sameV(f[0],f[1],right[0],right[1])){ seen.add(key(f)); list.push({h:frac(...f)}); } }
+  let k = 1; while(list.length < 3){ const f = [right[0] + k, right[1]]; if(!seen.has(key(f))){ seen.add(key(f)); list.push({h:frac(...f)}); } k++; }
+  for(const f of far){ if(f[0] > 0 && f[1] > 0 && !seen.has(key(f)) && !sameV(f[0],f[1],right[0],right[1])){ list.push({h:frac(...f)}); break; } }
+  if(list.length < 4) list.push({h:frac(right[1]*3, right[0])});
+  return shuffle(list);
+}
+const nopts = (right, near, far) => { const seen = new Set([right]), l = [{h:String(right), ok:true}]; near.forEach(v=>{ if(l.length < 3 && v > 0 && !seen.has(v) && Number.isInteger(v)){ seen.add(v); l.push({h:String(v)}); } }); let k = 1; while(l.length < 3){ const v = right + (k % 2 ? k : -k); if(v > 0 && !seen.has(v)){ seen.add(v); l.push({h:String(v)}); } k++; } let f = far; while(seen.has(f)) f++; l.push({h:String(f)}); return shuffle(l); };
+function makeChallenge(l){
+  for(let g=0; g<300; g++){
+    const v = rnd(0, l===1 || l===2 || l===4 ? 2 : 3);
+    const type = pick(T3), [art, del] = OBJN[type];
+    if(l===1){
+      if(v===0){ const d = rnd(2,6), n = rnd(1,d-1); return {l, kind:'color', objs:[{type, p:d, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} ${del}.`, sol:`${n} parti su ${d}`}; }
+      if(v===1){ const d = rnd(2,8), n = rnd(1,d-1); const near = [[d-n,d], [n,d-n], [n,d+1]], far = [[d,n],[n*3,d*10]];
+        return {l, kind:'choice', objs:[{type, p:d, on:prefilled(d,n), ro:true}], opts:fopts([n,d], near, far), task:`Che frazione ${del} è colorata?`, sol:`${frac(n,d)}: ${n} parti colorate su ${d}`}; }
+      const p = pick([6,8,9,10,12]), ds = [2,3,4,5,6].filter(d=>p % d===0 && d < p); const d = pick(ds), n = rnd(1,d-1);
+      return {l, kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} dei biscotti.`, sol:`${n*p/d} biscotti su ${p}`};
+    }
+    if(l===2){
+      if(v===0){ const d = rnd(2,8), n = rnd(1,d-1); return {l, kind:'color', cut:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Dividi ${art} in parti uguali e colora ${frac(n,d)}.`, sol:`dividere in ${d} parti e colorarne ${n} (oppure una frazione equivalente)`}; }
+      if(v===1){ const d = rnd(3,8), n = rnd(1,d-1); const t = pick(['pizza','bar','choc']);
+        const cand = [[n,d,true], [d-n,d], [n,d+n], [n,d+1], [d,d]].filter(([a,b],i)=>i===0 || !sameV(a,b,n,d));
+        const opts = [{h:mini(t,d,n), ok:true}], seen = new Set([`${n}/${d}`]);
+        cand.slice(1).forEach(([a,b])=>{ const k = `${a}/${b}`; if(opts.length < 3 && b <= 12 && a < b && !seen.has(k)){ seen.add(k); opts.push({h:mini(t,b,a)}); } });
+        if(opts.length < 3) continue;
+        opts.push({h:mini(t, d, d)});
+        return {l, kind:'choice', objs:[], opts:shuffle(opts), task:`Quale figura mostra ${frac(n,d)}?`, sol:`la figura divisa in ${d} parti uguali con ${n} parti colorate`}; }
+      const p = pick([12,15,16,18,20,24]), ds = [2,3,4,5,6,8].filter(d=>p % d===0 && d < p), d = pick(ds), n = rnd(1,d-1);
+      return {l, kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} di ${p} biscotti.`, sol:`${p} : ${d} · ${n} = ${n*p/d} biscotti`};
+    }
+    if(l===3){
+      if(v===0){ const d = rnd(2,5), k = rnd(2,4), p = d*k; if(p > 12) continue; const n = rnd(1,d-1); const t = pick(['choc','choc','bar','pizza']);
+        return {l, kind:'color', objs:[{type:t, p, on:new Set()}], target:[n,d], task:`${OBJN[t][0].replace(/^./, c=>c.toUpperCase())} è divis${t==='bar' ? 'o' : 'a'} in ${p} parti: colora ${frac(n,d)}.`, sol:`${frac(n,d)} = ${frac(n*k,p)}: ${n*k} parti su ${p}`}; }
+      if(v===1){ const P2 = [[1,2],[1,3],[2,3],[1,4],[3,4],[2,5],[3,5],[1,6],[5,6],[3,8],[5,8]]; let A, B; do{ A = pick(P2); B = pick(P2); }while(A===B || A[1]===B[1]); if(Math.random() < 0.2){ const m = rnd(2,3); B = [A[0]*m, A[1]*m]; if(B[1] > 12) continue; }
+        const t = pick(['pizza','bar']), va = A[0]/A[1], vb = B[0]/B[1], right = Math.abs(va-vb) < 1e-9 ? 'sono uguali' : va > vb ? 'A' : 'B';
+        const opts = shuffle(['A','B','sono uguali'].map(x=>({h:`<span class="wd">${x}</span>`, ok:x===right}))).concat([{h:'<span class="wd">non si possono confrontare</span>'}]);
+        return {l, kind:'choice', objs:[{type:t, p:A[1], on:prefilled(A[1],A[0],true), ro:true, label:`A = ${frac(...A)}`}, {type:t, p:B[1], on:prefilled(B[1],B[0],true), ro:true, label:`B = ${frac(...B)}`}], opts, task:'Quale parte colorata è più grande?', sol:`${frac(...A)} = ${(va).toFixed(2).replace('.',',')} e ${frac(...B)} = ${(vb).toFixed(2).replace('.',',')}: ${right==='sono uguali' ? 'sono uguali' : 'è più grande ' + right}`}; }
+      if(v===2){ const d = rnd(2,6), n = rnd(1,d-1); if(gcd(n,d)!==1 || d*2 > 12) continue; return {l, kind:'color', cut:true, notSame:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Colora una frazione <b>equivalente</b> a ${frac(n,d)}, ma dividendo ${art} in un numero di parti <b>diverso da ${d}</b>.`, sol:`per esempio ${frac(n*2,d*2)}: ${d*2} parti, ${n*2} colorate`}; }
+      const d = rnd(2,6), n = rnd(1,d-1), m = rnd(2,3); if(gcd(n,d)!==1 || d*m > 12) continue; const p = d*m, k = n*m;
+      const near2 = [[n, d+1],[n+1, d+1],[n, d-1]].find(([a,b])=>b > a && a > 0 && !sameV(a,b,n,d) && !(a===k && b===p));
+      if(!near2) continue;
+      const opts = shuffle([{h:frac(n,d), ok:true}, {h:frac(k,p)}, {h:frac(...near2)}, {h:frac(p, k*5)}]);
+      return {l, kind:'choice', objs:[{type, p, on:prefilled(p,k), ro:true}], opts, task:`La parte colorata, <b>ridotta ai minimi termini</b>, è…`, sol:`${frac(k,p)} = ${frac(n,d)} (si divide per ${m})`};
+    }
+    if(l===4){
+      if(v===0){ const S4 = [[1,2,1,3,'+'],[1,4,1,3,'+'],[1,3,1,6,'+'],[1,2,1,4,'+'],[2,3,1,4,'+'],[1,4,1,6,'+'],[1,2,1,6,'+'],[3,4,1,6,'−'],[5,6,1,3,'−'],[2,3,1,4,'−'],[3,4,1,3,'−'],[1,2,1,3,'−']], [a,b,c,e,op] = pick(S4), L = lcm(b,e), num = op==='+' ? a*L/b + c*L/e : a*L/b - c*L/e; if(num <= 0 || num >= L) continue;
+        return {l, kind:'color', objs:[{type:'bar', p:L, on:new Set()}], target:[num,L], task:`Il nastro è diviso in ${L} parti. Colora ${frac(a,b)} ${op} ${frac(c,e)}.`, sol:`${frac(a,b)} = ${frac(a*L/b,L)}, ${frac(c,e)} = ${frac(c*L/e,L)}: ${frac(num,L)}`}; }
+      if(v===1){ const d = pick([3,4,5,6]), n = rnd(1,d-1), k = n*rnd(1,3), T = k*d/n; if(!Number.isInteger(T) || k > 12 || k < 2) continue;
+        return {l, kind:'choice', objs:[{type:'set', p:k, on:new Set([...Array(k).keys()]), ro:true}], opts:nopts(T, [k*d, k*n, T+d].filter(x=>x!==T), T*10 + k), task:`Questi ${k} biscotti sono ${frac(n,d)} della scatola. Quanti biscotti ci sono nella scatola piena?`, sol:`${k} : ${n} = ${k/n} biscotti per ogni ${frac(1,d)}; × ${d} = ${T}`}; }
+      const S5 = [[1,2,1,8],[1,4,1,8],[3,8,1,4],[1,2,1,4],[1,4,3,8],[1,2,3,8]], [a,b,c,e] = pick(S5), L = lcm(b,e), num = a*L/b + c*L/e; if(num >= L) continue;
+      return {l, kind:'color', objs:[{type:'pizza', p:L, on:new Set()}], target:[num,L], task:`La pizza è tagliata in ${L} fette. Colora ${frac(a,b)} + ${frac(c,e)}.`, sol:`${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(num,L)}`};
+    }
+    /* livello 5 */
+    if(v===0){ const d = rnd(2,6), n = rnd(d+1, 2*d-1), t = pick(['pizza','bar']);
+      const mixed = Math.random() < 0.5 ? `1 e ${frac(n-d,d)}` : frac(n,d);
+      return {l, kind:'color', objs:[{type:t, p:d, wholes:2, on:new Set()}], target:[n,d], task:`Ci sono ${t==='pizza' ? 'due pizze' : 'due nastri'} divis${t==='pizza' ? 'e' : 'i'} in ${d} parti. Colora ${mixed} ${t==='pizza' ? 'di pizza' : 'di nastro'}.`, sol:`${frac(n,d)} = ${n} parti da ${frac(1,d)}: un intero e ${n-d} parti`}; }
+    if(v===1){ const S6 = [[1,2,2,3],[1,2,3,4],[2,3,3,4],[1,3,3,4],[1,2,1,3],[1,2,4,5],[2,3,1,2],[3,4,2,3],[1,4,2,3]], [a,b,c,e] = pick(S6), p = b*e; if(p > 12) continue;
+      return {l, kind:'color', objs:[{type:pick(['bar','choc']), p, on:new Set()}], target:[a*c, p], task:`Colora ${frac(a,b)} di ${frac(c,e)}.`, sol:`${frac(a,b)} · ${frac(c,e)} = ${frac(a*c,p)}`}; }
+    if(v===2){ const S7 = [[1,3,1,4],[1,4,1,6],[1,2,1,3],[1,3,1,6],[1,4,1,3],[1,6,1,4],[1,2,1,6]], [a,b,c,e] = pick(S7), L = lcm(b,e), eaten = a*L/b + c*L/e, rest = L - eaten; if(rest <= 0) continue; const t = pick(['pizza','bar']);
+      return {l, kind:'color', objs:[{type:t, p:L, on:new Set()}], target:[rest, L], task:`Luca mangia ${frac(a,b)} ${t==='pizza' ? 'della pizza' : 'del nastro di liquirizia'} e Anna ${frac(c,e)}. Colora la parte che <b>resta</b>.`, sol:`mangiati ${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(eaten,L)}; resta ${frac(rest,L)}`}; }
+    const ks = shuffle([4,5,6,7,8,9,10]).slice(0,3).sort((x,y)=>x-y), big = ks[2], far = pick([[1,2],[2,5],[1,3]]);
+    const opts = shuffle([{h:frac(big-1,big), ok:true}, {h:frac(ks[0]-1,ks[0])}, {h:frac(ks[1]-1,ks[1])}, {h:frac(...far)}]);
+    return {l, kind:'choice', objs:[], opts, task:'Quale frazione è la <b>più grande</b>?', sol:`${frac(big-1,big)}: le manca solo ${frac(1,big)} per fare un intero, la parte più piccola`};
+  }
+  return makeChallenge(Math.max(1, l-1));
+}
+
+/* ---------- tabellone ---------- */
+const BD = {};
+function mkBoard(id){
+  const host = $('#bd'+id);
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"></div><div class="tools" id="tl${id}"></div><div class="aid" id="a${id}"></div><div class="opts" id="o${id}"></div>`;
+  BD[id] = {id, host, objs:[], phase:'build', lock:false};
+  bindBoard(id);
+}
+const teamOf = id => id==='L' ? S.turn : id;
+function setupBoard(id){
+  const C = S.ch, b = BD[id];
+  b.objs = C.objs.map(o=>({...o, on:new Set(o.on)})); b.phase = 'build'; b.lock = false;
+  $('#k'+id).innerHTML = C.task;
+  renderObjs(id);
+  $('#tl'+id).innerHTML = C.cut ? `<div class="cut">Parti uguali: <button data-c="-1" aria-label="Meno parti">−</button><output>${b.objs[0].p}</output><button data-c="1" aria-label="Più parti">+</button></div>` : '';
+  const ob = $('#o'+id);
+  ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
+  ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
+  $('#tl'+id).querySelectorAll('[data-c]').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); if(!canPlay(id)) return; const o = b.objs[0]; o.p = Math.max(1, Math.min(12, o.p + (+bt.dataset.c))); o.on = new Set(); $('#tl'+id).querySelector('output').textContent = o.p; renderObjs(id); beep([500], 0.03); }));
+}
+function renderObjs(id){
+  const C = S.ch, b = BD[id];
+  $('#st'+id).innerHTML = b.objs.map((o,i)=>objHTML(o, i, o.ro || C.kind==='choice')).join('');
+  sizeObjs(id); update(id);
+}
+/* adatta la grandezza dei disegni allo spazio disponibile */
+function sizeObjs(id){
+  const st = $('#st'+id), r = st.getBoundingClientRect(), svgs = [...st.querySelectorAll('svg')], n = svgs.length || 1;
+  const col = n > 1 && svgs.every(s=>s.classList.contains('bar'));   /* più nastri: uno sotto l'altro, tutti lunghi uguali */
+  st.style.flexDirection = col ? 'column' : '';
+  const labH = st.querySelector('.lab') ? 40 : 0, labs = st.querySelectorAll('.lab').length;
+  svgs.forEach(s=>{ const vb = s.viewBox.baseVal, ar = vb.width / vb.height;
+    let h, w;
+    if(col){ w = r.width - 40; h = w/ar; const maxH = (r.height - 30 - labs*labH - (n-1)*16) / n; if(h > maxH){ h = maxH; w = h*ar; } }
+    else { h = r.height - 24 - labH; w = h*ar; const maxW = (r.width - 30 - (n-1)*14) / n; if(w > maxW){ w = maxW; h = w/ar; } }
+    s.setAttribute('width', Math.max(40, w)); s.setAttribute('height', Math.max(30, h)); });
+}
+window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) sizeObjs(id); }));
+function update(id){
+  const C = S.ch, b = BD[id]; if(C.kind!=='color'){ $('#a'+id).innerHTML = ''; return; }
+  const o = b.objs[0], c = o.on.size, wh = o.wholes || 1;
+  b.host.querySelectorAll('.part').forEach(el=>el.classList.toggle('on', o.on.has(+el.dataset.i)));
+  if(P.aid) $('#a'+id).innerHTML = o.p===1 && C.cut ? 'Usa + e − per dividere in parti uguali.' : `Colorate: ${c} parti${wh > 1 ? ` (ogni intero ha ${o.p} parti)` : ` su ${o.p}`} → ${frac(c, o.p)}${wh===1 && c && gcd(c,o.p) > 1 ? ` = ${frac(c/gcd(c,o.p), o.p/gcd(c,o.p))}` : ''}`;
+  else $('#a'+id).innerHTML = '';
+}
+function check(id){
+  const C = S.ch, b = BD[id]; if(C.kind!=='color' || b.phase!=='build' || !S.playing || S.paused) return;
+  const o = b.objs[0], c = o.on.size, [n,d] = C.target;
+  if(c > 0 && c*d === n*o.p){
+    if(C.notSame && o.p===d){ $('#a'+id).insertAdjacentHTML('beforeend', ` · <span>giusto, ma dividi in un numero di parti diverso da ${d}!</span>`); return; }
+    win(id);
+  }
+}
+function choose(id, bt){
+  const b = BD[id]; if(!canPlay(id) || bt.disabled) return;
+  const ok = S.ch.opts[+bt.dataset.k].ok;
+  if(ok){ bt.classList.add('right'); win(id); return; }
+  bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
+  if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+/* colorare: tocco = cambia la parte; strisciando si applica lo stesso cambio alle parti attraversate (ogni dito per conto suo) */
+const paints = new Map();
+function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase==='build' && !b.lock && (id!=='L' || S.turn); }
+function bindBoard(id){
+  const host = $('#bd'+id);
+  const partAt = (x, y) => { const el = document.elementFromPoint(x, y); return el && el.classList && el.classList.contains('part') && host.contains(el) && !el.closest('.ro') ? el : null; };
+  const apply = (el, mode) => { const o = BD[id].objs[0], i = +el.dataset.i; if(mode) o.on.add(i); else o.on.delete(i); el.classList.toggle('on', mode); };
+  host.addEventListener('pointerdown', e=>{
+    const el = e.target.closest && e.target.closest('.part'); if(!el || el.closest('.ro') || S.ch.kind!=='color' || !canPlay(id)) return;
+    e.preventDefault();
+    const mode = !BD[id].objs[0].on.has(+el.dataset.i); apply(el, mode); beep([mode ? 620 : 420], 0.03);
+    try{ host.setPointerCapture(e.pointerId); }catch(err){}
+    paints.set(e.pointerId, {id, mode, last:el}); update(id);
+  });
+  host.addEventListener('pointermove', e=>{
+    const pt = paints.get(e.pointerId); if(!pt || !canPlay(id)) return;
+    const el = partAt(e.clientX, e.clientY); if(el && el!==pt.last){ pt.last = el; if(BD[id].objs[0].on.has(+el.dataset.i)!==pt.mode){ apply(el, pt.mode); update(id); } }
+  });
+  const up = e=>{ if(!paints.has(e.pointerId)) return; paints.delete(e.pointerId); if(![...paints.values()].some(p=>p.id===id)) check(id); };
+  host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+}
+
+/* ---------- partita ---------- */
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const nm = t => t===1 ? P.n1 : P.n2;
+function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; paints.clear(); }
+function start(){
+  stopAll();
+  P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
+  S.list = Array.from({length:P.num}, (_,i)=> P.lvl===0 ? 1 + Math.floor(5*i/P.num) : P.lvl);
+  Object.assign(S, {i:-1, score:[0,0], log:[], paused:false});
+  if(P.screen==='lim'){
+    $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0'; $('#lpause').textContent = 'Pausa';
+    show('lim');
+  } else {
+    $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0'; $('#pause').textContent = 'Pausa';
+    $('#game').classList.toggle('table', P.layout==='table');
+    [1,2].forEach(t=>$('#h'+t).classList.remove('locked'));
+    show('game');
+  }
+  try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
+  nextChallenge();
+}
+function nextChallenge(){
+  clearTimeout(S.next);
+  S.i++;
+  if(S.i >= S.list.length){ finish(); return; }
+  S.ch = makeChallenge(S.list[S.i]);
+  S.log.push({ch:S.ch, who:0});
+  if(P.screen==='lim') limChallenge(); else touchChallenge();
+}
+function finish(){
+  stopAll();
+  const [a,b] = S.score;
+  $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
+  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  if(a!==b) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+function win(id){
+  const team = teamOf(id);
+  S.playing = false; cancelAnimationFrame(S.raf);
+  BD[id].phase = 'done';
+  S.score[team-1]++; S.log[S.i].who = team;
+  beep([660, 880, 1100], 0.1);
+  if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b> · ${S.ch.sol}`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
+  $('#s'+team).textContent = S.score[team-1];
+  banner(team, 'Giusto! +1', true);
+  banner(3-team, `Punto a ${nm(team)}<small>Soluzione: ${S.ch.sol}</small>`);
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 3800);
+}
+
+/* ---------- multitouch ---------- */
+function banner(t, html, ok){ const b = $('#x'+t); b.innerHTML = html; b.classList.toggle('win', !!ok); b.classList.add('show'); }
+function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
+function touchChallenge(){
+  $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
+  S.playing = false;
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1);
+  S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(sizeObjs); }, 2200);
+}
+function setBar(f){
+  const bar = $('#tbar'), horiz = P.layout==='table' || matchMedia('(max-width:700px)').matches;
+  bar.style.transformOrigin = horiz ? 'left center' : 'center bottom';
+  bar.style.transform = horiz ? `scaleX(${f})` : `scaleY(${f})`;
+  bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+}
+function runClock(){
+  cancelAnimationFrame(S.raf);
+  if(!P.timeC){ setBar(1); return; }
+  const dur = P.timeC*1000;
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
+    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+$('#pause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#pause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  [1,2].forEach(t=>{ $('#h'+t).classList.toggle('locked', S.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; });
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; runClock(); }
+};
+$('#stop').onclick = ()=>{ stopAll(); finish(); };
+
+/* ---------- LIM: a turni, con rubapunto ---------- */
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#lim').classList.toggle('turn1', S.turn===1); $('#lim').classList.toggle('turn2', S.turn===2); $('#bdL').classList.toggle('dim', !S.turn); }
+function limChallenge(){
+  $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
+  S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
+  limSides(); setupBoard('L');
+  $('#lmsg').innerHTML = `Tocca a <b>${nm(S.turn)}</b>`;
+  limTimer(P.timeT);
+}
+function limTimer(sec, keep){
+  cancelAnimationFrame(S.raf);
+  if(!sec){ $('#lbarW').classList.add('hide'); return; }
+  $('#lbarW').classList.remove('hide');
+  if(!keep){ S.t0 = performance.now(); S.dur = sec*1000; }
+  const bar = $('#lbar');
+  const tick = now=>{
+    if(!S.playing || S.paused) return;
+    const f = Math.max(0, 1 - (now - S.t0)/S.dur);
+    bar.style.transformOrigin = 'left center'; bar.style.transform = `scaleX(${f})`; bar.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)';
+    if(f <= 0){ limFail('Tempo scaduto!'); return; }
+    S.raf = requestAnimationFrame(tick);
+  };
+  S.raf = requestAnimationFrame(tick);
+}
+function limFail(why){
+  if(!S.playing) return;
+  beep([330, 262], 0.14);
+  if(!S.stolen){
+    S.stolen = true; S.turn = 3 - S.turn; BD.L.phase = 'build';
+    limSides(); update('L');
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
+    return;
+  }
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, 5000);
+}
+$('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
+$('#lpause').onclick = ()=>{
+  if(!S.playing && !S.paused) return;
+  S.paused = !S.paused;
+  $('#lpause').textContent = S.paused ? 'Riprendi' : 'Pausa';
+  $('#bdL').classList.toggle('dim', S.paused || !S.turn);
+  if(S.paused){ S.pauseAt = performance.now(); cancelAnimationFrame(S.raf); }
+  else { S.t0 += performance.now() - S.pauseAt; if(P.timeT) limTimer(S.dur/1000, true); }
+};
+$('#lstop').onclick = ()=>{ stopAll(); finish(); };
+
+document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on') || $('#lim').classList.contains('on')) e.preventDefault(); });
+[1,2,'L'].forEach(mkBoard);
+$('#go').onclick = start;
+$('#again').onclick = start;
+$('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+renderSetup();
+window.__frazTest = {makeChallenge, P, S, BD, check, update};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

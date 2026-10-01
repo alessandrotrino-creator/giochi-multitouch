@@ -14,7 +14,7 @@ L'idea è sfruttare uno schermo multitouch grande come spazio di gioco condiviso
 - **Senza complicazioni:** niente account, niente installazioni, nessun dato degli studenti. Serve solo un browser: si apre il file dal computer oppure dal sito, se il progetto è pubblicato con GitHub Pages.
 - **Scritto in italiano**, con la notazione usata a scuola: `·` e `:` per moltiplicazione e divisione, virgola decimale, frazioni in colonna.
 
-I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, frazioni da spezzare, circuiti elettrici, linea del tempo.
+I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `index.html` (il launcher). Tra le idee per i prossimi ci sono: geopiano collaborativo, tangram, circuiti elettrici, linea del tempo.
 
 ## Giochi
 
@@ -25,6 +25,18 @@ La pagina `index.html` è il **launcher**: mostra tutti i giochi con una tessera
 | `duello.html` | **Duello a squadre** | Due squadre, la stessa domanda con 4 risposte. Tre modi di gioco: **Multitouch** (lo schermo è diviso in due e si risponde tutti insieme: vince il punto chi tocca per primo la risposta giusta; chi sbaglia resta bloccato 2 secondi); **LIM a turni** con rubapunto; **LIM con prenotazione** (pulsante grande di ogni squadra, oppure tasti A e L della tastiera). |
 | `coppie.html` | **Caccia alle coppie** | Carte da abbinare (figura–nome, operazione–risultato, grandezza–unità, strumento–che cosa misura…). **Multitouch**: ogni squadra ha le sue carte e tutti giocano insieme; si trascina una carta sulla compagna oppure si toccano una dopo l'altra, e chi finisce per primo il round prende 2 punti in più. **LIM**: un solo tabellone, a turni, con carte **scoperte** oppure **coperte** (memory). |
 | `leve.html` | **Leve e bilance** | Oggetti veri da trascinare (bottiglia d'acqua da 1 kg, mattone 2 kg, zucca 3 kg, pesetto 4 kg, anguria 5 kg, secchio d'acqua 10 kg) per mettere in equilibrio una bilancia a piatti o una leva: **peso × distanza** uguale dai due lati. **Multitouch**: ogni squadra ha la sua leva con la stessa sfida; vince il punto chi la mette per prima in equilibrio. **LIM**: una leva, a turni, con rubapunto (anche con il pulsante «Passa»). |
+| `frazioni.html` | **Frazioni da spezzare** | Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita (tocco o strisciata, anche più dita insieme), oppure risposte da scegliere. **Multitouch**: stessa sfida per le due squadre, vince il punto chi risolve per primo. **LIM**: a turni, con rubapunto e pulsante «Passa». |
+
+### Frazioni da spezzare: impostazioni
+- **Livello** (ogni livello ha 3–4 tipi di sfida, estratti a caso; nelle domande a scelta ci sono sempre 2 risposte plausibili e 1 molto sbagliata):
+  - *Base*: colora la frazione su un oggetto già diviso; che frazione è colorata?; colora la frazione di un gruppo di biscotti.
+  - *Medio*: dividi tu l'oggetto (pulsanti + e −) e colora (vale anche una frazione equivalente); quale figura mostra la frazione?; frazione di una quantità (i 3/4 di 12 biscotti).
+  - *Avanzato*: frazioni equivalenti (2/3 su una tavoletta da 12 quadretti); confronto tra due frazioni; frazione equivalente con un denominatore diverso; riduzione ai minimi termini.
+  - *Esperto*: addizioni e sottrazioni da colorare su nastro o pizza; problemi inversi («6 biscotti sono i 2/5 della scatola: quanti in tutto?»).
+  - *Campione*: frazioni maggiori dell'intero (7/4, «1 e 1/3») su due pizze o due nastri; frazione di una frazione; «quanto resta?»; la frazione più grande.
+  - *Crescente*: dal base al campione, sfida dopo sfida.
+- **Sfide**: 5, 8 o 10. **Aiuto «mostra la frazione colorata»**: sì / no. **Tempo**: per sfida (multitouch) oppure per turno (LIM).
+- A fine partita: riepilogo con la soluzione di ogni sfida.
 
 ### Leve e bilance: impostazioni
 - **Livello** (ogni livello ha 3 tipi di sfida, estratti a caso):

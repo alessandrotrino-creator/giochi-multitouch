@@ -43,6 +43,13 @@ Ultimo aggiornamento: 30 settembre 2026.
 - LIM: a turni, rubapunto dopo tempo scaduto, «Passa» o risposta sbagliata; la seconda squadra riparte dalla leva com'è.
 - Preferenze `leve-prefs`. `window.__leveTest` per le verifiche.
 
+## `frazioni.html` (Frazioni da spezzare) — creato l'01/10/2026
+- Oggetti SVG disegnati da `drawWhole(type, p, on, off)`: `pizza` (spicchi), `choc` (tavoletta, griglia da `chocGrid`), `bar` (nastro), `set` (biscotti). Parti `.part[data-i]`, decorazioni `.deco` senza eventi; la parte colorata prende `--tc` (colore della squadra; alla LIM `#lim.turn1/2`). Più interi (`wholes`) = frazioni maggiori di 1.
+- Sfide `makeChallenge(l)`: `kind:'color'` (successo quando colorate/parti = n/d, anche equivalente; `cut` = divisione libera con + e −; `notSame` = denominatore diverso da d) oppure `kind:'choice'` (4 risposte: giusta, 2 plausibili, 1 molto sbagliata; `fopts`, `nopts`, miniature con `mini`). 3–4 tipi per livello (vedi README).
+- Colorare: `pointerdown` su una parte la cambia; strisciando si applica lo stesso cambio (per `pointerId`); il controllo `check` avviene quando si alza il dito.
+- `sizeObjs` adatta i disegni alla scena; più nastri vanno uno sotto l'altro, lunghi uguali (per confrontare a occhio).
+- Verificato: 400 sfide per livello, tutte risolvibili, risposte sempre 4 e diverse con una sola giusta; prove nel browser di strisciata, divisione libera, confronto. Preferenze `frazioni-prefs`, `window.__frazTest`.
+
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.
 
