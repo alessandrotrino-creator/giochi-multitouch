@@ -76,6 +76,10 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
 .cut{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:2px solid var(--line);border-radius:16px;padding:4px 8px 4px 14px;font-weight:800}
 .cut button{width:48px;height:48px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);font-size:1.5rem;font-weight:800;line-height:1}
 .cut output{min-width:1.6em;text-align:center;font-family:var(--font-title);font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums}
+.confirm{min-height:52px;padding:6px 26px;border-radius:16px;border:0;background:var(--tc,var(--accent));color:#fff;font-family:var(--font-title);font-weight:800;font-size:clamp(1.1rem,2.8vh,1.6rem);box-shadow:0 4px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.confirm:disabled{opacity:.35;box-shadow:none}
+.confirm:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.aid .no{color:var(--bad)}
 .aid{text-align:center;font-weight:800;font-size:clamp(.9rem,2.1vh,1.25rem);min-height:1.5em;color:var(--muted)}
 .aid .ok{color:var(--ok)}
 .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(6px,1.2vh,12px)}
@@ -311,8 +315,8 @@ function syncSetup(){
   $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
   $('#lvdesc').textContent = LVD[P.lvl];
   $('#rules').innerHTML = (lim
-    ? 'LIM a turni: una squadra alla volta risolve la sfida; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b>. Basta un tocco alla volta.'
-    : 'Multitouch: le due squadre hanno la stessa sfida e giocano insieme, ognuna nella sua metà. Per colorare si toccano le parti o ci si striscia sopra con il dito (anche più dita insieme); un secondo tocco toglie il colore. Vince il punto chi risolve per primo; una risposta sbagliata blocca la squadra per 2 secondi.')
+    ? 'LIM a turni: una squadra alla volta risolve la sfida; se finisce il tempo, se preme «Passa» o se sbaglia una risposta (le parti colorate si controllano solo dopo «Conferma»), l\'altra squadra può <b>rubare il punto</b>. Basta un tocco alla volta.'
+    : 'Multitouch: le due squadre hanno la stessa sfida e giocano insieme, ognuna nella sua metà. Per colorare si toccano le parti o ci si striscia sopra con il dito (anche più dita insieme); un secondo tocco toglie il colore. Quando la squadra è d\'accordo preme <b>«Conferma»</b>. Vince il punto chi risolve per primo; una risposta o una conferma sbagliata blocca la squadra per 2 secondi.')
     + ' Nessun dato viene salvato o inviato.';
 }
 function renderSetup(){
@@ -429,7 +433,10 @@ function setupBoard(id){
   b.objs = C.objs.map(o=>({...o, on:new Set(o.on)})); b.phase = 'build'; b.lock = false;
   $('#k'+id).innerHTML = C.task;
   renderObjs(id);
-  $('#tl'+id).innerHTML = C.cut ? `<div class="cut">Parti uguali: <button data-c="-1" aria-label="Meno parti">−</button><output>${b.objs[0].p}</output><button data-c="1" aria-label="Più parti">+</button></div>` : '';
+  $('#tl'+id).innerHTML = (C.cut ? `<div class="cut">Parti uguali: <button data-c="-1" aria-label="Meno parti">−</button><output>${b.objs[0].p}</output><button data-c="1" aria-label="Più parti">+</button></div>` : '')
+    + (C.kind==='color' ? '<button class="confirm" disabled>✓ Conferma</button>' : '');
+  const cf = $('#tl'+id).querySelector('.confirm');
+  if(cf) cf.addEventListener('pointerdown', e=>{ e.preventDefault(); check(id); });
   const ob = $('#o'+id);
   ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
   ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
@@ -457,16 +464,30 @@ function update(id){
   const C = S.ch, b = BD[id]; if(C.kind!=='color'){ $('#a'+id).innerHTML = ''; return; }
   const o = b.objs[0], c = o.on.size, wh = o.wholes || 1;
   b.host.querySelectorAll('.part').forEach(el=>el.classList.toggle('on', o.on.has(+el.dataset.i)));
+  const cf = $('#tl'+id).querySelector('.confirm'); if(cf) cf.disabled = c===0;
   if(P.aid) $('#a'+id).innerHTML = o.p===1 && C.cut ? 'Usa + e − per dividere in parti uguali.' : `Colorate: ${c} parti${wh > 1 ? ` (ogni intero ha ${o.p} parti)` : ` su ${o.p}`} → ${frac(c, o.p)}${wh===1 && c && gcd(c,o.p) > 1 ? ` = ${frac(c/gcd(c,o.p), o.p/gcd(c,o.p))}` : ''}`;
   else $('#a'+id).innerHTML = '';
 }
+/* «Conferma»: la colorazione si controlla solo quando la squadra la conferma; se è sbagliata vale come una risposta sbagliata */
 function check(id){
-  const C = S.ch, b = BD[id]; if(C.kind!=='color' || b.phase!=='build' || !S.playing || S.paused) return;
-  const o = b.objs[0], c = o.on.size, [n,d] = C.target;
-  if(c > 0 && c*d === n*o.p){
-    if(C.notSame && o.p===d){ $('#a'+id).insertAdjacentHTML('beforeend', ` · <span>giusto, ma dividi in un numero di parti diverso da ${d}!</span>`); return; }
-    win(id);
-  }
+  const C = S.ch, b = BD[id]; if(C.kind!=='color' || !canPlay(id)) return;
+  const o = b.objs[0], c = o.on.size, [n,d] = C.target; if(!c) return;
+  if(c*d === n*o.p && !(C.notSame && o.p===d)){ win(id); return; }
+  const why = c*d === n*o.p ? `è equivalente, ma servono parti diverse da ${d}.` : `${frac(c, o.p)} non è ${frac(n,d)}.`;
+  beep([220], 0.15);
+  if(id==='L'){ limFail(`Sbagliato: ${why}`); if(S.playing) resetObjs('L'); return; }
+  penalize(id);
+  $('#a'+id).innerHTML = `<span class="no">Sbagliato: ${why}</span>`;
+}
+function resetObjs(id){
+  const b = BD[id]; b.objs = S.ch.objs.map(o=>({...o, on:new Set(o.on)}));
+  const out = $('#tl'+id).querySelector('output'); if(out) out.textContent = b.objs[0].p;
+  renderObjs(id);
+}
+function penalize(id){
+  const b = BD[id];
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
 }
 function choose(id, bt){
   const b = BD[id]; if(!canPlay(id) || bt.disabled) return;
@@ -474,8 +495,7 @@ function choose(id, bt){
   if(ok){ bt.classList.add('right'); win(id); return; }
   bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
   if(id==='L'){ limFail('Risposta sbagliata!'); return; }
-  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
-  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+  penalize(id);
 }
 /* colorare: tocco = cambia la parte; strisciando si applica lo stesso cambio alle parti attraversate (ogni dito per conto suo) */
 const paints = new Map();
@@ -495,7 +515,7 @@ function bindBoard(id){
     const pt = paints.get(e.pointerId); if(!pt || !canPlay(id)) return;
     const el = partAt(e.clientX, e.clientY); if(el && el!==pt.last){ pt.last = el; if(BD[id].objs[0].on.has(+el.dataset.i)!==pt.mode){ apply(el, pt.mode); update(id); } }
   });
-  const up = e=>{ if(!paints.has(e.pointerId)) return; paints.delete(e.pointerId); if(![...paints.values()].some(p=>p.id===id)) check(id); };
+  const up = e=>{ paints.delete(e.pointerId); };
   host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
 }
 

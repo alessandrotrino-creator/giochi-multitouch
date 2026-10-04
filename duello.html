@@ -199,6 +199,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
       <div class="field" id="timeF"><span>Tempo per domanda</span><div class="seg" id="time"></div></div>
       <div class="field" id="speedF"><span>Tempo per domanda</span><div class="seg" id="speedT"></div></div>
       <div class="field" id="rafF"><span>Durata della raffica</span><div class="seg" id="rafT"></div></div>
+      <div class="field" id="cdF"><span>Durata del countdown</span><div class="seg" id="cdT"></div></div>
     </div>
     <div class="row">
       <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
@@ -216,6 +217,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 <section class="screen" id="game" aria-label="Duello">
   <div class="half t1" id="h1">
     <div class="team"><h2 id="g1"></h2><div class="score" id="s1">0</div></div>
+    <div class="hbar hide" id="hb1"><i id="hi1"></i></div>
     <div class="qbox"><div class="cat" id="c1"></div><div class="qtext" id="q1"></div></div>
     <div class="opts" id="o1"></div>
     <div class="ans" id="a1"></div>
@@ -230,6 +232,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
   </div>
   <div class="half t2" id="h2">
     <div class="team"><h2 id="g2"></h2><div class="score" id="s2">0</div></div>
+    <div class="hbar hide" id="hb2"><i id="hi2"></i></div>
     <div class="qbox"><div class="cat" id="c2"></div><div class="qtext" id="q2"></div></div>
     <div class="opts" id="o2"></div>
     <div class="ans" id="a2"></div>
@@ -888,7 +891,7 @@ function genQ(c, l){
 
 /* ---------- impostazioni ---------- */
 const SCI = CATS.filter(c=>c.g==='sci').map(c=>c.k);
-const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, cdT:60, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
 try{
   const s = JSON.parse(localStorage.getItem('duello-prefs')||'{}');
   if(Array.isArray(s.cats) && s.cats.includes('scienze')) s.cats = s.cats.filter(k=>k!=='scienze').concat(SCI);   // vecchio argomento unico "Scienze"
@@ -905,8 +908,14 @@ function seg(id, key, items){
   box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const it = items.find(i=>String(i[0])===b.dataset.v); P[key] = it[0]; save(); seg(id, key, items); syncSetup(); });
 }
 const isRaf = ()=> P.sfida==='veloce' && P.screen==='touch';
+const isSv = ()=> P.sfida==='count' || P.sfida==='high';
 const mixTot = ()=> P.mix.reduce((s,v)=>s+v, 0);
 const RULES = {
+  count:'Countdown: domande una dopo l\'altra contro il tempo. Ogni risposta giusta vale 1 punto; <b>alla prima risposta sbagliata il countdown della squadra finisce</b>. Vince chi fa più punti.',
+  countZero:'Countdown senza tempo: domande una dopo l\'altra, senza fretta; <b>alla prima risposta sbagliata la squadra ha finito</b>. Vince chi fa più punti.',
+  high:'Highlander: nessun tempo totale, ma <b>al massimo 10 secondi per domanda</b> (20 per la domanda ★). Si va avanti finché non si sbaglia o non scade il tempo di una domanda. Vince chi fa più punti.',
+  svTouch:'Le due squadre giocano insieme, ognuna nella sua metà, con <b>le stesse domande nello stesso ordine</b> (le risposte sono mescolate in modo diverso); quando una squadra sbaglia, l\'altra continua da sola.',
+  svLim:'Alla LIM le squadre giocano <b>una dopo l\'altra</b>. Per non avvantaggiare chi gioca per secondo, le domande sono gemelle: stesso argomento e stessa difficoltà, ma con numeri o contenuti diversi.',
   touch:'Multitouch: le due squadre rispondono <b>insieme</b>, ognuna nella sua metà dello schermo; vince il punto chi tocca per primo la risposta giusta. Una risposta sbagliata blocca la squadra per 2 secondi. Le risposte sono in ordine diverso nelle due metà, così non si copia.',
   raffica:'Velocità (raffica): ogni squadra ha <b>le sue domande</b>, una dopo l\'altra, finché non scade il tempo. Ogni risposta giusta vale 1 punto; una sbagliata blocca la squadra per 1,5 secondi. Vince chi ne indovina di più.',
   turni:'LIM a turni: le squadre rispondono <b>una alla volta</b>, alternandosi. Se la squadra di turno sbaglia (o finisce il tempo), l\'altra può <b>rubare il punto</b>. Basta un tocco alla volta: va bene su qualsiasi LIM.',
@@ -928,18 +937,28 @@ function renderMix(){
   $('#mix').querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const i = +b.dataset.i; P.mix[i] = Math.max(0, Math.min(12, P.mix[i] + (+b.dataset.d))); save(); renderMix(); });
 }
 function syncSetup(){
-  const lim = P.screen==='lim', raf = isRaf();
+  const lim = P.screen==='lim', raf = isRaf(), sv = isSv();
   if(raf && P.diff==='mix'){ P.diff = 'cresc'; save(); }
-  seg('#diff', 'diff', raf ? DIFFS.filter(d=>d[0]!=='mix') : DIFFS);
-  $('#layoutF').classList.toggle('hide', lim); $('#limF').classList.toggle('hide', !lim);
+  if(sv && P.diff!=='fissa' && P.diff!=='scala'){ P.diff = 'scala'; save(); }
+  if(!sv && P.diff==='scala'){ P.diff = 'cresc'; save(); }
+  seg('#diff', 'diff', sv ? [['fissa','Fissa'],['scala','In scala']] : raf ? DIFFS.filter(d=>d[0]!=='mix') : DIFFS);
+  $('#layoutF').classList.toggle('hide', lim); $('#limF').classList.toggle('hide', !lim || sv);
   $('#lvlF').classList.toggle('hide', P.diff!=='fissa');
   $('#mixF').classList.toggle('hide', P.diff!=='mix');
-  $('#numF').classList.toggle('hide', P.diff==='mix' || raf);
-  $('#bonusF').classList.toggle('hide', raf);
-  $('#timeF').classList.toggle('hide', P.sfida==='veloce');
+  $('#numF').classList.toggle('hide', P.diff==='mix' || raf || sv);
+  $('#bonusF').classList.toggle('hide', raf || sv);
+  $('#timeF').classList.toggle('hide', P.sfida==='veloce' || sv);
   $('#speedF').classList.toggle('hide', !(P.sfida==='veloce' && lim));
   $('#rafF').classList.toggle('hide', !raf);
+  $('#cdF').classList.toggle('hide', P.sfida!=='count');
   renderMix();
+  if(sv){
+    $('#rules').innerHTML = [P.sfida==='count' && !P.cdT ? RULES.countZero : RULES[P.sfida], lim ? RULES.svLim : RULES.svTouch,
+      P.diff==='scala' ? 'In scala: la difficoltà sale ogni 2 domande (base, base, medio, medio … campione, campione) e poi ricomincia.' : '',
+      'Ogni 10 domande (la 10ª, la 20ª…) arriva una <b>domanda ★ di livello campione che vale 3 punti</b>.',
+      'Tutto resta su questo schermo: nessun dato viene salvato o inviato.'].filter(Boolean).join(' ');
+    return;
+  }
   const parts = [raf ? RULES.raffica : (lim ? RULES[P.limMode] : RULES.touch)];
   if(SFIDA_NOTE[P.sfida] && !raf) parts.push(SFIDA_NOTE[P.sfida]);
   if(DIFF_NOTE[P.diff]) parts.push(raf && P.diff==='cresc' ? 'Difficoltà crescente: ogni 4 risposte giuste la squadra passa al livello successivo.' : DIFF_NOTE[P.diff]);
@@ -957,12 +976,13 @@ function renderSetup(){
   $('#cats').querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ const k = b.dataset.k; P.cats = P.cats.includes(k) ? P.cats.filter(x=>x!==k) : [...P.cats, k]; save(); renderSetup(); });
   $('#cats').querySelectorAll('[data-all]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.all).map(c=>c.k); P.cats = [...new Set([...P.cats, ...ks])]; save(); renderSetup(); });
   $('#cats').querySelectorAll('[data-none]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.none).map(c=>c.k); P.cats = P.cats.filter(k=>!ks.includes(k)); save(); renderSetup(); });
-  seg('#sfida', 'sfida', [['classica','Classica'],['veloce','Velocità'],['ragion','Ragionamento']]);
+  seg('#sfida', 'sfida', [['classica','Classica'],['veloce','Velocità'],['ragion','Ragionamento'],['count','Countdown'],['high','Highlander']]);
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione']]);
   seg('#num', 'num', [[10,'10'],[15,'15'],[20,'20']]);
   seg('#bonus', 'bonus', [[false,'No'],[true,'Sì, vale 3 punti']]);
   seg('#time', 'time', [[0,'Senza limite'],[15,'15 s'],[20,'20 s'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
   seg('#speedT', 'speedT', [[5,'5 s'],[8,'8 s'],[10,'10 s']]);
+  seg('#cdT', 'cdT', [[30,'30 s'],[45,'45 s'],[60,'1 minuto'],[120,'2 minuti'],[0,'Senza tempo']]);
   seg('#rafT', 'rafT', [[60,'1 minuto'],[90,'1 minuto e ½'],[120,'2 minuti']]);
   seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
   seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
@@ -1032,24 +1052,28 @@ function setBar(f){
 
 /* ---------- partita multitouch ---------- */
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
-function stopAll(){ clearTimeout(G.nextTimer); cancelAnimationFrame(G.timerRaf); cancelAnimationFrame(LG.raf); LG.onEnd = null; R.on = false; R.tos.forEach(clearTimeout); R.tos = []; }
+function stopAll(){ clearTimeout(G.nextTimer); cancelAnimationFrame(G.timerRaf); cancelAnimationFrame(LG.raf); LG.onEnd = null; R.on = false; R.tos.forEach(clearTimeout); R.tos = []; SV.on = false; SV.tos.forEach(clearTimeout); SV.tos = []; }
 function start(){
   if(!P.cats.length){ $('#warn').textContent = 'Scegli almeno un argomento.'; return; }
-  const raf = isRaf();
-  if(!raf && P.diff==='mix' && !mixTot() && !P.bonus){ $('#warn').textContent = 'Metti almeno una domanda in «Domande per livello».'; return; }
+  const raf = isRaf(), sv = isSv(), live = raf || sv;
+  if(!live && P.diff==='mix' && !mixTot() && !P.bonus){ $('#warn').textContent = 'Metti almeno una domanda in «Domande per livello».'; return; }
   $('#warn').textContent = '';
   stopAll();   // niente timer rimasti dalla partita prima
   P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
-  Object.assign(G, {qs: raf ? [] : makeQuestions(), i:-1, score:[0,0], lock:[0,0], done:true, paused:false, log:[]});
-  if(!raf && !G.qs.length){ $('#warn').textContent = 'Non sono riuscito a preparare le domande: prova con altri argomenti.'; return; }
-  if(P.screen==='lim'){ limStart(); return; }
+  Object.assign(G, {qs: live ? [] : makeQuestions(), i:-1, score:[0,0], lock:[0,0], done:true, paused:false, log:[]});
+  if(!live && !G.qs.length){ $('#warn').textContent = 'Non sono riuscito a preparare le domande: prova con altri argomenti.'; return; }
+  if(P.screen==='lim'){ if(sv) svLimStart(); else limStart(); return; }
   $('#g1').textContent = P.n1; $('#g2').textContent = P.n2; $('#s1').textContent = '0'; $('#s2').textContent = '0';
   $('#game').classList.toggle('table', P.layout==='table');
   $('#pause').textContent = 'Pausa';
   document.querySelectorAll('#game .lock').forEach(l=>l.textContent = 'Attendi…');
+  const high = sv && P.sfida==='high';
+  [1,2].forEach(t=>$('#hb'+t).classList.toggle('hide', !high));
+  $('#timer').classList.toggle('hide', high || (sv && !P.cdT));
   show('game');
   try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
   if(raf){ rafStart(); return; }
+  if(sv){ svStart(); return; }
   next();
 }
 function next(){
@@ -1114,6 +1138,7 @@ function pauseLocks(){
   $('#pause').textContent = G.paused ? 'Riprendi' : 'Pausa';
 }
 $('#pause').onclick = ()=>{
+  if(SV.on){ svPause(); return; }
   if(R.on){
     G.paused = !G.paused; pauseLocks();
     if(G.paused){ R.pauseAt = performance.now(); cancelAnimationFrame(G.timerRaf); }
@@ -1172,14 +1197,153 @@ function rafClock(){
   G.timerRaf = requestAnimationFrame(tick);
 }
 
+/* ---------- countdown e highlander: ogni squadra va avanti finché non sbaglia ----------
+   multitouch: le due squadre insieme, con la stessa sequenza di domande (SV.qs[0]);
+   LIM: una squadra dopo l'altra, con domande "gemelle" (stesso argomento e livello, contenuto diverso). */
+const SCALA = [1,1,2,2,3,3,4,4,5,5], HIGH_T = 10;
+const SV = {on:false, phase:'', cur:0, qs:[[],[]], seen:new Set(), st:[], t0:0, pauseAt:0, tos:[]};
+function svDraw(l, ck){
+  for(let g=0; g<60; g++){
+    const c = CATS.find(x=>x.k===(ck || pick(P.cats))); if(!c) return null;
+    const q = genQ(c, l); if(!q || SV.seen.has(q.q)) continue;
+    SV.seen.add(q.q); q.cat = c.n; q.ck = c.k; q.lvl = l; q.pts = 1; return q;
+  }
+  return null;
+}
+function svQ(t, k){
+  const twin = P.screen==='lim', list = SV.qs[twin ? t-1 : 0];
+  while(list.length <= k){
+    const j = list.length, bonus = (j+1) % 10 === 0, l = bonus ? 5 : P.diff==='scala' ? SCALA[j % 10] : P.lvl;
+    const mate = twin && t===2 ? SV.qs[0][j] : null;
+    let q = svDraw(l, mate && mate.ck);
+    if(!q){ SV.seen.clear(); q = svDraw(l, mate && mate.ck) || svDraw(l); }
+    if(!q) return null;
+    if(bonus){ q.pts = 3; q.bonus = true; }
+    list.push(q);
+  }
+  return list[k];
+}
+function svReset(){ Object.assign(SV, {phase:'play', cur:0, qs:[[],[]], seen:new Set(), st:[1,2].map(()=>({alive:true, k:0, q:null, busy:false, t0:0})), tos:[]}); }
+const svBar = (el, f) => { el.style.width = (f*100)+'%'; el.style.background = f < 0.25 ? 'var(--bad)' : 'var(--accent)'; };
+function svClock(){
+  cancelAnimationFrame(G.timerRaf);
+  const lim = P.screen==='lim', dur = P.cdT*1000;
+  const tick = now=>{
+    if(G.paused || !SV.on) return;
+    if(SV.phase==='play'){
+      const teams = (lim ? [SV.cur] : [1,2]).filter(t=>SV.st[t-1].alive);
+      if(P.sfida==='count'){
+        if(dur){
+          const left = Math.max(0, dur - (now - SV.t0)), txt = `${Math.ceil(left/1000)} s`;
+          if(lim){ svBar($('#lbar'), left/dur); $('#lqn').textContent = `Countdown · ${txt}`; }
+          else { setBar(left/dur); $('#qn').innerHTML = `<small>Countdown</small>${txt}`; }
+          if(left <= 0) teams.forEach(t=>svOut(t, 'Tempo finito', true));
+        }
+      } else teams.forEach(t=>{
+        const s = SV.st[t-1]; if(s.busy || !s.q) return;
+        const f = Math.min(1, Math.max(0, 1 - (now - s.t0)/((s.q.bonus ? 2 : 1)*HIGH_T*1000)));
+        svBar(lim ? $('#lbar') : $('#hi'+t), f);
+        if(f <= 0) svOut(t, 'Tempo scaduto');
+      });
+    }
+    if(SV.on) G.timerRaf = requestAnimationFrame(tick);
+  };
+  G.timerRaf = requestAnimationFrame(tick);
+}
+function svStart(){
+  svReset(); SV.on = true; G.done = false;
+  $('#qn').innerHTML = P.sfida==='high' ? `<small>Highlander</small>${HIGH_T} s` : P.cdT ? '' : '<small>Countdown</small>senza tempo';
+  setBar(1);
+  [1,2].forEach(t=>{ $('#h'+t).classList.remove('locked'); svNext(t); });
+  SV.t0 = performance.now(); svClock(); beep([520, 780], 0.1);
+}
+function svNext(t){
+  const s = SV.st[t-1]; if(!SV.on || !s.alive) return;
+  if(G.paused){ SV.tos.push(setTimeout(()=>svNext(t), 300)); return; }
+  const q = svQ(t, s.k); if(!q){ svOut(t, 'Domande finite', true); return; }
+  s.q = q; s.busy = false; s.t0 = performance.now();
+  if(P.screen==='lim') svLimShow(q, s); else renderHalf(t, q, svAnswer);
+}
+function svAnswer(t, btn){
+  const s = SV.st[t-1]; if(!SV.on || SV.phase!=='play' || G.paused || !s.alive || s.busy || btn.disabled) return;
+  const q = s.q, lim = P.screen==='lim';
+  if(btn.dataset.ok === 'true'){
+    s.busy = true; s.k++; G.score[t-1] += q.pts; $((lim ? '#ls' : '#s')+t).textContent = G.score[t-1];
+    btn.classList.add('right'); beep(q.bonus ? [660, 880, 1100] : [700, 940], 0.08);
+    if(lim) $('#lmsg').innerHTML = `Giusto! +${q.pts}`; else { $('#b'+t).textContent = '+' + q.pts; $('#b'+t).classList.add('show'); }
+    G.log.push({q, who:t});
+    SV.tos.push(setTimeout(()=>svNext(t), q.bonus ? 900 : 500));
+  } else { btn.classList.add('wrong'); svOut(t, 'Risposta sbagliata'); }
+}
+function svOut(t, why, quiet){
+  const s = SV.st[t-1]; if(!s.alive) return;
+  s.alive = false; beep([330, 262], 0.16);
+  if(s.q && !quiet) G.log.push({q:s.q, who:0, miss:t, why});
+  const msg = s.q && !quiet ? ansHtml(s.q, `${why}! Risposta giusta: `) : why + '!';
+  if(P.screen==='lim'){ svLimOut(t, msg); return; }
+  if(s.q){ markRight(t); $('#o'+t).querySelectorAll('.opt').forEach(b=>b.disabled = true); }
+  $('#a'+t).innerHTML = msg; $('#a'+t).classList.add('show');
+  $('#h'+t).querySelector('.lock').innerHTML = `Fine! ${G.score[t-1]} punti`; $('#h'+t).classList.add('locked');
+  if(SV.st.every(x=>!x.alive)){ SV.on = false; cancelAnimationFrame(G.timerRaf); G.nextTimer = setTimeout(finish, 4000); }
+}
+function svPause(){
+  G.paused = !G.paused;
+  const now = performance.now();
+  if(P.screen==='lim'){ $('#lpause').textContent = G.paused ? 'Riprendi' : 'Pausa'; $('#lo').classList.toggle('wait', G.paused); }
+  else {
+    $('#pause').textContent = G.paused ? 'Riprendi' : 'Pausa';
+    [1,2].forEach(t=>{ if(SV.st[t-1].alive){ $('#h'+t).classList.toggle('locked', G.paused); $('#h'+t).querySelector('.lock').textContent = 'Pausa'; } });
+  }
+  if(G.paused){ SV.pauseAt = now; cancelAnimationFrame(G.timerRaf); }
+  else { const d = now - SV.pauseAt; SV.t0 += d; SV.st.forEach(s=>s.t0 += d); svClock(); }
+}
+/* LIM: prima una squadra, poi l'altra */
+function svLimStart(){
+  svReset(); SV.on = true; SV.cur = 1; G.done = false;
+  $('#ln1').textContent = P.n1; $('#ln2').textContent = P.n2; $('#ls1').textContent = '0'; $('#ls2').textContent = '0';
+  $('#lpause').textContent = 'Pausa';
+  [1,2].forEach(t=>$('#bz'+t).classList.add('hide'));
+  show('lim'); svLimReady(); svClock();
+}
+function svSides(){
+  [1,2].forEach(t=>{ const me = SV.cur===t; $('#L'+t).classList.toggle('turn', me); $('#lf'+t).textContent = me ? 'Tocca a voi!' : (SV.st[t-1].alive ? 'Poi tocca a voi' : `Finito: ${G.score[t-1]} punti`); });
+}
+function svLimReady(){
+  SV.phase = 'ready'; svSides();
+  $('#lqn').textContent = P.sfida==='count' ? `Countdown · ${P.cdT ? P.cdT + ' s' : 'senza tempo'}` : `Highlander · ${HIGH_T} s a domanda`;
+  $('#lqb').classList.remove('bonus'); $('#lc').textContent = ''; putQ($('#lq'), `Pronti, ${nm(SV.cur)}?`);
+  $('#lo').innerHTML = ''; $('#lbarW').classList.add('hide');
+  $('#lmsg').innerHTML = '<button class="start" id="svGo">Via!</button>';
+  $('#svGo').addEventListener('pointerdown', e=>{ e.preventDefault(); svLimGo(); });
+}
+function svLimGo(){
+  if(SV.phase!=='ready') return;
+  SV.phase = 'play'; $('#lmsg').innerHTML = '';
+  $('#lbarW').classList.toggle('hide', P.sfida==='count' && !P.cdT); svBar($('#lbar'), 1);
+  beep([520, 780], 0.1);
+  SV.t0 = performance.now(); svNext(SV.cur);
+}
+function svLimShow(q, s){
+  $('#lqb').classList.toggle('bonus', !!q.bonus); $('#lc').textContent = catLabel(q); putQ($('#lq'), q.q);
+  putOpts($('#lo'), q, b=>svAnswer(SV.cur, b)); $('#lo').classList.remove('wait');
+  if(P.sfida==='high' || !P.cdT) $('#lqn').textContent = `${P.sfida==='high' ? 'Highlander' : 'Countdown'} · domanda ${s.k+1}`;
+}
+function svLimOut(t, msg){
+  SV.phase = 'over';
+  $('#lo').querySelectorAll('.opt').forEach(b=>{ b.disabled = true; if(b.dataset.ok==='true') b.classList.add('right'); });
+  $('#lmsg').innerHTML = `${msg}<span class="xpl">${nm(t)}: ${G.score[t-1]} punti</span>`;
+  svSides();
+  G.nextTimer = setTimeout(()=>{ if(t===1){ SV.cur = 2; svLimReady(); } else { SV.on = false; finish(); } }, 4500);
+}
+
 function finish(){
-  const raf = R.on || (P.sfida==='veloce' && P.screen==='touch' && !G.qs.length);
+  const raf = R.on || (P.sfida==='veloce' && P.screen==='touch' && !G.qs.length), sv = isSv();
   stopAll();
   const [a,b] = G.score;
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
   $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
   const lvTag = q => `<span class="lv${q.bonus ? ' b4' : ''}">${q.bonus ? 'Bonus' : LV[q.lvl]}</span>`;
-  $('#recap').innerHTML = `<tr><th>#</th><th>Domanda</th><th>Risposta</th><th>${raf ? 'Squadra' : 'Punto'}</th></tr>` + G.log.map((r,i)=>`<tr><td>${i+1}</td><td>${r.q.q}${lvTag(r.q)}</td><td><b>${r.q.a}</b>${r.q.x ? `<span class="xpl">${r.q.x}</span>` : ''}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${r.who===1 ? P.n1 : P.n2}${r.q.pts > 1 ? ` (+${r.q.pts})` : ''}` : 'nessuno'}</td></tr>`).join('');
+  $('#recap').innerHTML = `<tr><th>#</th><th>Domanda</th><th>Risposta</th><th>${raf || sv ? 'Squadra' : 'Punto'}</th></tr>` + G.log.map((r,i)=>`<tr><td>${i+1}</td><td>${r.q.q}${lvTag(r.q)}</td><td><b>${r.q.a}</b>${r.q.x ? `<span class="xpl">${r.q.x}</span>` : ''}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${r.who===1 ? P.n1 : P.n2}${r.q.pts > 1 ? ` (+${r.q.pts})` : ''}` : r.miss ? `<span class="dot" style="background:var(--t${r.miss})"></span>${r.miss===1 ? P.n1 : P.n2}: ✗ ${r.why.toLowerCase()}` : 'nessuno'}</td></tr>`).join('');
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -1294,6 +1458,7 @@ document.addEventListener('keydown', e=>{
   if(k==='a') limBook(1); else if(k==='l') limBook(2);
 });
 $('#lpause').onclick = ()=>{
+  if(SV.on){ if(SV.phase==='play') svPause(); return; }
   if(G.done) return;
   G.paused = !G.paused;
   $('#lpause').textContent = G.paused ? 'Riprendi' : 'Pausa';
@@ -1309,7 +1474,7 @@ $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on')) e.preventDefault(); });
 renderSetup();
-window.__duelloTest = {CATS, genQ, P};   // solo per le verifiche automatiche delle domande
+window.__duelloTest = {CATS, genQ, P, G, SV, svQ};   // solo per le verifiche automatiche delle domande
 })();
 </script>
 </body>
