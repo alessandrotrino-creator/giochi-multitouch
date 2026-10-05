@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registro e statistiche</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+/* registro di classe: legge i risultati salvati dai giochi in questo browser (localStorage 'gm-registro') */
+:root{
+  --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
+  --t1:#2F6FDB; --t2:#E8801F; --ok:#1F9D63; --ok-soft:#DDF4E9; --bad:#D6334C; --bad-soft:#FBE3E7; --accent:#6A4CD8; --accent-soft:#ECE7FC;
+  --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t2:#F29A48; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; --accent-soft:#2A2350; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
+  --t1:#5B92F0; --t2:#F29A48; --ok:#39C685; --ok-soft:#15372A; --bad:#F0617A; --bad-soft:#3E1C25; --accent:#9A82F2; --accent-soft:#2A2350; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh}
+.wrap{max-width:1180px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
+h1{font-size:clamp(1.9rem,4.5vw,2.8rem)}
+h2{font-size:1.45rem}
+a{color:var(--accent);font-weight:800}
+.home{align-self:flex-start;text-decoration:none}
+header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+header svg{width:58px;height:58px;flex:none}
+header p{margin:4px 0 0;color:var(--muted);font-weight:700;max-width:70ch;line-height:1.45}
+.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;position:sticky;top:0;z-index:5}
+.filters label{display:flex;flex-direction:column;gap:4px;font-weight:800;font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+select,button{font:inherit}
+select{font-size:1.05rem;font-weight:800;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);min-width:150px}
+.btn{border:2px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:12px;font-weight:800;padding:8px 14px;cursor:pointer;min-height:44px}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.tile b{display:block;font-family:var(--font-title);font-size:2.3rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.tile span{color:var(--muted);font-weight:800;font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,520px),1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.card.wide{grid-column:1 / -1}
+.note{color:var(--muted);font-weight:700;font-size:.92rem;margin:0;line-height:1.45}
+.bar{display:grid;grid-template-columns:minmax(110px,34%) 1fr 4.5em 4.5em;align-items:center;gap:10px;font-weight:700;padding:3px 0;border-radius:8px}
+.bar:hover{background:var(--surface-2)}
+.bar .tr{height:14px;border-radius:0 7px 7px 0;background:var(--surface-2);border:1px solid var(--line);overflow:hidden}
+.bar .tr i{display:block;height:100%;border-radius:0 6px 6px 0;background:var(--accent)}
+.bar .v{text-align:right;font-weight:800;font-variant-numeric:tabular-nums}
+.bar .n{text-align:right;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.bar.low .v{color:var(--bad)}
+.bar.low .tr i{background:var(--bad)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-weight:800;font-size:.9rem;padding:4px 12px;border-radius:999px;background:var(--bad-soft);color:var(--bad);border:1px solid color-mix(in srgb,var(--bad) 35%,transparent)}
+.chip.good{background:var(--ok-soft);color:var(--ok);border-color:color-mix(in srgb,var(--ok) 35%,transparent)}
+.tablewrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.95rem}
+td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.heat td.c{text-align:center;font-weight:800;font-variant-numeric:tabular-nums;border:2px solid var(--surface);border-radius:6px;min-width:58px}
+.heat td.c.empty{color:var(--muted);font-weight:700}
+.chart{position:relative}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .grid line{stroke:var(--line)}
+.chart text{fill:var(--muted);font-size:12px;font-family:var(--font-body);font-weight:700}
+.tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--surface);border-radius:10px;padding:6px 10px;font-weight:800;font-size:.85rem;white-space:nowrap;transform:translate(-50%,-115%);opacity:0;transition:opacity .1s}
+.tip.on{opacity:1}
+.empty-state{background:var(--surface);border:2px dashed var(--line);border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+.empty-state p{margin:0;line-height:1.55;font-weight:700;color:var(--muted)}
+.demo{background:var(--accent-soft);color:var(--accent);border-radius:14px;padding:10px 14px;font-weight:800;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-right:6px}
+.del{border:0;background:transparent;color:var(--bad);font-weight:800;cursor:pointer;padding:4px 8px;border-radius:8px}
+.del:hover{background:var(--bad-soft)}
+.hide{display:none!important}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+details summary{cursor:pointer;font-weight:800}
+@media print{
+  .filters,.actions,.home,.del,.demo button{display:none!important}
+  body{background:#fff}
+  .card,.tile{break-inside:avoid;border-color:#bbb}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home" href="index.html">← Tutti i giochi</a>
+  <header>
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="6" width="48" height="54" rx="8" fill="#6A4CD8"/><rect x="16" y="38" width="7" height="14" rx="2" fill="#fff"/><rect x="28.5" y="28" width="7" height="24" rx="2" fill="#fff"/><rect x="41" y="18" width="7" height="34" rx="2" fill="#fff"/></svg>
+    <div>
+      <h1>Registro e statistiche</h1>
+      <p>I risultati delle partite giocate indicando la classe, divisi per anno scolastico. Tutto resta in questo browser, su questo computer: nessun dato viene inviato e non ci sono nomi di alunni, solo i nomi delle squadre.</p>
+    </div>
+  </header>
+
+  <div id="demoBar" class="demo hide">Stai guardando dati di esempio (non salvati). <button class="btn" id="demoOff">Torna ai dati veri</button></div>
+
+  <section id="emptyState" class="empty-state hide">
+    <h2>Ancora nessuna partita registrata</h2>
+    <p>Nelle impostazioni di ogni gioco c'è il campo <b>Classe</b> (es. 2B): se lo compili, a fine partita i risultati vengono salvati qui, con l'anno scolastico. Se lo lasci vuoto la partita è un allenamento e non viene registrata.</p>
+    <p>Lo schermo multitouch e il PC della LIM hanno ognuno il proprio registro: con <b>Esporta</b> e <b>Importa</b> (in fondo alla pagina) puoi unirli.</p>
+    <div class="actions"><button class="btn pri" id="demoOn">Guarda un esempio con dati inventati</button><button class="btn" id="importEmpty">Importa un file del registro</button></div>
+  </section>
+
+  <div id="main">
+    <div class="filters" role="group" aria-label="Filtri">
+      <label>Anno scolastico<select id="fAnno"></select></label>
+      <label>Classe<select id="fClasse"></select></label>
+      <label>Gioco<select id="fGioco"></select></label>
+      <div class="actions"><button class="btn" id="printBtn">Stampa</button></div>
+    </div>
+
+    <div class="tiles" id="tiles" style="margin-top:16px"></div>
+
+    <div class="grid" style="margin-top:16px">
+      <section class="card">
+        <h2>Argomenti</h2>
+        <p class="note">Percentuale di risposte giuste per argomento, dal più debole al più forte. In rosso sotto il 60%.</p>
+        <div id="topicWeak"></div>
+        <div id="topics"></div>
+      </section>
+      <section class="card">
+        <h2>Andamento nel tempo</h2>
+        <p class="note" id="trendNote">Risposte giuste mese per mese.</p>
+        <div class="chart" id="trend"></div>
+        <h2 style="margin-top:8px">Per livello di difficoltà</h2>
+        <div id="levels"></div>
+      </section>
+      <section class="card wide" id="cmpCard">
+        <h2>Confronto tra le classi</h2>
+        <p class="note">Ogni casella: percentuale di risposte giuste della classe in quell'argomento (più scura = più alta). Si leggono i punti di forza e le lacune di ogni classe.</p>
+        <div class="tablewrap" id="heat"></div>
+      </section>
+      <section class="card">
+        <h2>Classifica delle classi</h2>
+        <p class="note">Ordinata per percentuale di risposte giuste (servono almeno 5 risposte). «Record» = punteggio più alto di una squadra della classe.</p>
+        <div class="tablewrap" id="rank"></div>
+      </section>
+      <section class="card">
+        <h2>Record delle squadre</h2>
+        <p class="note">I punteggi più alti, gioco per gioco e modalità per modalità.</p>
+        <div class="tablewrap" id="records"></div>
+      </section>
+      <section class="card wide">
+        <h2>Domande sbagliate più spesso</h2>
+        <p class="note">Le domande e le sfide che hanno messo più in difficoltà: buoni spunti per riprendere un argomento in classe.</p>
+        <div class="tablewrap" id="misses"></div>
+      </section>
+      <section class="card wide">
+        <h2>Partite</h2>
+        <div class="tablewrap" id="games"></div>
+      </section>
+      <section class="card wide">
+        <h2>Dati del registro</h2>
+        <p class="note">Esporta un file da conservare o da aprire su un altro computer (per esempio per unire il registro dello schermo multitouch con quello della LIM). Importando, le partite già presenti non vengono duplicate.</p>
+        <div class="actions">
+          <button class="btn pri" id="expBtn">Esporta (file .json)</button>
+          <button class="btn" id="impBtn">Importa da file</button>
+          <input type="file" id="impFile" accept=".json,application/json" class="hide">
+          <button class="btn danger" id="delYear">Cancella l'anno scolastico scelto…</button>
+          <button class="btn danger" id="delAll">Cancella tutto il registro…</button>
+        </div>
+        <p class="note" id="dataMsg" role="status"></p>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="tip" id="tip"></div>
+
+<script>
+(function(){
+"use strict";
+const KEY = 'gm-registro';
+const GAMES = {duello:'Duello a squadre', coppie:'Caccia alle coppie', leve:'Leve e bilance', frazioni:'Frazioni da spezzare', geopiano:'Geopiano', circuiti:'Circuiti elettrici', tangram:'Tangram', energia:"Città dell'energia", zoo:'Lo zoo della classificazione'};
+const LVN = ['', 'Base', 'Medio', 'Avanzato', 'Esperto', 'Campione'];
+const MESI = ['set','ott','nov','dic','gen','feb','mar','apr','mag','giu','lug','ago'];
+const $ = s => document.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+const annoOf = d => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+const gname = p => GAMES[p.gioco] || p.titolo || p.gioco;
+const fmtD = iso => { const d = new Date(iso); return d.toLocaleDateString('it-IT', {day:'2-digit', month:'2-digit', year:'numeric'}) + ' ' + d.toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'}); };
+
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+let DB = load(), DEMO = null;
+const data = () => DEMO || DB;
+let F = {anno:'', classe:'', gioco:''};
+try{ Object.assign(F, JSON.parse(localStorage.getItem('gm-registro-filtri') || '{}')); }catch(e){}
+const saveF = () => { try{ localStorage.setItem('gm-registro-filtri', JSON.stringify(F)); }catch(e){} };
+
+/* ---------- dati di esempio (solo in memoria) ---------- */
+function makeDemo(){
+  const out = [], now = new Date(), A = annoOf(now), y0 = now.getMonth() >= 8 ? now.getFullYear() : now.getFullYear() - 1;
+  const classes = {'1A':.58, '1B':.66, '2A':.72, '2C':.61, '3B':.78};
+  const topics = {duello:['Calcolo','Potenze','Frazioni','Equivalenze','Densità','Forze'], zoo:['Mammiferi','Uccelli','Rettili','Anfibi','Pesci','Artropodi','Molluschi'], frazioni:['Colorare una frazione','Frazioni equivalenti','Confronto','Retta dei numeri'], leve:['Leve di 1° genere','Bilancia: equazioni'], coppie:['Figure piane','Unità di misura']};
+  const hard = {Potenze:-.15, Equivalenze:-.2, Anfibi:-.18, 'Frazioni equivalenti':-.12, 'Retta dei numeri':-.16, Forze:-.1, Molluschi:-.14};
+  let seed = 7; const rnd = () => (seed = (seed * 9301 + 49297) % 233280) / 233280;
+  Object.entries(classes).forEach(([c, base]) => {
+    for(let k = 0; k < 9; k++){
+      const g = Object.keys(topics)[Math.floor(rnd() * 5)], d = new Date(y0, 8 + Math.floor(rnd() * Math.min(9, 1 + monthsSince(y0))), 1 + Math.floor(rnd() * 27), 9 + Math.floor(rnd() * 5));
+      if(d > now) continue;
+      const items = [];
+      for(let i = 0; i < 12; i++){
+        const t = topics[g][Math.floor(rnd() * topics[g].length)], l = 1 + Math.floor(rnd() * 5), p = base + (hard[t] || 0) - (l - 3) * .06 + (d.getMonth() - 9) * .005;
+        const ok = rnd() < p, it = {t, l, ok};
+        if(!ok) Object.assign(it, demoQ(t));
+        items.push(it);
+      }
+      const ok = items.filter(i => i.ok).length, a = Math.round(ok * (0.4 + rnd() * .3));
+      out.push({id:'demo' + c + k, data:d.toISOString(), anno:A, classe:c, gioco:g, titolo:GAMES[g], modo:'Classica · multitouch', livello:'Crescente', squadre:[{nome:'Squadra blu', punti:a}, {nome:'Squadra arancione', punti:ok - a}], items});
+    }
+  });
+  return {v:1, partite:out};
+}
+function monthsSince(y0){ const n = new Date(); return (n.getFullYear() - y0) * 12 + n.getMonth() - 8; }
+function demoQ(t){
+  const Q = {Potenze:['2³ · 2² = ?','2⁵ = 32'], Equivalenze:['3,5 km = ? m','3500 m'], Anfibi:['La salamandra è un…','anfibio'], 'Frazioni equivalenti':['Colora una frazione equivalente a 2/3','4/6'], 'Retta dei numeri':['Metti 0,75 sulla retta','3/4 della retta'], Forze:['Un corpo di 3 kg: quanto pesa sulla Terra?','circa 29,4 N'], Molluschi:['Il polpo è un…','mollusco (cefalopode)'], Calcolo:['48 : 6 = ?','8'], Frazioni:['1/2 + 1/4 = ?','3/4'], Densità:['Che cosa galleggia nell\'acqua?','il legno di abete']};
+  const q = Q[t]; return q ? {q:q[0], a:q[1]} : {};
+}
+
+/* ---------- filtri ---------- */
+function opts(sel, list, cur, allLabel){
+  sel.innerHTML = (allLabel ? `<option value="">${allLabel}</option>` : '') + list.map(([v, t]) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(t)}</option>`).join('');
+}
+function renderFilters(){
+  const P = data().partite;
+  const anni = [...new Set(P.map(p => p.anno))].sort().reverse();
+  if(!anni.includes(annoOf(new Date()))) anni.unshift(annoOf(new Date()));
+  if(F.anno !== '*' && !anni.includes(F.anno)) F.anno = anni.find(a => P.some(p => p.anno === a)) || anni[0];
+  opts($('#fAnno'), [...anni.map(a => [a, 'a.s. ' + a]), ['*', 'Tutti gli anni']], F.anno);
+  const inYear = P.filter(p => F.anno === '*' || p.anno === F.anno);
+  const cls = [...new Set(inYear.map(p => p.classe))].sort();
+  if(F.classe && !cls.includes(F.classe)) F.classe = '';
+  opts($('#fClasse'), cls.map(c => [c, c]), F.classe, 'Tutte le classi');
+  const gs = [...new Set(inYear.map(p => p.gioco))].sort((a, b) => (GAMES[a] || a).localeCompare(GAMES[b] || b));
+  if(F.gioco && !gs.includes(F.gioco)) F.gioco = '';
+  opts($('#fGioco'), gs.map(g => [g, GAMES[g] || g]), F.gioco, 'Tutti i giochi');
+}
+['#fAnno', '#fClasse', '#fGioco'].forEach((id, i) => $(id).addEventListener('change', e => { F[['anno', 'classe', 'gioco'][i]] = e.target.value; saveF(); render(); }));
+const sel = (opt = {}) => data().partite.filter(p => (F.anno === '*' || p.anno === F.anno) && (opt.anyClass || !F.classe || p.classe === F.classe) && (opt.anyGame || !F.gioco || p.gioco === F.gioco));
+
+/* ---------- calcoli ---------- */
+function agg(list, keyFn){
+  const m = new Map();
+  list.forEach(p => (p.items || []).forEach(it => { const k = keyFn(it, p); if(k == null) return; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }));
+  return m;
+}
+const bar = (label, ok, n, extra) => { const p = pct(ok, n); return `<div class="bar${p < 60 ? ' low' : ''}" title="${esc(label)}: ${ok} giuste su ${n}${extra ? ' · ' + extra : ''}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%"></i></span><span class="v">${p}%</span><span class="n">${ok}/${n}</span></div>`; };
+
+/* ---------- rendering ---------- */
+function render(){
+  const all = data().partite;
+  $('#emptyState').classList.toggle('hide', all.length > 0);
+  $('#main').classList.toggle('hide', !all.length);
+  $('#demoBar').classList.toggle('hide', !DEMO);
+  if(!all.length) return;
+  renderFilters();
+  const L = sel(), items = L.flatMap(p => p.items || []), ok = items.filter(i => i.ok).length;
+  const scope = (F.classe ? 'classe ' + F.classe : 'tutte le classi') + (F.gioco ? ' · ' + (GAMES[F.gioco] || F.gioco) : '') + (F.anno === '*' ? ' · tutti gli anni' : ' · a.s. ' + F.anno);
+  $('#tiles').innerHTML = [
+    [L.length, L.length === 1 ? 'partita registrata' : 'partite registrate'],
+    [items.length, items.length === 1 ? 'domanda o sfida' : 'domande e sfide'],
+    [items.length ? pct(ok, items.length) + '%' : '—', 'risposte giuste'],
+    [new Set(L.map(p => p.classe)).size, F.classe ? 'classe' : 'classi']
+  ].map(([b, s]) => `<div class="tile"><b>${b}</b><span>${s}</span></div>`).join('') + `<div class="tile" style="grid-column:1/-1;padding:8px 16px"><span>Stai guardando: ${esc(scope)}</span></div>`;
+
+  /* argomenti */
+  const T = [...agg(L, it => it.t)].map(([t, o]) => ({t, ...o, p:pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n);
+  const weak = T.filter(t => t.p < 60 && t.n >= 3), strong = T.filter(t => t.p >= 80 && t.n >= 3).slice(-4).reverse();
+  $('#topicWeak').innerHTML = (weak.length ? `<p class="note"><b>Da riprendere</b></p><div class="chips">${weak.map(t => `<span class="chip">${esc(t.t)} · ${t.p}%</span>`).join('')}</div>` : '') +
+    (strong.length ? `<p class="note" style="margin-top:6px"><b>Punti di forza</b></p><div class="chips">${strong.map(t => `<span class="chip good">${esc(t.t)} · ${t.p}%</span>`).join('')}</div>` : '');
+  $('#topics').innerHTML = T.length ? T.map(t => bar(t.t, t.ok, t.n)).join('') : '<p class="note">Nessuna risposta in questa selezione.</p>';
+
+  /* livelli */
+  const LV = agg(L, it => it.l || null);
+  $('#levels').innerHTML = [1, 2, 3, 4, 5].filter(l => LV.has(l)).map(l => bar(LVN[l], LV.get(l).ok, LV.get(l).n)).join('') || '<p class="note">Nessun livello indicato.</p>';
+
+  renderTrend(L);
+  renderHeat();
+  renderRank();
+  renderRecords(L);
+  renderMisses(L);
+  renderGames(L);
+}
+
+function renderTrend(L){
+  const byM = new Map();
+  L.forEach(p => { const d = new Date(p.data), k = d.getFullYear() * 12 + d.getMonth(); const o = byM.get(k) || {ok:0, n:0}; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); byM.set(k, o); });
+  const keys = [...byM.keys()].sort((a, b) => a - b).filter(k => byM.get(k).n);
+  const host = $('#trend');
+  if(keys.length < 2){ host.innerHTML = `<p class="note">${keys.length ? 'Serve almeno un secondo mese di partite per vedere l\'andamento.' : 'Nessun dato.'}</p>`; return; }
+  const W = 560, H = 220, m = {l:40, r:16, t:14, b:30}, iw = W - m.l - m.r, ih = H - m.t - m.b;
+  const x = i => m.l + (keys.length === 1 ? iw / 2 : i * iw / (keys.length - 1)), y = v => m.t + ih - v / 100 * ih;
+  const pts = keys.map((k, i) => { const o = byM.get(k); return {x:x(i), y:y(pct(o.ok, o.n)), p:pct(o.ok, o.n), o, lab:`${MESI[((k % 12) + 4) % 12]} ${String(Math.floor(k / 12)).slice(2)}`}; });
+  const grid = [0, 25, 50, 75, 100].map(v => `<line x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${v}%</text>`).join('');
+  const step = Math.ceil(pts.length / 8);
+  host.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Percentuale di risposte giuste per mese"><g class="grid">${grid}</g>
+    <polyline fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" points="${pts.map(p => p.x + ',' + p.y).join(' ')}"/>
+    ${pts.map((p, i) => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/>${i % step === 0 || i === pts.length - 1 ? `<text x="${p.x}" y="${H - 8}" text-anchor="middle">${p.lab}</text>` : ''}`).join('')}
+    ${pts.map((p, i) => `<rect data-i="${i}" x="${p.x - iw / pts.length / 2}" y="${m.t}" width="${iw / pts.length}" height="${ih}" fill="transparent"/>`).join('')}</svg>`;
+  const tip = $('#tip');
+  host.querySelectorAll('rect[data-i]').forEach(r => {
+    r.addEventListener('pointerenter', () => { const p = pts[+r.dataset.i], b = host.querySelector('svg').getBoundingClientRect(); tip.innerHTML = `${p.lab}: ${p.p}% giuste (${p.o.ok}/${p.o.n})`; tip.style.left = (b.left + p.x / W * b.width + scrollX) + 'px'; tip.style.top = (b.top + p.y / H * b.height + scrollY) + 'px'; tip.classList.add('on'); });
+    r.addEventListener('pointerleave', () => tip.classList.remove('on'));
+  });
+}
+
+function renderHeat(){
+  const L = sel({anyClass:true}), cls = [...new Set(L.map(p => p.classe))].sort();
+  const card = $('#cmpCard');
+  if(cls.length < 2){ card.classList.toggle('hide', !L.length); $('#heat').innerHTML = '<p class="note">Il confronto compare quando ci sono partite di almeno due classi in questa selezione.</p>'; return; }
+  card.classList.remove('hide');
+  const T = [...agg(L, it => it.t)].sort((a, b) => b[1].n - a[1].n).slice(0, 12).map(e => e[0]);
+  const M = agg(L, (it, p) => p.classe + '\u0001' + it.t), C = agg(L, (it, p) => p.classe);
+  const cell = (ok, n) => { if(!n) return '<td class="c empty">—</td>'; const p = pct(ok, n), a = .12 + .78 * p / 100; return `<td class="c" style="background:color-mix(in srgb,var(--accent) ${Math.round(a * 100)}%,var(--surface));color:${a > .55 ? '#fff' : 'var(--ink)'}" title="${p}% (${ok}/${n})">${p}%</td>`; };
+  $('#heat').innerHTML = `<table class="heat"><tr><th>Classe</th><th class="num">Totale</th>${T.map(t => `<th>${esc(t)}</th>`).join('')}</tr>` +
+    cls.map(c => { const tot = C.get(c) || {ok:0, n:0}; return `<tr><td><b>${esc(c)}</b></td>${cell(tot.ok, tot.n)}${T.map(t => { const o = M.get(c + '\u0001' + t) || {ok:0, n:0}; return cell(o.ok, o.n); }).join('')}</tr>`; }).join('') + '</table>';
+}
+
+function renderRank(){
+  const L = sel({anyClass:true}), m = new Map();
+  L.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+  const rows = [...m].map(([c, o]) => ({c, ...o, p:pct(o.ok, o.n)})).sort((a, b) => (b.n >= 5) - (a.n >= 5) || b.p - a.p || b.best - a.best);
+  $('#rank').innerHTML = rows.length ? `<table><tr><th>#</th><th>Classe</th><th class="num">Giuste</th><th class="num">Risposte</th><th class="num">Partite</th><th class="num">Record</th></tr>${rows.map((r, i) => `<tr${r.c === F.classe ? ' style="font-weight:800;color:var(--accent)"' : ''}><td>${r.n >= 5 ? i + 1 : '–'}</td><td>${esc(r.c)}</td><td class="num">${r.p}%</td><td class="num">${r.n}</td><td class="num">${r.g}</td><td class="num">${r.best}</td></tr>`).join('')}</table>` : '<p class="note">Nessun dato.</p>';
+}
+
+function renderRecords(L){
+  const m = new Map();
+  L.forEach(p => (p.squadre || []).forEach(s => { const k = gname(p) + ' · ' + (p.modo || ''); const arr = m.get(k) || []; arr.push({s, p}); m.set(k, arr); }));
+  const groups = [...m].sort((a, b) => a[0].localeCompare(b[0]));
+  $('#records').innerHTML = groups.length ? groups.map(([k, arr]) => { const top = arr.sort((a, b) => b.s.punti - a.s.punti).slice(0, 3); return `<details${groups.length <= 3 ? ' open' : ''}><summary>${esc(k)}</summary><table>${top.map((r, i) => `<tr><td>${['🥇', '🥈', '🥉'][i]}</td><td>${esc(r.s.nome)}</td><td>${esc(r.p.classe)}</td><td class="num"><b>${r.s.punti}</b></td><td class="num">${new Date(r.p.data).toLocaleDateString('it-IT')}</td></tr>`).join('')}</table></details>`; }).join('') : '<p class="note">Nessun dato.</p>';
+}
+
+function renderMisses(L){
+  const m = new Map();
+  L.forEach(p => (p.items || []).forEach(i => { if(i.ok || !i.q) return; const k = i.q; const o = m.get(k) || {q:i.q, a:i.a, t:i.t, n:0, cls:new Set(), g:gname(p)}; o.n++; o.cls.add(p.classe); m.set(k, o); }));
+  const rows = [...m.values()].sort((a, b) => b.n - a.n).slice(0, 25);
+  $('#misses').innerHTML = rows.length ? `<table><tr><th class="num">Volte</th><th>Domanda o sfida</th><th>Risposta giusta</th><th>Argomento</th><th>Classi</th></tr>${rows.map(r => `<tr><td class="num"><b>${r.n}</b></td><td>${esc(r.q)}</td><td>${esc(r.a || '')}</td><td>${esc(r.t)}</td><td>${esc([...r.cls].sort().join(', '))}</td></tr>`).join('')}</table>` : '<p class="note">Nessuna domanda sbagliata registrata in questa selezione.</p>';
+}
+
+function renderGames(L){
+  const rows = L.slice().sort((a, b) => b.data.localeCompare(a.data));
+  $('#games').innerHTML = rows.length ? `<table><tr><th>Data</th><th>Classe</th><th>Gioco</th><th>Modalità</th><th>Squadre</th><th class="num">Giuste</th><th></th></tr>${rows.map(p => { const it = p.items || [], ok = it.filter(i => i.ok).length; return `<tr><td>${fmtD(p.data)}</td><td><b>${esc(p.classe)}</b></td><td>${esc(gname(p))}</td><td>${esc([p.modo, p.livello].filter(Boolean).join(' · '))}</td><td>${(p.squadre || []).map(s => `${esc(s.nome)} <b>${s.punti}</b>`).join(' – ')}</td><td class="num">${it.length ? pct(ok, it.length) + '%' : '—'}</td><td>${DEMO ? '' : `<button class="del" data-id="${esc(p.id)}" aria-label="Elimina questa partita">Elimina</button>`}</td></tr>`; }).join('')}</table>` : '<p class="note">Nessuna partita in questa selezione.</p>';
+  $('#games').querySelectorAll('.del').forEach(b => b.onclick = () => {
+    if(!confirm('Eliminare questa partita dal registro? Non si può annullare.')) return;
+    DB.partite = DB.partite.filter(p => p.id !== b.dataset.id); store(DB); render();
+  });
+}
+
+/* ---------- dati: esporta, importa, cancella ---------- */
+const msg = t => { $('#dataMsg').textContent = t; };
+$('#expBtn').onclick = () => {
+  if(DEMO){ msg('Questi sono dati di esempio: torna ai dati veri per esportare.'); return; }
+  const blob = new Blob([JSON.stringify(DB, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `registro-giochi-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  msg(`Esportate ${DB.partite.length} partite.`);
+};
+const pickFile = () => $('#impFile').click();
+$('#impBtn').onclick = pickFile; $('#importEmpty').onclick = pickFile;
+$('#impFile').onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const s = JSON.parse(r.result); if(!s || !Array.isArray(s.partite)) throw new Error('formato');
+      const ids = new Set(DB.partite.map(p => p.id)); let n = 0;
+      s.partite.forEach(p => { if(p && p.id && p.classe && p.data && Array.isArray(p.items) && !ids.has(p.id)){ DB.partite.push(p); ids.add(p.id); n++; } });
+      DEMO = null; store(DB); render(); msg(`Importate ${n} partite nuove (${s.partite.length - n} erano già presenti o non valide).`);
+    }catch(err){ msg('Il file non sembra un registro dei giochi.'); }
+    e.target.value = '';
+  };
+  r.readAsText(f);
+};
+$('#delYear').onclick = () => {
+  if(DEMO){ msg('Questi sono dati di esempio.'); return; }
+  if(F.anno === '*'){ msg('Scegli prima un anno scolastico nei filtri.'); return; }
+  const n = DB.partite.filter(p => p.anno === F.anno).length;
+  if(!n){ msg('Nessuna partita in quell\'anno.'); return; }
+  if(!confirm(`Cancellare le ${n} partite dell'a.s. ${F.anno}? Conviene prima esportare il registro. Non si può annullare.`)) return;
+  DB.partite = DB.partite.filter(p => p.anno !== F.anno); store(DB); render(); msg(`Cancellate ${n} partite.`);
+};
+$('#delAll').onclick = () => {
+  if(DEMO){ msg('Questi sono dati di esempio.'); return; }
+  if(!confirm(`Cancellare TUTTO il registro (${DB.partite.length} partite)? Conviene prima esportarlo. Non si può annullare.`)) return;
+  if(!confirm('Sei sicuro? Tutte le classi e tutti gli anni verranno cancellati.')) return;
+  DB = {v:1, partite:[]}; store(DB); render();
+};
+$('#printBtn').onclick = () => print();
+$('#demoOn').onclick = () => { DEMO = makeDemo(); F = {anno:'', classe:'', gioco:''}; render(); };
+$('#demoOff').onclick = () => { DEMO = null; DB = load(); render(); };
+window.addEventListener('storage', e => { if(e.key === KEY && !DEMO){ DB = load(); render(); } });
+render();
+window.__regTest = {load, makeDemo, render, F};   // solo per le verifiche automatiche
+})();
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # CLAUDE.md — note per riprendere il lavoro
 
 Progetto **separato** dal Laboratorio dei Solidi (richiesta del docente: cartella e chat a parte).
-Ultimo aggiornamento: 30 settembre 2026.
+Ultimo aggiornamento: 5 ottobre 2026.
 
 ## Chi e per cosa
 - Docente di matematica e scienze, scuola secondaria di primo grado; lingua di lavoro italiano.
@@ -10,7 +10,7 @@ Ultimo aggiornamento: 30 settembre 2026.
 - Sul PC del docente non ci sono né git né node: i file si caricano dal sito di GitHub.
 
 ## Decisioni
-- Ogni gioco è **un solo file HTML** senza build, come il laboratorio. Nessun dato salvato o inviato; solo le preferenze in `localStorage` (`duello-prefs`, `coppie-prefs`).
+- Ogni gioco è **un solo file HTML** senza build, come il laboratorio. Nessun dato inviato; in `localStorage` solo le preferenze (`duello-prefs`, `coppie-prefs`…), il **registro di classe** (`gm-registro`, se si indica la classe) e le domande del docente (`duello-mie`). Mai nomi di alunni.
 - Il docente carica i file a mano dal sito di GitHub (Add file → Upload files): la cartella di lavoro è `Desktop\giochi multitouch`. Non lasciarci file di servizio (es. `.claude/`).
 - Notazione italiana: `·` per moltiplicare, `:` per dividere nei calcoli, virgola decimale (`Intl.NumberFormat('it-IT')`), frazioni disegnate in colonna.
 - **Richiesta del docente (01/10/2026): notazioni e accortezze da docente di scuola media, riconosciute, «da manuale».** Le formule si scrivono con la **linea di frazione** (helper `frac`): v = s/t, d = m/V, p = F/S, I = V/R, aree b · h fratto 2, volumi fratto 3, Pick A = I + B/2 − 1. Niente «×» per moltiplicare (solo negli incroci di genetica Aa × Aa); le dimensioni si scrivono a parole («con le dimensioni di 3 cm, 4 cm e 5 cm», «rettangolo di lati 2 e 5»). Termini da libro: «intensità di corrente», «resistore», «braccio» della leva (F₁ · b₁ = F₂ · b₂), «indice» nelle formule chimiche, interruttori «in serie / in parallelo». Simboli normalizzati per gli schemi elettrici.
@@ -109,6 +109,20 @@ Ultimo aggiornamento: 30 settembre 2026.
   - i 91 disegni;
   - le tre modalità;
   - LIM, tavolo (anche il trascinamento dalla metà capovolta) e 1366 × 768.
+
+## Registro di classe (05/10/2026, richiesta del docente: anche l'anno, per usarlo molti anni)
+- Blocco comune **identico in ogni gioco**: CSS «registro di classe e verifica formativa» in fondo allo `<style>` e `<script>` con `window.REG` prima dello script principale (per un gioco nuovo copiarlo da `duello.html`). API: `REG.field('#regField')` nel setup (classe in `gm-classe`, anno scolastico automatico set→ago, `REG.anno()` = '2026/27'); `REG.save({gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]})` salva in `gm-registro` solo se c'è la classe (`q`/`a` solo per le voci sbagliate, ripuliti dall'HTML); `REG.report('#regBox', rec)` = verifica formativa (per argomento, da riprendere sotto il 60%, domande sbagliate, classifica delle classi del gioco nell'anno).
+- `registro.html`: filtri anno/classe/gioco, riquadri, argomenti, andamento mensile (SVG con tooltip), livelli, mappa di calore classi × argomenti, classifica classi (almeno 5 risposte), record squadre, domande sbagliate più spesso, elenco partite (con elimina), Esporta/Importa .json (unione per `id`), cancella anno o tutto, stampa, dati di esempio solo in memoria (`makeDemo`).
+- Ogni gioco registra solo sfide concluse (non quelle interrotte con «Fine»); nessun salvataggio senza voci; tutorial, editor e laboratori liberi non registrano.
+
+## Novità del 05/10/2026 per gioco (fatte con aiutanti in parallelo, verificate nel browser)
+- **duello**: «Le mie domande» (schermata `#mine`; raccolte in `duello-mie` `{v:1, raccolte:[{id,nome,qs:[{q,a,w:[3],x,l}]}]}`; chiavi `my:<id>` in `P.cats`; `activeCats()`; `fmt()` converte `[3/4]`, `2^3`, `10^-2`, `^(…)`, `*` in «·»; incolla da testo `parseLines` con `;` o tab, 5–7 campi, intestazione scartata; Esporta/Importa con `myMerge`). Ogni raccolta pesa come un argomento in `drawQ`/`svDraw` (`myQ` preferisce il livello giusto). Registro da `G.log`; nella raffica `R.wrong` registra la domanda lasciata dopo un errore.
+- **frazioni**: sfida «Retta dei numeri» (`lineChallenge`, `kind:'line'`, `line:{max,sub,toks:[{x:{n,d,w},k}]}`, `w` = f/m/dec/pct; «punto segnato» = choice con `line.mark`; `lineSVG`, `lineGeom` con costanti `NL`, `bindLine` drag per pointerId e tocco seleziona/posa, `placeTok`, `showLineSol`). Solo con «✓ Conferma». `makeChallenge(l, kinds)` = retta circa 1 su 4 + `classicChallenge`; tipi `P.kC/kS/kR` (almeno uno). `fopts` usa la chiave ridotta. Ogni sfida ha `t` per il registro. Verificate 2000 sfide della retta.
+- **coppie / geopiano / tangram**: solo registro (coppie: una voce per coppia, `S.log[r].got`, `regTxt` per le carte disegnate).
+- **leve / circuiti**: «Tipo di sfide» `P.mode` = classiche o `goal` (stelle 1–3 = punti, +1 a chi finisce prima se entrambe risolvono, l'altra ha `GOAL_LEFT` 45 s; `confirmGoal`, `goalDone`, `endGoal`, `starsSVG`, `starsFor`; timer su `S.dur`). leve: `makeGoal`/`goalOf`, `GL_TYPES`, `bfsMoves`, fulcro mobile `kind:'fulc'`, bilancia «⚖ Pesa» `kind:'weigh'`, `OBJ.rock`. circuiti: `GC`, `GL`, ricerca esaustiva `optSearch` (budget 30 000 tentativi; al livello 4 fino a circa 1 s), `optPic` disegna la soluzione migliore; l'interruttore posato si toglie trascinandolo; argomenti `ch.tp`. Nel registro le sfide a obiettivo hanno l'argomento «Obiettivo: …» (circuiti da `tp`, leve da `ch.gt` con la tabella `GT` in `finish`: meno oggetti, forza minima, dove va il fulcro, peso misterioso, meno mosse…), scelta del docente del 05/10/2026.
+- **energia**: `P.modo` partita / `sfida`; 15 scenari `SCN` (3 per livello, `LEVELS`; giornata deterministica `scDay`; `evalSc`, `scChecks`, `scRef`, `miniMap`, `finishSfida`, `regSfida`); `__enTest.checkSfide()` dà 3 stelle a tutti (verificato). Registro della partita con `regPartita()` (5 obiettivi per squadra) e due mini giochi del laboratorio (catena, sole). Alla LIM la città dell'altra squadra è coperta. Pulsante «Inizia ▶» per saltare l'intro.
+- **zoo**: modalità `catena` (`FO` con `e` = tutto ciò che mangia davvero, così le risposte sbagliate sono davvero sbagliate; `CHAINS`; `WEBS` con freccia da chi è mangiato a chi mangia; `SCEN`; motore `ch*` con stato `G.C`, «✓ Conferma», primo giusto 3 punti, secondo 2) e `inventa` (laboratorio `#lab`, `creatureSVG`, regole `classify(o)` che restituisce `{ok,g,cand,no,ex,nt}`, `CREAT`, `invOptions`). 19 disegni nuovi (produttori, decompositori, orca, volpe, falco…), 100 animali nell'album. Etichette delle caselle con `container-type` e `12cqi`. Registro con `G.items` (smistamento: conta solo il primo tentativo).
+- Copia degli originali di prima di queste modifiche: cartella `Desktop\Giochi multitouch - originali 5 ottobre` (da togliere quando il docente conferma).
 
 ## `index.html` (launcher)
 - Pagina iniziale del sito GitHub Pages: una tessera per gioco (link relativi `duello.html`, `coppie.html`) e l'elenco "In arrivo". Ogni gioco ha in alto il link «← Tutti i giochi». Quando si aggiunge un gioco: nuova tessera `.game` qui, riga nella tabella del README.

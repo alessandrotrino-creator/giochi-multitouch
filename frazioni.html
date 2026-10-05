@@ -156,8 +156,56 @@ table{width:100%;border-collapse:collapse;margin-top:10px;font-size:1rem}
 td,th{padding:7px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
 th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+/* ---------- retta dei numeri ---------- */
+.nl{display:block;max-width:100%;touch-action:none}
+.nl .card{fill:var(--surface);stroke:var(--line);stroke-width:2}
+.nl .band0{fill:color-mix(in srgb,var(--accent) 20%,transparent)} .nl .band1{fill:color-mix(in srgb,var(--accent) 9%,transparent)}
+.nl .axis{stroke:var(--ink);stroke-width:5;stroke-linecap:round}
+.nl .arrow{fill:var(--ink)}
+.nl .tk{stroke:var(--ink);stroke-linecap:round}
+.nl .num{fill:var(--ink);font-family:var(--font-title);font-weight:800;font-size:36px;text-anchor:middle}
+.nl .tray{fill:var(--surface-2);stroke:var(--line);stroke-width:2.5;stroke-dasharray:9 7;opacity:.9}
+.nl .snap{fill:none;stroke:var(--tc);stroke-width:4;stroke-dasharray:6 5}
+.nl .tok{cursor:grab}
+.nl .tok .bx{fill:var(--tc);stroke:color-mix(in srgb,var(--tc) 55%,#000);stroke-width:2.5}
+.nl .tok .pin{stroke:var(--tc);stroke-width:5}
+.nl .tok .tip{fill:var(--tc);stroke:#fff;stroke-width:2.5}
+.nl .tok text{fill:#fff;font-family:var(--font-title);font-weight:800;text-anchor:middle;pointer-events:none}
+.nl .tok .fb{stroke:#fff;stroke-width:3;stroke-linecap:round}
+.nl .tok.sel .bx{stroke:var(--ink);stroke-width:5}
+.nl .tok.drag{cursor:grabbing}
+.nl .tok.drag .pin,.nl .tok.drag .tip{display:none}
+.nl .tok.q{cursor:default;pointer-events:none}
+.nl .tok.q .bx{fill:var(--accent);stroke:color-mix(in srgb,var(--accent) 55%,#000)} .nl .tok.q .pin{stroke:var(--accent)} .nl .tok.q .tip{fill:var(--accent)}
+.vchip{display:inline-flex;align-items:center;min-height:1.7em;padding:0 .4em;margin:.1em .15em;border-radius:.5em;background:var(--surface);border:2px solid color-mix(in srgb,var(--tc) 55%,var(--line));vertical-align:middle;white-space:nowrap}
+.kinds button[aria-pressed="true"]::before{content:'✓ '}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -168,13 +216,15 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <a class="home" href="index.html">← Tutti i giochi</a>
     <div class="brand">
       <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28" fill="#F7D774" stroke="#C98B4B" stroke-width="5"/><path d="M32 32V4A28 28 0 0 1 56.2 18z" fill="#2F6FDB"/><path d="M32 32L56.2 18A28 28 0 0 1 56.2 46z" fill="#E8801F"/><path d="M32 4v56M7.8 18l48.4 28M7.8 46l48.4-28" stroke="#8A5A2B" stroke-width="1.5"/><circle cx="20" cy="40" r="4" fill="#C0392B"/><circle cx="24" cy="22" r="3.5" fill="#C0392B"/></svg>
-      <div><h1>Frazioni da spezzare</h1><p>Dividi pizze, tavolette di cioccolato, nastri e biscotti: colora con le dita la frazione richiesta, oppure riconoscila.</p></div>
+      <div><h1>Frazioni da spezzare</h1><p>Dividi pizze, tavolette di cioccolato, nastri e biscotti: colora con le dita la frazione richiesta, riconoscila oppure mettila al posto giusto sulla retta dei numeri.</p></div>
     </div>
     <div class="row">
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
     </div>
+    <div class="field"><span>Classe</span><div id="regField"></div></div>
     <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
+    <div class="field"><span>Tipi di sfida (almeno uno)</span><div class="seg kinds" id="kinds"></div></div>
     <div class="row">
       <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
       <div class="field"><span>Aiuto: mostra la frazione colorata</span><div class="seg" id="aid"></div></div>
@@ -234,9 +284,73 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -291,18 +405,21 @@ const mini = (type, p, k) => drawWhole(type, p, new Set(shuffle([...Array(p).key
 const miniOrdered = (type, p, k) => drawWhole(type, p, new Set([...Array(k).keys()]), 0);
 
 /* ---------- impostazioni ---------- */
-const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione', kC:true, kS:true, kR:true};
 try{ const s = JSON.parse(localStorage.getItem('frazioni-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
 if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+if(!P.kC && !P.kS && !P.kR) P.kC = P.kS = P.kR = true;
+/* tipi di sfida: Colorare (anche dividere), Scegliere (4 risposte), Retta dei numeri (collocare e «quale frazione è nel punto segnato?») */
+const KINDS = [['kC','Colorare'],['kS','Scegliere'],['kR','Retta dei numeri']];
 const save = ()=>{ try{ localStorage.setItem('frazioni-prefs', JSON.stringify(P)); }catch(e){} };
 const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
 const LVD = {
-  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dal colorare una frazione fino ai problemi.',
-  1:'Base: colora la frazione su un oggetto già diviso; riconosci la frazione colorata; colora la frazione di un gruppo di biscotti.',
-  2:'Medio: dividi tu l\'oggetto in parti uguali e colora; scegli la figura che mostra la frazione; frazione di una quantità (per esempio i 3/4 di 12 biscotti).',
-  3:'Avanzato: frazioni equivalenti (2/3 su una tavoletta da 12 quadretti); confronta due frazioni; riduci ai minimi termini.',
-  4:'Esperto: addizioni e sottrazioni di frazioni da colorare; problemi inversi (6 biscotti sono i 2/5 della scatola: quanti sono in tutto?).',
-  5:'Campione: frazioni maggiori dell\'intero (7/4 di pizza); frazione di una frazione (la metà di 2/3); problemi («quanto resta della torta?»); la frazione più grande.'
+  0:'Crescente: le sfide diventano più difficili una dopo l\'altra, dal colorare una frazione fino ai problemi e alla retta dei numeri con frazioni, decimali e percentuali.',
+  1:'Base: colora la frazione su un oggetto già diviso; riconosci la frazione colorata; colora la frazione di un gruppo di biscotti; retta dei numeri: metti metà e quarti su una retta già divisa.',
+  2:'Medio: dividi tu l\'oggetto in parti uguali e colora; scegli la figura che mostra la frazione; frazione di una quantità (per esempio i 3/4 di 12 biscotti); retta dei numeri: terzi, quinti e decimi su una retta divisa in sesti, noni o decimi.',
+  3:'Avanzato: frazioni equivalenti (2/3 su una tavoletta da 12 quadretti); confronta due frazioni; riduci ai minimi termini; retta dei numeri: decimali e percentuali (0,75; 40%) e «quale frazione è nel punto segnato?».',
+  4:'Esperto: addizioni e sottrazioni di frazioni da colorare; problemi inversi (6 biscotti sono i 2/5 della scatola: quanti sono in tutto?); retta dei numeri da 0 a 2 o da 0 a 3: frazioni maggiori di 1 e numeri misti.',
+  5:'Campione: frazioni maggiori dell\'intero (7/4 di pizza); frazione di una frazione (la metà di 2/3); problemi («quanto resta della torta?»); la frazione più grande; retta dei numeri: lo stesso numero scritto in modi diversi (3/4; 0,75; 75%) oppure 3 o 4 numeri da mettere in ordine.'
 };
 function seg(id, key, items){
   const box = $(id);
@@ -317,7 +434,17 @@ function syncSetup(){
   $('#rules').innerHTML = (lim
     ? 'LIM a turni: una squadra alla volta risolve la sfida; se finisce il tempo, se preme «Passa» o se sbaglia una risposta (le parti colorate si controllano solo dopo «Conferma»), l\'altra squadra può <b>rubare il punto</b>. Basta un tocco alla volta.'
     : 'Multitouch: le due squadre hanno la stessa sfida e giocano insieme, ognuna nella sua metà. Per colorare si toccano le parti o ci si striscia sopra con il dito (anche più dita insieme); un secondo tocco toglie il colore. Quando la squadra è d\'accordo preme <b>«Conferma»</b>. Vince il punto chi risolve per primo; una risposta o una conferma sbagliata blocca la squadra per 2 secondi.')
-    + ' Nessun dato viene salvato o inviato.';
+    + ' Nella <b>retta dei numeri</b> si trascina il segnalino sul punto giusto (oppure si tocca il segnalino e poi il punto della retta): si aggancia alla tacca più vicina e si controlla solo con «Conferma».'
+    + ' Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
+}
+function renderKinds(){
+  const box = $('#kinds');
+  box.innerHTML = KINDS.map(([k,t])=>`<button data-k="${k}" aria-pressed="${P[k]}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{
+    const k = b.dataset.k;
+    if(P[k] && KINDS.filter(([q])=>P[q]).length===1) return;   /* almeno un tipo resta attivo */
+    P[k] = !P[k]; save(); renderKinds();
+  });
 }
 function renderSetup(){
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
@@ -329,6 +456,8 @@ function renderSetup(){
   seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
   seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
   $('#objs').innerHTML = [['pizza',8,3,'pizza'],['choc',12,5,'tavoletta di cioccolato'],['bar',5,2,'nastro'],['set',6,2,'biscotti']].map(([t,p,k,n])=>`<div class="o" style="--tc:var(--accent)">${miniOrdered(t,p,k)}<span>${n}</span></div>`).join('');
+  renderKinds();
+  REG.field('#regField');
   $('#n1').value = P.n1; $('#n2').value = P.n2;
   syncSetup();
 }
@@ -351,7 +480,8 @@ function beep(freqs, dur){
 const T3 = ['pizza','choc','bar'];
 const prefilled = (p, k, ordered) => new Set(ordered ? [...Array(k).keys()] : shuffle([...Array(p).keys()]).slice(0,k));
 function fopts(right, near, far){
-  const key = ([a,b]) => `${a}/${b}`, seen = new Set([key(right)]), list = [{h:frac(...right), ok:true}];
+  /* chiave ridotta: niente due risposte con lo stesso valore (3/6 e 1/2) */
+  const key = ([a,b]) => `${a/gcd(a,b)}/${b/gcd(a,b)}`, seen = new Set([key(right)]), list = [{h:frac(...right), ok:true}];
   for(const f of near){ if(list.length >= 3) break; if(f[0] > 0 && f[1] > 0 && !seen.has(key(f)) && !sameV(f[0],f[1],right[0],right[1])){ seen.add(key(f)); list.push({h:frac(...f)}); } }
   let k = 1; while(list.length < 3){ const f = [right[0] + k, right[1]]; if(!seen.has(key(f))){ seen.add(key(f)); list.push({h:frac(...f)}); } k++; }
   for(const f of far){ if(f[0] > 0 && f[1] > 0 && !seen.has(key(f)) && !sameV(f[0],f[1],right[0],right[1])){ list.push({h:frac(...f)}); break; } }
@@ -359,64 +489,164 @@ function fopts(right, near, far){
   return shuffle(list);
 }
 const nopts = (right, near, far) => { const seen = new Set([right]), l = [{h:String(right), ok:true}]; near.forEach(v=>{ if(l.length < 3 && v > 0 && !seen.has(v) && Number.isInteger(v)){ seen.add(v); l.push({h:String(v)}); } }); let k = 1; while(l.length < 3){ const v = right + (k % 2 ? k : -k); if(v > 0 && !seen.has(v)){ seen.add(v); l.push({h:String(v)}); } k++; } let f = far; while(seen.has(f)) f++; l.push({h:String(f)}); return shuffle(l); };
-function makeChallenge(l){
+function classicChallenge(l){
   for(let g=0; g<300; g++){
     const v = rnd(0, l===1 || l===2 || l===4 ? 2 : 3);
     const type = pick(T3), [art, del] = OBJN[type];
     if(l===1){
-      if(v===0){ const d = rnd(2,6), n = rnd(1,d-1); return {l, kind:'color', objs:[{type, p:d, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} ${del}.`, sol:`${n} parti su ${d}`}; }
+      if(v===0){ const d = rnd(2,6), n = rnd(1,d-1); return {l, t:'Colorare una frazione', kind:'color', objs:[{type, p:d, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} ${del}.`, sol:`${n} parti su ${d}`}; }
       if(v===1){ const d = rnd(2,8), n = rnd(1,d-1); const near = [[d-n,d], [n,d-n], [n,d+1]], far = [[d,n],[n*3,d*10]];
-        return {l, kind:'choice', objs:[{type, p:d, on:prefilled(d,n), ro:true}], opts:fopts([n,d], near, far), task:`Che frazione ${del} è colorata?`, sol:`${frac(n,d)}: ${n} parti colorate su ${d}`}; }
+        return {l, t:'Riconoscere una frazione', kind:'choice', objs:[{type, p:d, on:prefilled(d,n), ro:true}], opts:fopts([n,d], near, far), task:`Che frazione ${del} è colorata?`, sol:`${frac(n,d)}: ${n} parti colorate su ${d}`}; }
       const p = pick([6,8,9,10,12]), ds = [2,3,4,5,6].filter(d=>p % d===0 && d < p); const d = pick(ds), n = rnd(1,d-1);
-      return {l, kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} dei biscotti.`, sol:`${n*p/d} biscotti su ${p}`};
+      return {l, t:'Frazione di un gruppo', kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} dei biscotti.`, sol:`${n*p/d} biscotti su ${p}`};
     }
     if(l===2){
-      if(v===0){ const d = rnd(2,8), n = rnd(1,d-1); return {l, kind:'color', cut:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Dividi ${art} in parti uguali e colora ${frac(n,d)}.`, sol:`dividere in ${d} parti e colorarne ${n} (oppure una frazione equivalente)`}; }
+      if(v===0){ const d = rnd(2,8), n = rnd(1,d-1); return {l, t:'Dividere in parti uguali', kind:'color', cut:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Dividi ${art} in parti uguali e colora ${frac(n,d)}.`, sol:`dividere in ${d} parti e colorarne ${n} (oppure una frazione equivalente)`}; }
       if(v===1){ const d = rnd(3,8), n = rnd(1,d-1); const t = pick(['pizza','bar','choc']);
         const cand = [[n,d,true], [d-n,d], [n,d+n], [n,d+1], [d,d]].filter(([a,b],i)=>i===0 || !sameV(a,b,n,d));
         const opts = [{h:mini(t,d,n), ok:true}], seen = new Set([`${n}/${d}`]);
         cand.slice(1).forEach(([a,b])=>{ const k = `${a}/${b}`; if(opts.length < 3 && b <= 12 && a < b && !seen.has(k)){ seen.add(k); opts.push({h:mini(t,b,a)}); } });
         if(opts.length < 3) continue;
         opts.push({h:mini(t, d, d)});
-        return {l, kind:'choice', objs:[], opts:shuffle(opts), task:`Quale figura mostra ${frac(n,d)}?`, sol:`la figura divisa in ${d} parti uguali con ${n} parti colorate`}; }
+        return {l, t:'Riconoscere una frazione', kind:'choice', objs:[], opts:shuffle(opts), task:`Quale figura mostra ${frac(n,d)}?`, sol:`la figura divisa in ${d} parti uguali con ${n} parti colorate`}; }
       const p = pick([12,15,16,18,20,24]), ds = [2,3,4,5,6,8].filter(d=>p % d===0 && d < p), d = pick(ds), n = rnd(1,d-1);
-      return {l, kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} di ${p} biscotti.`, sol:`${p} : ${d} · ${n} = ${n*p/d} biscotti`};
+      return {l, t:'Frazione di una quantità', kind:'color', objs:[{type:'set', p, on:new Set()}], target:[n,d], task:`Colora ${frac(n,d)} di ${p} biscotti.`, sol:`${p} : ${d} · ${n} = ${n*p/d} biscotti`};
     }
     if(l===3){
       if(v===0){ const d = rnd(2,5), k = rnd(2,4), p = d*k; if(p > 12) continue; const n = rnd(1,d-1); const t = pick(['choc','choc','bar','pizza']);
-        return {l, kind:'color', objs:[{type:t, p, on:new Set()}], target:[n,d], task:`${OBJN[t][0].replace(/^./, c=>c.toUpperCase())} è divis${t==='bar' ? 'o' : 'a'} in ${p} parti: colora ${frac(n,d)}.`, sol:`${frac(n,d)} = ${frac(n*k,p)}: ${n*k} parti su ${p}`}; }
+        return {l, t:'Frazioni equivalenti', kind:'color', objs:[{type:t, p, on:new Set()}], target:[n,d], task:`${OBJN[t][0].replace(/^./, c=>c.toUpperCase())} è divis${t==='bar' ? 'o' : 'a'} in ${p} parti: colora ${frac(n,d)}.`, sol:`${frac(n,d)} = ${frac(n*k,p)}: ${n*k} parti su ${p}`}; }
       if(v===1){ const P2 = [[1,2],[1,3],[2,3],[1,4],[3,4],[2,5],[3,5],[1,6],[5,6],[3,8],[5,8]]; let A, B; do{ A = pick(P2); B = pick(P2); }while(A===B || A[1]===B[1]); if(Math.random() < 0.2){ const m = rnd(2,3); B = [A[0]*m, A[1]*m]; if(B[1] > 12) continue; }
         const t = pick(['pizza','bar']), va = A[0]/A[1], vb = B[0]/B[1], right = Math.abs(va-vb) < 1e-9 ? 'sono uguali' : va > vb ? 'A' : 'B';
         const opts = shuffle(['A','B','sono uguali'].map(x=>({h:`<span class="wd">${x}</span>`, ok:x===right}))).concat([{h:'<span class="wd">non si possono confrontare</span>'}]);
-        return {l, kind:'choice', objs:[{type:t, p:A[1], on:prefilled(A[1],A[0],true), ro:true, label:`A = ${frac(...A)}`}, {type:t, p:B[1], on:prefilled(B[1],B[0],true), ro:true, label:`B = ${frac(...B)}`}], opts, task:'Quale parte colorata è più grande?', sol:`${frac(...A)} = ${(va).toFixed(2).replace('.',',')} e ${frac(...B)} = ${(vb).toFixed(2).replace('.',',')}: ${right==='sono uguali' ? 'sono uguali' : 'è più grande ' + right}`}; }
-      if(v===2){ const d = rnd(2,6), n = rnd(1,d-1); if(gcd(n,d)!==1 || d*2 > 12) continue; return {l, kind:'color', cut:true, notSame:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Colora una frazione <b>equivalente</b> a ${frac(n,d)}, ma dividendo ${art} in un numero di parti <b>diverso da ${d}</b>.`, sol:`per esempio ${frac(n*2,d*2)}: ${d*2} parti, ${n*2} colorate`}; }
+        return {l, t:'Confronto', kind:'choice', objs:[{type:t, p:A[1], on:prefilled(A[1],A[0],true), ro:true, label:`A = ${frac(...A)}`}, {type:t, p:B[1], on:prefilled(B[1],B[0],true), ro:true, label:`B = ${frac(...B)}`}], opts, task:'Quale parte colorata è più grande?', sol:`${frac(...A)} = ${(va).toFixed(2).replace('.',',')} e ${frac(...B)} = ${(vb).toFixed(2).replace('.',',')}: ${right==='sono uguali' ? 'sono uguali' : 'è più grande ' + right}`}; }
+      if(v===2){ const d = rnd(2,6), n = rnd(1,d-1); if(gcd(n,d)!==1 || d*2 > 12) continue; return {l, t:'Frazioni equivalenti', kind:'color', cut:true, notSame:true, objs:[{type, p:1, on:new Set()}], target:[n,d], task:`Colora una frazione <b>equivalente</b> a ${frac(n,d)}, ma dividendo ${art} in un numero di parti <b>diverso da ${d}</b>.`, sol:`per esempio ${frac(n*2,d*2)}: ${d*2} parti, ${n*2} colorate`}; }
       const d = rnd(2,6), n = rnd(1,d-1), m = rnd(2,3); if(gcd(n,d)!==1 || d*m > 12) continue; const p = d*m, k = n*m;
       const near2 = [[n, d+1],[n+1, d+1],[n, d-1]].find(([a,b])=>b > a && a > 0 && !sameV(a,b,n,d) && !(a===k && b===p));
       if(!near2) continue;
       const opts = shuffle([{h:frac(n,d), ok:true}, {h:frac(k,p)}, {h:frac(...near2)}, {h:frac(p, k*5)}]);
-      return {l, kind:'choice', objs:[{type, p, on:prefilled(p,k), ro:true}], opts, task:`La parte colorata, <b>ridotta ai minimi termini</b>, è…`, sol:`${frac(k,p)} = ${frac(n,d)} (si divide per ${m})`};
+      return {l, t:'Minimi termini', kind:'choice', objs:[{type, p, on:prefilled(p,k), ro:true}], opts, task:`La parte colorata, <b>ridotta ai minimi termini</b>, è…`, sol:`${frac(k,p)} = ${frac(n,d)} (si divide per ${m})`};
     }
     if(l===4){
       if(v===0){ const S4 = [[1,2,1,3,'+'],[1,4,1,3,'+'],[1,3,1,6,'+'],[1,2,1,4,'+'],[2,3,1,4,'+'],[1,4,1,6,'+'],[1,2,1,6,'+'],[3,4,1,6,'−'],[5,6,1,3,'−'],[2,3,1,4,'−'],[3,4,1,3,'−'],[1,2,1,3,'−']], [a,b,c,e,op] = pick(S4), L = lcm(b,e), num = op==='+' ? a*L/b + c*L/e : a*L/b - c*L/e; if(num <= 0 || num >= L) continue;
-        return {l, kind:'color', objs:[{type:'bar', p:L, on:new Set()}], target:[num,L], task:`Il nastro è diviso in ${L} parti. Colora ${frac(a,b)} ${op} ${frac(c,e)}.`, sol:`${frac(a,b)} = ${frac(a*L/b,L)}, ${frac(c,e)} = ${frac(c*L/e,L)}: ${frac(num,L)}`}; }
+        return {l, t:'Addizioni e sottrazioni', kind:'color', objs:[{type:'bar', p:L, on:new Set()}], target:[num,L], task:`Il nastro è diviso in ${L} parti. Colora ${frac(a,b)} ${op} ${frac(c,e)}.`, sol:`${frac(a,b)} = ${frac(a*L/b,L)}, ${frac(c,e)} = ${frac(c*L/e,L)}: ${frac(num,L)}`}; }
       if(v===1){ const d = pick([3,4,5,6]), n = rnd(1,d-1), k = n*rnd(1,3), T = k*d/n; if(!Number.isInteger(T) || k > 12 || k < 2) continue;
-        return {l, kind:'choice', objs:[{type:'set', p:k, on:new Set([...Array(k).keys()]), ro:true}], opts:nopts(T, [k*d, k*n, T+d].filter(x=>x!==T), T*10 + k), task:`Questi ${k} biscotti sono ${frac(n,d)} della scatola. Quanti biscotti ci sono nella scatola piena?`, sol:`${k} : ${n} = ${k/n} biscotti per ogni ${frac(1,d)}; ${k/n} · ${d} = ${T}`}; }
+        return {l, t:'Problemi inversi', kind:'choice', objs:[{type:'set', p:k, on:new Set([...Array(k).keys()]), ro:true}], opts:nopts(T, [k*d, k*n, T+d].filter(x=>x!==T), T*10 + k), task:`Questi ${k} biscotti sono ${frac(n,d)} della scatola. Quanti biscotti ci sono nella scatola piena?`, sol:`${k} : ${n} = ${k/n} biscotti per ogni ${frac(1,d)}; ${k/n} · ${d} = ${T}`}; }
       const S5 = [[1,2,1,8],[1,4,1,8],[3,8,1,4],[1,2,1,4],[1,4,3,8],[1,2,3,8]], [a,b,c,e] = pick(S5), L = lcm(b,e), num = a*L/b + c*L/e; if(num >= L) continue;
-      return {l, kind:'color', objs:[{type:'pizza', p:L, on:new Set()}], target:[num,L], task:`La pizza è tagliata in ${L} fette. Colora ${frac(a,b)} + ${frac(c,e)}.`, sol:`${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(num,L)}`};
+      return {l, t:'Addizioni e sottrazioni', kind:'color', objs:[{type:'pizza', p:L, on:new Set()}], target:[num,L], task:`La pizza è tagliata in ${L} fette. Colora ${frac(a,b)} + ${frac(c,e)}.`, sol:`${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(num,L)}`};
     }
     /* livello 5 */
     if(v===0){ const d = rnd(2,6), n = rnd(d+1, 2*d-1), t = pick(['pizza','bar']);
       const mixed = Math.random() < 0.5 ? `1 e ${frac(n-d,d)}` : frac(n,d);
-      return {l, kind:'color', objs:[{type:t, p:d, wholes:2, on:new Set()}], target:[n,d], task:`Ci sono ${t==='pizza' ? 'due pizze' : 'due nastri'} divis${t==='pizza' ? 'e' : 'i'} in ${d} parti. Colora ${mixed} ${t==='pizza' ? 'di pizza' : 'di nastro'}.`, sol:`${frac(n,d)} = ${n} parti da ${frac(1,d)}: un intero e ${n-d} parti`}; }
+      return {l, t:'Frazioni maggiori dell\'intero', kind:'color', objs:[{type:t, p:d, wholes:2, on:new Set()}], target:[n,d], task:`Ci sono ${t==='pizza' ? 'due pizze' : 'due nastri'} divis${t==='pizza' ? 'e' : 'i'} in ${d} parti. Colora ${mixed} ${t==='pizza' ? 'di pizza' : 'di nastro'}.`, sol:`${frac(n,d)} = ${n} parti da ${frac(1,d)}: un intero e ${n-d} parti`}; }
     if(v===1){ const S6 = [[1,2,2,3],[1,2,3,4],[2,3,3,4],[1,3,3,4],[1,2,1,3],[1,2,4,5],[2,3,1,2],[3,4,2,3],[1,4,2,3]], [a,b,c,e] = pick(S6), p = b*e; if(p > 12) continue;
-      return {l, kind:'color', objs:[{type:pick(['bar','choc']), p, on:new Set()}], target:[a*c, p], task:`Colora ${frac(a,b)} di ${frac(c,e)}.`, sol:`${frac(a,b)} · ${frac(c,e)} = ${frac(a*c,p)}`}; }
+      return {l, t:'Frazione di una frazione', kind:'color', objs:[{type:pick(['bar','choc']), p, on:new Set()}], target:[a*c, p], task:`Colora ${frac(a,b)} di ${frac(c,e)}.`, sol:`${frac(a,b)} · ${frac(c,e)} = ${frac(a*c,p)}`}; }
     if(v===2){ const S7 = [[1,3,1,4],[1,4,1,6],[1,2,1,3],[1,3,1,6],[1,4,1,3],[1,6,1,4],[1,2,1,6]], [a,b,c,e] = pick(S7), L = lcm(b,e), eaten = a*L/b + c*L/e, rest = L - eaten; if(rest <= 0) continue; const t = pick(['pizza','bar']);
-      return {l, kind:'color', objs:[{type:t, p:L, on:new Set()}], target:[rest, L], task:`Luca mangia ${frac(a,b)} ${t==='pizza' ? 'della pizza' : 'del nastro di liquirizia'} e Anna ${frac(c,e)}. Colora la parte che <b>resta</b>.`, sol:`mangiati ${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(eaten,L)}; resta ${frac(rest,L)}`}; }
+      return {l, t:'Problemi', kind:'color', objs:[{type:t, p:L, on:new Set()}], target:[rest, L], task:`Luca mangia ${frac(a,b)} ${t==='pizza' ? 'della pizza' : 'del nastro di liquirizia'} e Anna ${frac(c,e)}. Colora la parte che <b>resta</b>.`, sol:`mangiati ${frac(a*L/b,L)} + ${frac(c*L/e,L)} = ${frac(eaten,L)}; resta ${frac(rest,L)}`}; }
     const ks = shuffle([4,5,6,7,8,9,10]).slice(0,3).sort((x,y)=>x-y), big = ks[2], far = pick([[1,2],[2,5],[1,3]]);
     const opts = shuffle([{h:frac(big-1,big), ok:true}, {h:frac(ks[0]-1,ks[0])}, {h:frac(ks[1]-1,ks[1])}, {h:frac(...far)}]);
-    return {l, kind:'choice', objs:[], opts, task:'Quale frazione è la <b>più grande</b>?', sol:`${frac(big-1,big)}: le manca solo ${frac(1,big)} per fare un intero, la parte più piccola`};
+    return {l, t:'Confronto', kind:'choice', objs:[], opts, task:'Quale frazione è la <b>più grande</b>?', sol:`${frac(big-1,big)}: le manca solo ${frac(1,big)} per fare un intero, la parte più piccola`};
   }
-  return makeChallenge(Math.max(1, l-1));
+  return classicChallenge(Math.max(1, l-1));
+}
+
+/* ---------- retta dei numeri ----------
+   un valore è {n, d, w}: il numero n/d scritto come frazione (w 'f'), numero misto ('m'), decimale ('dec') o percentuale ('pct').
+   kind 'line': line = {max (la retta va da 0 a max), sub (parti uguali per ogni unità = tacche dove si aggancia il segnalino), toks:[{x, k}]}
+   con k = tacca giusta (n/d · sub); kind 'choice' con line = {max, sub, mark} per «quale frazione è nel punto segnato?». */
+const LN = 'Retta dei numeri';
+const DECF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
+const V = (n, d, w) => ({n, d, w: w || 'f'});
+const vTxt = x => x.w==='dec' ? DECF.format(x.n/x.d) : x.w==='pct' ? DECF.format(100*x.n/x.d) + '%' : '';
+const valH = x => x.w==='f' ? frac(x.n, x.d) : x.w==='m' ? `${Math.floor(x.n/x.d)} ${frac(x.n % x.d, x.d)}` : vTxt(x);
+const fracS = (n, d) => { const g = gcd(n, d); return d/g===1 ? String(n/g) : frac(n/g, d/g); };
+const chips = xs => xs.map(x=>`<span class="vchip">${valH(x)}</span>`).join(' ');
+/* 0,75 = 75/100 = 3/4 · 1 3/4 = 7/4 · 6/8 = 3/4 */
+function eqTxt(x){
+  const s = fracS(x.n, x.d), q = gcd(x.n, x.d);
+  if(x.w==='f') return frac(x.n, x.d) + (q > 1 ? ` = ${s}` : '') + (x.n > x.d && x.n % x.d ? ` = ${valH(V(x.n/q, x.d/q, 'm'))}` : '');
+  if(x.w==='m') return `${valH(x)} = ${frac(x.n, x.d)}`;
+  const h = Math.round(100*x.n/x.d), [a, b] = x.w==='dec' && h % 10===0 ? [h/10, 10] : [h, 100];
+  return `${vTxt(x)} = ${frac(a, b)}` + (gcd(a, b) > 1 ? ` = ${s}` : '');
+}
+/* spiegazione della posizione: 3/5 = 6/10: 6 parti da 1/10 dopo lo 0 */
+function placeSol(x, sub){
+  const k = x.n*sub/x.d;
+  return `${eqTxt(x)}${gcd(k, sub) > 1 && !(x.w==='f' && x.d===sub) ? ` = ${frac(k, sub)}` : ''}: ${k} ${k===1 ? 'parte' : 'parti'} da ${frac(1, sub)} dopo lo 0`;
+}
+function placeCh(l, max, sub, xs, task, sol){ return {l, t:LN, kind:'line', objs:[], line:{max, sub, toks:xs.map(x=>({x, k:x.n*sub/x.d}))}, task, sol}; }
+function lineChallenge(l){
+  if(l===1){   /* metà e quarti, retta già divisa nelle tacche giuste */
+    const d = pick([2,4,4]), n = rnd(1, d-1), sub = d===2 ? pick([2,4]) : 4, x = V(n, d);
+    return placeCh(l, 1, sub, [x], `Metti il segnalino su ${frac(n,d)}.`, placeSol(x, sub));
+  }
+  if(l===2){   /* terzi, quinti, decimi: la retta è divisa in più parti, bisogna ragionare */
+    const [d, sub] = pick([[3,6],[3,9],[3,6],[5,10],[5,10],[10,10]]);
+    let n; do{ n = rnd(1, d-1); }while(gcd(n, d)!==1);
+    const x = V(n, d);
+    return placeCh(l, 1, sub, [x], `Metti il segnalino su ${frac(n,d)}.`, placeSol(x, sub));
+  }
+  if(l===3){
+    if(Math.random() < 0.3){   /* quale frazione è nel punto segnato? */
+      const sub = pick([4,5,6,8,10]), k = rnd(1, sub-1), g = gcd(k, sub);
+      const right = g > 1 && Math.random() < 0.6 ? [k/g, sub/g] : [k, sub];
+      const near = [[k, sub+1]].concat(shuffle([[sub-k, sub], [k+1, sub], [k-1, sub], [k, sub-1]])).filter(([a,b])=>a < b);
+      return {l, t:LN, kind:'choice', objs:[], line:{max:1, sub, mark:k}, opts:fopts(right, near, [[sub, k], [k, 100]]), task:'Quale frazione è nel punto segnato?',
+        sol:`ogni parte vale ${frac(1,sub)}; il punto è a ${k} ${k===1 ? 'parte' : 'parti'} dallo 0: ${frac(k,sub)}${g > 1 ? ` = ${frac(k/g, sub/g)}` : ''}`};
+    }
+    const w = pick(['dec','pct']), [x, sub] = pick([
+      ()=>[V(pick([1,3]), 4, w), pick([4,8])],            /* 0,25 · 75% */
+      ()=>[V(rnd(1,4), 5, w), 5],                         /* 40% su una retta divisa in 5 */
+      ()=>[V(rnd(1,4), 5, w), 10],
+      ()=>[V(pick([1,3,4,6,7,9]), 10, w), 10],
+      ()=>[V(1, 2, w), pick([4,10])]
+    ])();
+    return placeCh(l, 1, sub, [x], `Metti il segnalino su <span class="vchip">${valH(x)}</span>.`, placeSol(x, sub));
+  }
+  if(l===4){   /* frazioni maggiori di 1 e numeri misti, retta da 0 a 2 o da 0 a 3 */
+    const max = pick([2,2,3]);
+    if(Math.random() < 0.3){
+      const sub = pick(max===3 ? [2,3,4] : [2,3,4,5]); let k; do{ k = rnd(sub+1, max*sub-1); }while(k % sub===0);
+      const near = [[k, max*sub], [k-sub, sub], [k+1, sub], [k-1, sub]];
+      return {l, t:LN, kind:'choice', objs:[], line:{max, sub, mark:k}, opts:fopts([k, sub], near, [[sub, k], [1, k]]), task:'Quale frazione è nel punto segnato?',
+        sol:`ogni parte vale ${frac(1,sub)}; il punto è a ${k} parti dallo 0: ${eqTxt(V(k, sub))}`};
+    }
+    const d = pick(max===3 ? [2,3,4] : [2,3,4,5]), sub = d===2 ? pick([2,4]) : d===3 && max===2 ? pick([3,6]) : d;
+    let n; do{ n = rnd(d+1, max*d-1); }while(gcd(n, d)!==1);
+    const x = V(n, d, Math.random() < 0.5 ? 'm' : 'f');
+    return placeCh(l, max, sub, [x], `Metti il segnalino su ${valH(x)}.`, placeSol(x, sub));
+  }
+  /* livello 5 */
+  if(Math.random() < 0.5){   /* lo stesso numero scritto in tre modi: vanno tutti sullo stesso punto */
+    const [n, d, subs, max] = pick([[1,2,[4,10],1],[1,4,[4,8],1],[3,4,[4,8],1],[1,5,[10],1],[2,5,[5,10],1],[3,5,[10],1],[4,5,[5,10],1],[3,10,[10],1],[7,10,[10],1],[9,10,[10],1],[3,2,[4],2],[5,4,[4],2],[7,4,[4],2]]);
+    const sub = pick(subs), big = n > d;
+    const fx = big ? V(n, d, pick(['f','m'])) : Math.random() < 0.5 && d*2 <= 20 ? V(n*2, d*2) : V(n, d);
+    const xs = shuffle([fx, V(n, d, 'dec'), V(n, d, 'pct')]), k = n*sub/d;
+    return placeCh(l, max, sub, xs, `Metti sulla retta tutti e tre i segnalini: ${chips(xs)}.`,
+      `${xs.map(valH).join(' = ')}${xs.some(x=>x.w==='f' && x.d===sub) ? '' : ` = ${frac(k, sub)}`}: è lo stesso numero scritto in tre modi, i segnalini vanno tutti sullo stesso punto`);
+  }
+  /* 3 o 4 numeri diversi, scritti in modi diversi, da mettere in ordine sulla retta */
+  const [max, sub] = pick([[1,10],[1,10],[1,8],[2,4]]), cnt = pick([3,4]);
+  for(let g=0; g<50; g++){
+    const ks = shuffle([...Array(max*sub - 1).keys()].map(i=>i+1).filter(k=>k % sub!==0)).slice(0, cnt);
+    const xs = ks.map(k=>{
+      const q = gcd(k, sub), n = k/q, d = sub/q, h = 100*n/d, ws = ['f'];
+      if(Number.isInteger(h)){ ws.push('dec', 'pct'); }
+      if(n > d) ws.push('m');
+      return V(n, d, pick(ws));
+    });
+    if(new Set(xs.map(x=>x.w==='m' ? 'f' : x.w)).size < 2) continue;   /* almeno due modi diversi di scrivere */
+    const sorted = xs.slice().sort((a,b)=>a.n/a.d - b.n/b.d);
+    return placeCh(l, max, sub, xs, `Metti in ordine sulla retta: ${chips(xs)}.`,
+      `in ordine: ${sorted.map(valH).join(' < ')} (cioè ${sorted.map(x=>frac(x.n*sub/x.d, sub)).join(' < ')})`);
+  }
+  return lineChallenge(4);
+}
+/* sfida del livello l, solo dei tipi scelti nelle impostazioni; la retta esce circa una volta su 4 */
+function makeChallenge(l, kinds){
+  const K = kinds || {color:P.kC, choice:P.kS, line:P.kR};
+  if(K.line && (!(K.color || K.choice) || Math.random() < 0.25)) return lineChallenge(l);
+  for(let g=0; g<200; g++){ const c = classicChallenge(l); if(K[c.kind]) return c; }
+  return classicChallenge(l);
 }
 
 /* ---------- tabellone ---------- */
@@ -431,20 +661,21 @@ const teamOf = id => id==='L' ? S.turn : id;
 function setupBoard(id){
   const C = S.ch, b = BD[id];
   b.objs = C.objs.map(o=>({...o, on:new Set(o.on)})); b.phase = 'build'; b.lock = false;
+  lineInit(b);
   $('#k'+id).innerHTML = C.task;
-  renderObjs(id);
   $('#tl'+id).innerHTML = (C.cut ? `<div class="cut">Parti uguali: <button data-c="-1" aria-label="Meno parti">−</button><output>${b.objs[0].p}</output><button data-c="1" aria-label="Più parti">+</button></div>` : '')
-    + (C.kind==='color' ? '<button class="confirm" disabled>✓ Conferma</button>' : '');
+    + (C.kind==='color' || C.kind==='line' ? '<button class="confirm" disabled>✓ Conferma</button>' : '');
   const cf = $('#tl'+id).querySelector('.confirm');
   if(cf) cf.addEventListener('pointerdown', e=>{ e.preventDefault(); check(id); });
   const ob = $('#o'+id);
   ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
   ob.querySelectorAll('.opt').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); choose(id, bt); }));
   $('#tl'+id).querySelectorAll('[data-c]').forEach(bt=>bt.addEventListener('pointerdown', e=>{ e.preventDefault(); if(!canPlay(id)) return; const o = b.objs[0]; o.p = Math.max(1, Math.min(12, o.p + (+bt.dataset.c))); o.on = new Set(); $('#tl'+id).querySelector('output').textContent = o.p; renderObjs(id); beep([500], 0.03); }));
+  renderObjs(id);
 }
 function renderObjs(id){
   const C = S.ch, b = BD[id];
-  $('#st'+id).innerHTML = b.objs.map((o,i)=>objHTML(o, i, o.ro || C.kind==='choice')).join('');
+  $('#st'+id).innerHTML = C.line ? lineSVG(C, b) : b.objs.map((o,i)=>objHTML(o, i, o.ro || C.kind==='choice')).join('');
   sizeObjs(id); update(id);
 }
 /* adatta la grandezza dei disegni allo spazio disponibile */
@@ -461,7 +692,15 @@ function sizeObjs(id){
 }
 window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) sizeObjs(id); }));
 function update(id){
-  const C = S.ch, b = BD[id]; if(C.kind!=='color'){ $('#a'+id).innerHTML = ''; return; }
+  const C = S.ch, b = BD[id];
+  if(C.kind==='line'){
+    const pos = b.line.pos, cf = $('#tl'+id).querySelector('.confirm'), many = pos.length > 1;
+    if(cf) cf.disabled = pos.some(p=>p==null);
+    $('#a'+id).innerHTML = (pos.every(p=>p==null) ? (many ? 'Trascina i segnalini sulla retta, oppure tocca un segnalino e poi il punto della retta.' : 'Trascina il segnalino sulla retta, oppure tocca il punto della retta.') : '')
+      + (P.aid ? ` Ogni parte tra due tacche vale ${frac(1, C.line.sub)}.` : '');
+    return;
+  }
+  if(C.kind!=='color'){ $('#a'+id).innerHTML = ''; return; }
   const o = b.objs[0], c = o.on.size, wh = o.wholes || 1;
   b.host.querySelectorAll('.part').forEach(el=>el.classList.toggle('on', o.on.has(+el.dataset.i)));
   const cf = $('#tl'+id).querySelector('.confirm'); if(cf) cf.disabled = c===0;
@@ -470,17 +709,25 @@ function update(id){
 }
 /* «Conferma»: la colorazione si controlla solo quando la squadra la conferma; se è sbagliata vale come una risposta sbagliata */
 function check(id){
-  const C = S.ch, b = BD[id]; if(C.kind!=='color' || !canPlay(id)) return;
-  const o = b.objs[0], c = o.on.size, [n,d] = C.target; if(!c) return;
-  if(c*d === n*o.p && !(C.notSame && o.p===d)){ win(id); return; }
-  const why = c*d === n*o.p ? `è equivalente, ma servono parti diverse da ${d}.` : `${frac(c, o.p)} non è ${frac(n,d)}.`;
+  const C = S.ch, b = BD[id]; if((C.kind!=='color' && C.kind!=='line') || !canPlay(id)) return;
+  let why;
+  if(C.kind==='line'){
+    const pos = b.line.pos, toks = C.line.toks; if(pos.some(p=>p==null)) return;
+    const bad = toks.filter((t,i)=>pos[i]!==t.k).length;
+    if(!bad){ win(id); return; }
+    why = toks.length===1 ? `il segnalino è su ${tickVal(C.line.sub, pos[0])}, non su ${valH(toks[0].x)}.` : `${bad===1 ? 'un segnalino non è' : bad + ' segnalini non sono'} al posto giusto.`;
+  } else {
+    const o = b.objs[0], c = o.on.size, [n,d] = C.target; if(!c) return;
+    if(c*d === n*o.p && !(C.notSame && o.p===d)){ win(id); return; }
+    why = c*d === n*o.p ? `è equivalente, ma servono parti diverse da ${d}.` : `${frac(c, o.p)} non è ${frac(n,d)}.`;
+  }
   beep([220], 0.15);
   if(id==='L'){ limFail(`Sbagliato: ${why}`); if(S.playing) resetObjs('L'); return; }
   penalize(id);
   $('#a'+id).innerHTML = `<span class="no">Sbagliato: ${why}</span>`;
 }
 function resetObjs(id){
-  const b = BD[id]; b.objs = S.ch.objs.map(o=>({...o, on:new Set(o.on)}));
+  const b = BD[id]; b.objs = S.ch.objs.map(o=>({...o, on:new Set(o.on)})); lineInit(b);
   const out = $('#tl'+id).querySelector('output'); if(out) out.textContent = b.objs[0].p;
   renderObjs(id);
 }
@@ -517,6 +764,120 @@ function bindBoard(id){
   });
   const up = e=>{ paints.delete(e.pointerId); };
   host.addEventListener('pointerup', up); host.addEventListener('pointercancel', up);
+  bindLine(id, host);
+}
+
+/* ---------- retta dei numeri: disegno e segnalini ----------
+   coordinate SVG: la retta va da X0 a X1 all'altezza LY; i segnalini posati stanno sopra (uno sopra l'altro se si toccano),
+   quelli ancora da posare stanno nel vassoio sotto la retta. */
+const NL = {X0:60, X1:930, BW:104, BH:60, LV:70, PIN:30, PAD:14};
+function lineGeom(C){
+  const ln = C.line, n = ln.toks ? ln.toks.length : 0, LY = NL.PAD + NL.BH + (Math.max(1, n) - 1)*NL.LV + NL.PIN;
+  return {n, LY, H: n ? LY + 152 : LY + 76, N: ln.max*ln.sub};
+}
+const tickX = (g, k) => NL.X0 + (NL.X1 - NL.X0)*k/g.N;
+const nearK = (g, x) => Math.max(0, Math.min(g.N, Math.round((x - NL.X0)/(NL.X1 - NL.X0)*g.N)));
+const trayX = (g, i) => 500 + (i - (g.n - 1)/2)*(NL.BW + 22);
+const tickVal = (sub, k) => k===0 ? '0' : fracS(k, sub);
+function lineInit(b){ const ln = S.ch && S.ch.line; b.line = ln && ln.toks ? {pos:ln.toks.map(()=>null), sel:0, xy:[]} : null; }
+/* il valore scritto dentro il segnalino: frazione in colonna, numero misto, decimale o percentuale */
+function valSVG(x, cy){
+  const t = (s, X, Y, f) => `<text x="${X.toFixed(1)}" y="${Y.toFixed(1)}" font-size="${f}">${s}</text>`;
+  const fr = (n, d, X) => { const w = Math.max(String(n).length, String(d).length)*14 + 10;
+    return t(n, X, cy - 5, 25) + `<line class="fb" x1="${(X - w/2).toFixed(1)}" x2="${(X + w/2).toFixed(1)}" y1="${cy}" y2="${cy}"/>` + t(d, X, cy + 23, 25); };
+  if(x.w==='f') return fr(x.n, x.d, 0);
+  if(x.w==='m'){ const i = Math.floor(x.n/x.d), r = x.n % x.d; return t(i, -17, cy + 12, 34) + fr(r, x.d, 14); }
+  return t(vTxt(x), 0, cy + 10, 29);
+}
+function tokSVG(inner, i, x, by, pinTo, cls){
+  return `<g class="tok${cls}" data-t="${i}" transform="translate(${x.toFixed(1)} ${by.toFixed(1)})">`
+    + (pinTo != null ? `<line class="pin" x1="0" y1="0" x2="0" y2="${(pinTo - by).toFixed(1)}"/><circle class="tip" cx="0" cy="${(pinTo - by).toFixed(1)}" r="8"/>` : '')
+    + `<rect class="bx" x="${-NL.BW/2}" y="${-NL.BH}" width="${NL.BW}" height="${NL.BH}" rx="14"/>${inner}</g>`;
+}
+function lineSVG(C, b){
+  const g = lineGeom(C), ln = C.line, LY = g.LY, N = g.N, sub = ln.sub;
+  let h = `<svg class="nl" viewBox="0 0 1000 ${g.H}" role="img" aria-label="Retta dei numeri da 0 a ${ln.max}">`;
+  h += `<rect class="card" x="4" y="4" width="992" height="${g.n ? LY + 64 : g.H - 8}" rx="22"/>`;
+  for(let u=0; u<ln.max; u++) h += `<rect class="band${u % 2}" x="${tickX(g, u*sub).toFixed(1)}" y="${LY - 8}" width="${(tickX(g, sub) - NL.X0).toFixed(1)}" height="16"/>`;
+  h += `<line class="axis" x1="${NL.X0 - 18}" y1="${LY}" x2="972" y2="${LY}"/><path class="arrow" d="M992 ${LY}l-26 -13v26z"/>`;
+  for(let k=0; k<=N; k++){
+    const x = tickX(g, k).toFixed(1), big = k % sub===0, half = !big && sub % 2===0 && sub > 2 && k % (sub/2)===0, L = big ? 24 : half ? 18 : 13;
+    h += `<line class="tk" x1="${x}" x2="${x}" y1="${LY - L}" y2="${LY + L}" stroke-width="${big ? 5 : half ? 4 : 3}"/>`;
+    if(big) h += `<text class="num" x="${x}" y="${LY + 58}">${k/sub}</text>`;
+  }
+  if(ln.mark != null) h += tokSVG(`<text x="0" y="${-NL.BH/2 + 13}" font-size="38">?</text>`, 'q', tickX(g, ln.mark), LY - NL.PIN, LY, ' q');
+  if(g.n){
+    const pos = b.line.pos, lev = [], placed = [], order = pos.map((p,i)=>i).filter(i=>pos[i]!=null).sort((a,c)=>pos[a] - pos[c] || a - c);
+    /* livelli: un segnalino sale sopra quelli troppo vicini */
+    order.forEach(i=>{ const x = tickX(g, pos[i]); let L = 0; while(placed.some(o=>o.L===L && Math.abs(o.x - x) < NL.BW + 6)) L++; placed.push({x, L}); lev[i] = L; });
+    const tw = g.n*(NL.BW + 22) + 14;
+    h += `<rect class="tray" x="${(500 - tw/2).toFixed(1)}" y="${LY + 72}" width="${tw.toFixed(1)}" height="${NL.BH + 16}" rx="18"/>`;
+    h += `<circle class="snap" cx="0" cy="${LY}" r="16" style="display:none"/>`;
+    /* prima i più alti, così le aste passano dietro ai segnalini di sotto; per ultimi quelli nel vassoio */
+    const draw = pos.map((p,i)=>i).sort((a,c)=>(pos[a]==null) - (pos[c]==null) || (lev[c] || 0) - (lev[a] || 0));
+    draw.forEach(i=>{
+      const p = pos[i], x = p==null ? trayX(g, i) : tickX(g, p), by = p==null ? LY + 80 + NL.BH : LY - NL.PIN - lev[i]*NL.LV;
+      b.line.xy[i] = [x, by];
+      h += tokSVG(valSVG(ln.toks[i].x, -NL.BH/2), i, x, by, p==null ? null : LY, b.line.sel===i && g.n > 1 ? ' sel' : '');
+    });
+  }
+  return h + '</svg>';
+}
+/* il segnalino i va sulla tacca k; poi è selezionato il prossimo ancora da posare (così alla LIM bastano i tocchi sulla retta) */
+function placeTok(id, i, k){
+  const L = BD[id].line; L.pos[i] = k;
+  const nx = L.pos.findIndex(p=>p==null); L.sel = nx >= 0 ? nx : i;
+  beep([620], 0.04); renderObjs(id);
+}
+/* trascinamento per pointerId (più dita e due squadre insieme); tocco senza spostamento = seleziona il segnalino */
+const lineDrags = new Map();
+function svgPt(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : {x:0, y:0}; }
+function bindLine(id, host){
+  const svgOf = () => $('#st'+id).querySelector('svg.nl');
+  host.addEventListener('pointerdown', e=>{
+    if(!S.ch || S.ch.kind!=='line' || !canPlay(id)) return;
+    const svg = e.target.closest && e.target.closest('svg.nl'); if(!svg) return;
+    e.preventDefault();
+    const L = BD[id].line, g = lineGeom(S.ch), p = svgPt(svg, e), tk = e.target.closest('.tok');
+    if(tk){
+      const i = +tk.dataset.t; if([...lineDrags.values()].some(d=>d.id===id && d.i===i)) return;
+      const [x, by] = L.xy[i] || [p.x, p.y];
+      lineDrags.set(e.pointerId, {id, i, dx:x - p.x, dy:by - p.y, sx:p.x, sy:p.y, moved:false});
+      try{ host.setPointerCapture(e.pointerId); }catch(err){}
+      return;
+    }
+    if(p.y < g.LY + 60 && L.sel != null) placeTok(id, L.sel, nearK(g, p.x));
+  });
+  host.addEventListener('pointermove', e=>{
+    const d = lineDrags.get(e.pointerId); if(!d || d.id!==id) return;
+    const svg = svgOf(); if(!svg || !canPlay(id)) return;
+    const p = svgPt(svg, e);
+    if(!d.moved && Math.hypot(p.x - d.sx, p.y - d.sy) < 8) return;
+    d.moved = true;
+    const el = svg.querySelector(`.tok[data-t="${d.i}"]`), sn = svg.querySelector('.snap'), g = lineGeom(S.ch), x = p.x + d.dx, by = p.y + d.dy;
+    if(!el) return;
+    if(!el.classList.contains('drag')){ el.classList.add('drag'); svg.appendChild(el); }
+    el.setAttribute('transform', `translate(${x.toFixed(1)} ${by.toFixed(1)})`);
+    if(sn){ const on = by < g.LY + 60; sn.style.display = on ? '' : 'none'; if(on) sn.setAttribute('cx', tickX(g, nearK(g, x)).toFixed(1)); }
+  });
+  const end = e=>{
+    const d = lineDrags.get(e.pointerId); if(!d || d.id!==id) return;
+    lineDrags.delete(e.pointerId);
+    if(!S.ch || S.ch.kind!=='line' || !BD[id].line) return;
+    const svg = svgOf();
+    if(e.type==='pointercancel' || !svg || !canPlay(id)){ renderObjs(id); return; }
+    const L = BD[id].line;
+    if(!d.moved){ L.sel = d.i; beep([500], 0.03); renderObjs(id); return; }
+    const p = svgPt(svg, e), g = lineGeom(S.ch), x = p.x + d.dx, by = p.y + d.dy;
+    if(by < g.LY + 60) placeTok(id, d.i, nearK(g, x));
+    else { L.pos[d.i] = null; L.sel = d.i; renderObjs(id); }
+  };
+  host.addEventListener('pointerup', end); host.addEventListener('pointercancel', end);
+}
+/* a sfida chiusa senza vincitore si mostrano i segnalini al posto giusto */
+function showLineSol(id){
+  const b = BD[id]; if(!S.ch || S.ch.kind!=='line' || !b.line) return;
+  b.line.pos = S.ch.line.toks.map(t=>t.k); b.line.sel = null; renderObjs(id);
 }
 
 /* ---------- partita ---------- */
@@ -555,6 +916,10 @@ function finish(){
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
   $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
   $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per ogni sfida conclusa (risolta da almeno una squadra, alla LIM anche con il rubapunto) */
+  const items = S.log.filter(r=>r.done).map(r=>({t:r.ch.t, l:r.ch.l, ok:r.who > 0, q:r.ch.task, a:r.ch.sol}));
+  REG.report('#regBox', items.length ? REG.save({gioco:'frazioni', titolo:'Frazioni da spezzare', modo:P.screen==='lim' ? 'LIM a turni' : 'Multitouch', livello:LVN[P.lvl],
+    squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}) : {items:[]});
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -563,7 +928,7 @@ function win(id){
   const team = teamOf(id);
   S.playing = false; cancelAnimationFrame(S.raf);
   BD[id].phase = 'done';
-  S.score[team-1]++; S.log[S.i].who = team;
+  S.score[team-1]++; S.log[S.i].who = team; S.log[S.i].done = true;
   beep([660, 880, 1100], 0.1);
   if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b> · ${S.ch.sol}`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
   $('#s'+team).textContent = S.score[team-1];
@@ -595,7 +960,7 @@ function runClock(){
   const tick = now=>{
     if(!S.playing || S.paused) return;
     const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
-    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    if(f <= 0){ S.playing = false; S.log[S.i].done = true; beep([330, 262], 0.16); [1,2].forEach(showLineSol); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
     S.raf = requestAnimationFrame(tick);
   };
   S.raf = requestAnimationFrame(tick);
@@ -644,7 +1009,7 @@ function limFail(why){
     limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
     return;
   }
-  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  S.playing = false; S.log[S.i].done = true; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); showLineSol('L');
   $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
   S.next = setTimeout(nextChallenge, 5000);
 }
@@ -665,7 +1030,7 @@ $('#go').onclick = start;
 $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 renderSetup();
-window.__frazTest = {makeChallenge, P, S, BD, check, update};   // solo per le verifiche automatiche
+window.__frazTest = {makeChallenge, classicChallenge, lineChallenge, placeTok, showLineSol, lineGeom, P, S, BD, check, update};   // solo per le verifiche automatiche
 })();
 </script>
 </body>

@@ -34,7 +34,7 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
 .aimg{display:block;width:100%;height:auto}
 
 /* ---------- impostazioni ---------- */
-#setup,#end,#album{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+#setup,#end,#album,#lab{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
 .card0{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;width:min(1100px,100%);display:flex;flex-direction:column;gap:18px;box-shadow:0 10px 30px rgba(20,30,60,.08)}
 .home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
 .brand{display:flex;align-items:center;gap:14px}
@@ -168,8 +168,92 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
 .mtx{flex:1;min-width:240px;display:flex;flex-direction:column;gap:8px;line-height:1.45;font-weight:700}
 .mtx h2{font-size:1.8rem}
 .mtx ul{margin:0;padding-left:1.2em}
+
+/* ---------- catena alimentare e animali inventati (sfide a scheda) ---------- */
+.cbox{flex:1;display:flex;flex-direction:column;gap:clamp(6px,1vh,10px);min-height:0}
+.cq{font-family:var(--font-title);font-weight:800;font-size:clamp(.95rem,2.2vh,1.35rem);line-height:1.2;background:var(--surface);border:3px solid var(--tc);border-radius:16px;padding:8px 12px;flex:none}
+.cq small{display:block;font-family:var(--font-body);font-size:.66em;color:var(--muted);font-weight:800;margin-top:3px}
+.ctray{display:flex;flex-wrap:wrap;gap:clamp(6px,.8vw,12px);justify-content:center;align-items:flex-start;min-height:clamp(70px,14vh,150px);padding:6px;border-radius:16px;background:color-mix(in srgb,var(--tc) 7%,transparent);border:2px dashed var(--line);flex:none;touch-action:none}
+.ccard{width:clamp(60px,min(8.5vw,13vh),130px);cursor:grab;touch-action:none}
+.ccard.sel{border-color:var(--tc);box-shadow:0 0 0 4px var(--tc)}
+.ccard.lift{opacity:.25}
+.cempty{align-self:center;color:var(--muted);font-weight:800;text-align:center;padding:8px}
+.crow{display:flex;align-items:stretch;justify-content:center;gap:4px;flex:none}
+.cslot{flex:0 1 clamp(70px,min(9.5vw,15vh),146px);min-width:0;border:3px dashed var(--tc);border-radius:16px;background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;touch-action:none}
+.cslot{container-type:inline-size}
+.cslot .lab{font-weight:800;font-size:clamp(.5rem,12cqi,.85rem);line-height:1.1;text-align:center;color:var(--tc);min-height:2.2em;max-width:100%;display:flex;align-items:center;justify-content:center}
+.cslot .ph{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--font-title);font-size:2rem;color:var(--line);min-height:clamp(56px,10vh,120px)}
+.cslot .ccard{width:100%}
+.cslot.armed{border-style:solid;background:color-mix(in srgb,var(--tc) 12%,var(--surface))}
+.cslot.dec{border-color:#8B5E3C;background:color-mix(in srgb,#8B5E3C 10%,var(--surface))} .cslot.dec .lab{color:#A0703F}
+.crow.sol .cslot{border-style:solid;border-color:var(--ok)} .crow.sol .cslot .lab{color:var(--ok)}
+.carr{align-self:center;font-family:var(--font-title);font-weight:800;font-size:clamp(1.1rem,2.6vh,1.8rem);color:var(--muted);display:flex;flex-direction:column;align-items:center;line-height:1}
+.carr small{font-family:var(--font-body);font-size:.42em}
+.cact{display:flex;justify-content:center;align-items:center;gap:10px;flex:none}
+.cconf{border:0;border-radius:16px;background:var(--tc);color:#fff;font-family:var(--font-title);font-weight:800;font-size:clamp(1.05rem,2.4vh,1.5rem);padding:8px 28px;min-height:clamp(48px,7vh,66px);box-shadow:0 5px 0 color-mix(in srgb,var(--tc) 60%,#000);touch-action:none}
+.cconf:disabled{opacity:.35;box-shadow:none}
+.cpic{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:var(--cardbg);color:#18223A;border:2px solid var(--line);border-radius:16px;padding:4px;overflow:hidden}
+.websvg{width:100%;height:100%}
+.websvg .wl{font:800 10px var(--font-body);fill:#18223A;paint-order:stroke;stroke:#fff;stroke-width:3px}
+.mchain{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;color:#18223A}
+.mchain .carr{color:#5E6A82}
+.acard.mini{width:clamp(54px,min(7vw,11vh),110px);box-shadow:none}
+.cans{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(clamp(110px,12vw,170px),1fr));flex:none}
+.cans.long{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gbtn.long{font-family:var(--font-body);font-size:clamp(.78rem,1.65vh,1rem);line-height:1.25;text-align:left;padding:6px 12px}
+.cexp{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--ok);border-radius:12px;padding:8px 12px;font-weight:700;font-size:clamp(.8rem,1.75vh,1.05rem);line-height:1.4;overflow:auto;min-height:0;flex:0 1 auto}
+.cinv{display:flex;gap:10px;align-items:center;width:100%;height:100%;min-height:0}
+.cinvp{width:min(50%,300px);flex:none}
+.cid{margin:0;padding:0;list-style:none;flex:1;display:flex;flex-direction:column;gap:2px;font-size:clamp(.7rem,1.55vh,.95rem);font-weight:700;line-height:1.25}
+.cid b{color:#5E6A82;font-weight:800}
+.rv .mchain{justify-content:flex-start;margin-top:4px} .rv .mchain .acard{width:46px} .rv .mchain .carr{font-size:1rem}
+/* esempio iniziale nelle impostazioni */
+.ex{display:flex;flex-wrap:wrap;gap:12px;align-items:center;background:var(--surface-2);border:2px dashed var(--accent);border-radius:16px;padding:12px 14px;font-weight:700;line-height:1.45}
+.ex .mchain{background:var(--cardbg);border-radius:14px;padding:6px}
+.ex .acard.mini{width:78px}
+.ex p{margin:0;flex:1;min-width:240px}
+/* laboratorio «Inventa un animale» */
+.lab{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.25fr);gap:18px;align-items:start}
+.labl{display:flex;flex-direction:column;gap:12px;position:sticky;top:0}
+.labpic{background:var(--cardbg);border:3px solid var(--line);border-radius:20px;padding:6px;color:#18223A;display:flex;flex-direction:column;align-items:center}
+.labpic .nm{font-family:var(--font-title);font-weight:800;font-size:1.4rem}
+.labres{background:var(--surface-2);border:2px solid var(--pc);border-left-width:8px;border-radius:16px;padding:10px 14px;font-weight:700;line-height:1.45}
+.labres h3{color:var(--pc);font-size:1.5rem}
+.labres p,.labres ul{margin:6px 0 0}
+.labr{display:flex;flex-direction:column;gap:12px}
+.tr2{display:flex;flex-direction:column;gap:6px}
+.tr2 > span{font-weight:800;font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.chips.sm .chip{min-height:40px;padding:6px 13px;font-size:.95rem}
+@media (max-width:760px){ .lab{grid-template-columns:1fr} .labl{position:static} }
 @media (max-width:760px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;padding:6px 12px} #game .timer{width:20vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto;transform-origin:left center} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
+/* adattamento allo zoo: qui .hint è anche la casella dei suggerimenti in partita */
+.regf .hint{min-height:0;background:none;border:0;border-radius:0;padding:0}
 </style>
 </head>
 <body>
@@ -183,9 +267,11 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field" id="n2F"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
       <div class="field"><span>Squadre in gioco</span><div class="seg" id="nteams"></div></div>
+      <div class="field"><span>Classe</span><div id="regField"></div></div>
     </div>
     <div class="field"><span>Modalità</span><div class="modes" id="modes"></div></div>
-    <div class="field"><span>Argomenti (puoi sceglierne più di uno: si giocano uno dopo l'altro)</span><div class="chips" id="topics"></div></div>
+    <div id="modeEx"></div>
+    <div class="field" id="topicsF"><span>Argomenti (puoi sceglierne più di uno: si giocano uno dopo l'altro)</span><div class="chips" id="topics"></div></div>
     <div class="row">
       <div class="field"><span>Livello</span><div class="seg" id="level"></div></div>
       <div class="field"><span>Durata per argomento</span><div class="seg" id="len"></div></div>
@@ -196,7 +282,7 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
       <div class="field"><span>Suoni</span><div class="seg" id="sound"></div></div>
     </div>
     <p class="note" id="rules"></p>
-    <div class="actions"><button class="start" id="go">Inizia</button><button class="btn2 big2" id="toAlbum">📖 Album degli animali</button></div>
+    <div class="actions"><button class="start" id="go">Inizia</button><button class="btn2 big2" id="toAlbum">📖 Album degli animali</button><button class="btn2 big2" id="toLab">🧪 Inventa un animale</button></div>
   </div>
 </section>
 
@@ -221,6 +307,7 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
     <div class="finals" id="finals"></div>
     <h2 id="revT">Da ripassare</h2>
     <div class="review" id="review"></div>
+    <div id="regBox"></div>
     <div class="actions"><button class="start" id="again">Nuova partita</button><button class="btn2" id="toAlbum2">📖 Album degli animali</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
   </div>
 </section>
@@ -228,13 +315,90 @@ h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1}
 <!-- ============ ALBUM ============ -->
 <section class="screen" id="album" aria-label="Album degli animali">
   <div class="card0">
-    <button class="btn2" id="albBack" style="align-self:flex-start">← Impostazioni</button>
+    <div class="actions" style="justify-content:flex-start"><button class="btn2" id="albBack">← Impostazioni</button><button class="btn2 big2" id="toLab2">🧪 Inventa un animale</button></div>
     <div><h1>Album degli animali</h1><p class="note">Tocca un gruppo per vedere i suoi animali, e un animale per leggere perché sta in quel gruppo.</p></div>
     <div class="chips" id="albF"></div>
     <div class="agrid" id="albG"></div>
   </div>
 </section>
+
+<!-- ============ LABORATORIO: INVENTA UN ANIMALE ============ -->
+<section class="screen" id="lab" aria-label="Inventa un animale">
+  <div class="card0">
+    <button class="btn2" id="labBack" style="align-self:flex-start">← Indietro</button>
+    <div><h1>🧪 Inventa un animale</h1><p class="note">Scegli le caratteristiche: il tuo animale si compone davanti a te e il gioco ti dice a che gruppo apparterrebbe, oppure perché in natura non può esistere. Prova anche gli esempi: ci sono animali veri molto strani!</p></div>
+    <div class="lab">
+      <div class="labl"><div class="labpic" id="labPic"></div><div class="labres" id="labRes"></div></div>
+      <div class="labr" id="labTraits"></div>
+    </div>
+    <div class="field"><span>Esempi veri e combinazioni da provare</span><div class="chips" id="labEx"></div></div>
+    <div class="actions"><button class="btn2" id="labRnd">🎲 Animale a caso</button><button class="btn2 big2" id="labPlay">Sfida a squadre con gli animali inventati</button></div>
+  </div>
+</section>
 <div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -380,7 +544,27 @@ const DRAW = {
   porcellino: () => `<path d="${rep(7, i => `M34 ${36 + i*6}l-8 ${i < 3 ? -2 : 2}M66 ${36 + i*6}l8 ${i < 3 ? -2 : 2}`)}" fill="none" stroke-width="2"/><path d="M42 26Q34 16 28 14M58 26Q66 16 72 14" fill="none" stroke-width="2"/><path d="M46 26l-2-3M54 26l2-3" fill="none" stroke-width="1.4"/><ellipse cx="50" cy="56" rx="18" ry="30" fill="#8A93A0"/>${rep(7, i => `<path d="M34 ${38 + i*6}Q50 ${42 + i*6} 66 ${38 + i*6}" fill="none" stroke="#5E6672" stroke-width="1.6"/>`)}<ellipse cx="50" cy="30" rx="12" ry="6" fill="#7D8796"/>${E(45, 30, 1.8)}${E(55, 30, 1.8)}`,
   /* ---------- miriapodi ---------- */
   scolopendra: () => rep(15, k => { const i = 14 - k, x = 14 + i*5.2, y = 50 + 12*Math.sin(i*.45), dy = 12*.45*Math.cos(i*.45)/5.2; return `<path d="M${f1(x)} ${f1(y - 4)}l${f1(-3 - dy*4)} -8M${f1(x)} ${f1(y + 4)}l${f1(-3 + dy*4)} 8" fill="none" stroke="#E08A3A" stroke-width="1.8"/><ellipse cx="${f1(x)}" cy="${f1(y)}" rx="3.4" ry="5.4" fill="${i === 0 ? '#8A3A1E' : '#C0582B'}"/>`; }) + `<path d="M12 48Q4 40 2 34M12 52Q4 58 2 64" fill="none" stroke-width="1.6"/>${E(12, 48, 1.4)}`,
-  millepiedi: () => rep(16, k => { const i = 15 - k, a = i*.36, r = 34 - i*1.4, x = 50 + r*Math.cos(a), y = 54 + r*Math.sin(a)*.8; return `<path d="M${f1(x)} ${f1(y)}m-2 4l-2 6m6-6l1 6" fill="none" stroke="#2E3047" stroke-width="1.4"/><circle cx="${f1(x)}" cy="${f1(y)}" r="5" fill="${i % 2 ? '#4A3F55' : '#5E5170'}"/>`; }) + `${E(84, 54, 1.6)}<path d="M86 50l6-6M86 52l7-2" fill="none" stroke-width="1.4"/>`
+  millepiedi: () => rep(16, k => { const i = 15 - k, a = i*.36, r = 34 - i*1.4, x = 50 + r*Math.cos(a), y = 54 + r*Math.sin(a)*.8; return `<path d="M${f1(x)} ${f1(y)}m-2 4l-2 6m6-6l1 6" fill="none" stroke="#2E3047" stroke-width="1.4"/><circle cx="${f1(x)}" cy="${f1(y)}" r="5" fill="${i % 2 ? '#4A3F55' : '#5E5170'}"/>`; }) + `${E(84, 54, 1.6)}<path d="M86 50l6-6M86 52l7-2" fill="none" stroke-width="1.4"/>`,
+  /* ---------- catene alimentari: produttori, decompositori e animali nuovi ---------- */
+  erba: () => `<ellipse cx="50" cy="88" rx="42" ry="8" fill="#A07A52"/>${[[18,-12,40,'#5DA83A'],[29,-4,26,'#8BD15A'],[40,4,16,'#6DBE45'],[51,-6,22,'#7CC94F'],[62,6,14,'#5DA83A'],[73,12,30,'#8BD15A'],[83,6,44,'#6DBE45']].map(([x,dx,top,c])=>`<path d="M${x-4} 88Q${f1(x - 2 + dx*.3)} ${f1((88 + top)/2)} ${x + dx} ${top}Q${f1(x + 3 + dx*.3)} ${f1((88 + top)/2)} ${x+4} 88z" fill="${c}"/>`).join('')}<path d="M34 54Q37 70 34 86" fill="none" stroke="#4E8A2E" stroke-width="2"/>${rep(6, i => { const a = i*Math.PI/3; return `<ellipse cx="${f1(34 + 6.5*Math.cos(a))}" cy="${f1(50 + 6.5*Math.sin(a))}" rx="3.4" ry="3.4" fill="#fff" stroke-width="1.2"/>`; })}<circle cx="34" cy="50" r="4" fill="#F2C230"/>`,
+  foglie: () => `${dup('M14 92Q46 62 88 16', 4, '#8B5E3C')}${[[30,76,-70],[42,62,15],[56,48,-65],[66,36,25],[80,24,-25]].map(([x,y,a],i)=>`<g transform="translate(${x} ${y}) rotate(${a})"><path d="M0 0Q12 -11 28 0Q12 11 0 0z" fill="${i % 2 ? '#7CC94F' : '#5DA83A'}"/><path d="M2 0H24" fill="none" stroke="#3E7A23" stroke-width="1.4"/></g>`).join('')}`,
+  ghiande: () => `<g transform="translate(44 16) rotate(30) scale(1.3)"><path d="M0 0Q6 -8 12 -4Q14 -12 22 -8Q26 -14 32 -6Q38 -8 38 0Q38 8 32 6Q26 14 22 8Q14 12 12 4Q6 8 0 0z" fill="#7CB342" stroke-width="1.5"/><path d="M2 0H34" fill="none" stroke="#4E7A23" stroke-width="1.2"/></g>${[[36,62,-14,1],[66,68,16,0]].map(([x,y,a,f])=>`<g transform="translate(${x} ${y}) rotate(${a})"><path d="M0 -10v-7" fill="none" stroke-width="2.6"/><ellipse cx="0" cy="8" rx="11" ry="14" fill="#D69A55"/><ellipse cx="-5" cy="8" rx="2.6" ry="6" fill="#F0C48A" stroke="none"/><path d="M-12 0Q-12 -11 0 -11Q12 -11 12 0Q0 4 -12 0z" fill="#8B5E3C"/><path d="M-6 -5l2 2M0 -7l2 2M6 -5l2 2M-3 -2l2 2M3 -2l2 2" fill="none" stroke="#5E3E22" stroke-width="1.2"/>${f ? E(-4, 10, 2) + E(4, 10, 2) + '<path d="M-2 15q2 2 4 0" fill="none" stroke-width="1.2"/>' : ''}</g>`).join('')}`,
+  alghe: () => `<path d="M8 94Q50 84 92 94z" fill="#E8D5A8"/>${dup('M28 92Q20 70 30 52Q38 34 28 12', 7, '#8A9A3B')}${dup('M50 92Q58 72 48 54Q40 36 52 14', 8, '#6E8B2E')}${dup('M72 92Q66 74 74 58Q82 44 74 26', 7, '#9BAA45')}${[[30,52,-30],[48,40,30],[74,58,-25],[28,28,35],[52,70,-35],[76,40,30]].map(([x,y,a])=>`<ellipse cx="${x + 8}" cy="${y}" rx="9" ry="3.6" fill="#A7B84E" transform="rotate(${a} ${x} ${y})"/>`).join('')}<circle cx="64" cy="20" r="2.4" fill="none" stroke="#5DADE2"/><circle cx="60" cy="10" r="1.6" fill="none" stroke="#5DADE2"/>`,
+  fitoplancton: () => `<circle cx="50" cy="50" r="44" fill="#E3F6F0"/><g transform="rotate(-20 34 34)"><rect x="18" y="27" width="32" height="14" rx="7" fill="#C9D86B"/><path d="M24 28v12M30 28v12M36 28v12M42 28v12" fill="none" stroke="#8A9A3B" stroke-width="1.2"/></g>${dup(rep(6, i => { const a = i*Math.PI/3 + .3; return `M70 34L${f1(70 + 15*Math.cos(a))} ${f1(34 + 15*Math.sin(a))}`; }), 3, '#7CC94F')}<circle cx="70" cy="34" r="3" fill="#7CC94F"/>${rep(4, i => `<circle cx="${24 + i*11}" cy="${f1(64 + 4*Math.sin(i*1.2))}" r="5.6" fill="#5DBE6A"/>`)}<circle cx="72" cy="68" r="9" fill="#E9B949"/><path d="M63 68Q72 72 81 68" fill="none" stroke="#B5862A" stroke-width="1.4"/><text x="50" y="90" text-anchor="middle" font-size="9" font-weight="800" fill="#7D8796" stroke="none">×400</text>`,
+  zooplancton: () => `<circle cx="50" cy="50" r="44" fill="#E3F2FB"/><path d="M45 34Q24 28 10 42M55 34Q76 28 90 42" fill="none" stroke-width="2"/><path d="M50 70V80M50 80l-7 8M50 80l7 8" fill="none" stroke-width="2"/><path d="M50 28Q65 30 63 50Q61 66 50 72Q39 66 37 50Q35 30 50 28z" fill="#F2B880"/><path d="M40 44h20M39 52h22M41 60h18" fill="none" stroke="#C98B4E" stroke-width="1.3"/><circle cx="50" cy="37" r="3.4" fill="#D6334C" stroke="none"/><circle cx="51" cy="36" r="1.1" fill="#fff" stroke="none"/><text x="78" y="78" text-anchor="middle" font-size="9" font-weight="800" fill="#7D8796" stroke="none">×20</text>`,
+  krill: () => `<path d="M22 46Q10 30 4 24M22 48Q8 40 2 42" fill="none" stroke-width="1.6"/>${rep(7, i => `<path d="M${36 + i*6} 59l-2 10" fill="none" stroke-width="1.8"/>`)}<path d="M82 52L96 44L94 60z" fill="#E8735E"/><path d="M18 50Q28 36 56 37Q78 39 86 52Q80 60 68 58Q50 64 32 60Q20 58 18 50z" fill="#F28E7A"/><path d="M44 39q-3 10 0 21M54 38q-3 11 0 23M64 40q-3 9 0 18M74 44q-2 7 0 13" fill="none" stroke="#C9604C" stroke-width="1.3"/>${E(27, 46, 3)}${[[40,52],[50,54],[60,52]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.5" fill="#FBD0C4" stroke="none"/>`).join('')}`,
+  bruco: () => `<path d="M4 86Q50 66 96 86Q50 100 4 86z" fill="#7CC94F"/><path d="M10 86Q50 76 90 86" fill="none" stroke="#4E8A2E" stroke-width="1.5"/>${rep(7, k => { const i = 6 - k, x = 30 + i*9, y = 68 - 7*Math.sin(i*.9); return `<path d="M${f1(x)} ${f1(y + 6)}v6" fill="none" stroke-width="2"/><circle cx="${f1(x)}" cy="${f1(y)}" r="8" fill="${i % 2 ? '#8BC34A' : '#A5D65A'}"/><circle cx="${f1(x)}" cy="${f1(y - 3)}" r="1.8" fill="#F2C230" stroke="none"/>`; })}<path d="M16 52Q12 42 8 40M24 52Q26 42 30 39" fill="none" stroke-width="1.8"/><circle cx="20" cy="60" r="10" fill="#8BC34A"/>${E(16, 58, 2.4)}${E(24, 58, 2.4)}<path d="M17 64q3 2 6 0" fill="none" stroke-width="1.4"/>${CK(13, 63)}${CK(27, 63)}`,
+  aringa: () => fish({col:'#8FA8C8', belly:'#EEF2F6', fin:'#6F89AA', rx:32, ry:13, dors:28, tail:'M74 50L92 36L88 50L92 64z', pre:'<path d="M20 47Q46 41 76 47" stroke="#5B7699" stroke-width="3" fill="none"/>'}),
+  orca: () => `<path d="M2 86q8-6 16 0t16 0t16 0t16 0t16 0t16 0" fill="none" stroke="#5DADE2"/><path d="M46 40L56 10L64 40z" fill="#1F2230"/><path d="M84 52Q92 40 98 40Q94 50 90 54Q94 60 98 66Q90 66 84 58z" fill="#1F2230"/><path d="M6 56Q18 38 52 38Q76 40 88 54Q76 66 52 66Q22 68 6 56z" fill="#1F2230"/><path d="M10 59Q30 66 56 64Q72 62 84 56Q72 64 52 66Q24 68 10 59z" fill="#fff" stroke="none"/><ellipse cx="33" cy="48" rx="7" ry="3.4" fill="#fff" stroke="none" transform="rotate(-12 33 48)"/><path d="M58 41q8-2 12 3" fill="none" stroke="#9AA2AE" stroke-width="3"/><circle cx="22" cy="51" r="3.4" fill="#fff" stroke="none"/>${E(22, 51, 2.2)}<path d="M38 62q2 12 13 13q-1-8-5-13z" fill="#1F2230"/><path d="M8 57q6 3 12 2" fill="none" stroke="#fff" stroke-width="1.4"/>`,
+  topo: () => `${dup('M68 80Q90 86 94 72Q96 62 88 62', 2.6, '#E8A0A8')}<ellipse cx="54" cy="72" rx="22" ry="16" fill="#A8846A"/><ellipse cx="50" cy="78" rx="12" ry="8" fill="#EBDCC8" stroke="none"/><ellipse cx="42" cy="88" rx="6" ry="3" fill="#E8A0A8"/><ellipse cx="62" cy="88" rx="6" ry="3" fill="#E8A0A8"/><circle cx="31" cy="34" r="11" fill="#A8846A"/><circle cx="53" cy="31" r="11" fill="#A8846A"/><circle cx="31" cy="34" r="6" fill="#F7B2C0" stroke="none"/><circle cx="53" cy="31" r="6" fill="#F7B2C0" stroke="none"/><ellipse cx="38" cy="50" rx="16" ry="13" fill="#A8846A"/><circle cx="23" cy="54" r="3.2" fill="#F27E8E"/><path d="M25 56l-11-1M25 57l-10 4M30 56h8" fill="none" stroke-width="1.2"/>${E(34, 47, 3)}${E(45, 46, 2.6)}${CK(38, 56)}`,
+  volpe: () => `<path d="M64 84Q94 88 92 60Q90 50 82 54Q86 74 62 76z" fill="#E8742A"/><path d="M92 60Q91 51 83 54Q87 57 87 63Q90 63 92 60z" fill="#fff"/><ellipse cx="44" cy="89" rx="6" ry="3.5" fill="#2E3047"/><ellipse cx="60" cy="89" rx="6" ry="3.5" fill="#2E3047"/><ellipse cx="52" cy="72" rx="18" ry="18" fill="#E8742A"/><ellipse cx="50" cy="72" rx="9" ry="12" fill="#fff" stroke="none"/><path d="M33 36L30 14L45 27z" fill="#E8742A"/><path d="M67 36L70 14L55 27z" fill="#E8742A"/><path d="M31 20L30 14L35 18zM69 20L70 14L65 18z" fill="#2E3047" stroke="none"/><circle cx="50" cy="42" r="17" fill="#E8742A"/><path d="M34 44Q40 60 50 62Q60 60 66 44Q58 52 50 52Q42 52 34 44z" fill="#fff"/><ellipse cx="50" cy="55" rx="3.4" ry="2.6" fill="#2E3047"/>${E(43, 40, 2.6)}${E(57, 40, 2.6)}`,
+  zebra: () => `<path d="M84 50q8 6 6 20" fill="none" stroke-width="2"/><path d="M88 68l2 8 3-7z" fill="#2E3047"/><path d="M34 64v24M44 66v22M66 66v22M76 64v24" stroke="#2E3047" stroke-width="7" fill="none"/><path d="M34 64v24M44 66v22M66 66v22M76 64v24" stroke="#fff" stroke-width="4" fill="none"/><path d="M31 76h6M41 78h6M63 78h6M73 76h6" stroke="#2E3047" stroke-width="2"/><path d="M31 88h6M41 88h6M63 88h6M73 88h6" stroke="#2E3047" stroke-width="4"/><rect x="26" y="44" width="60" height="26" rx="13" fill="#fff"/><path d="M40 45q-4 12 0 24M50 44q-4 13 0 26M60 44q-4 13 0 26M70 45q-4 12 0 24M80 48q-3 9 0 18" fill="none" stroke="#2E3047" stroke-width="3.2"/><path d="M30 58L20 28L32 24L42 50z" fill="#fff"/><path d="M23 36l11-3M25 43l11-3M28 50l10-3" stroke="#2E3047" stroke-width="2.6" fill="none"/><path d="M30 22L42 46" stroke="#2E3047" stroke-width="5" stroke-dasharray="3 2" fill="none"/><path d="M22 18l1-9 5 8z" fill="#fff"/><ellipse cx="20" cy="30" rx="8" ry="13" fill="#fff" transform="rotate(20 20 30)"/><path d="M17 24l7-2M16 30l7-2" stroke="#2E3047" stroke-width="2" fill="none"/><ellipse cx="15" cy="41" rx="6" ry="5" fill="#3E4450"/>${E(22, 28, 2.2)}`,
+  lontra: () => `<ellipse cx="88" cy="52" rx="5" ry="7" fill="#7A4F31"/><path d="M86 64l12 2-10 6z" fill="#7A4F31"/><ellipse cx="56" cy="62" rx="32" ry="12" fill="#8B5E3C"/><ellipse cx="58" cy="58" rx="22" ry="5" fill="#A8774E" stroke="none"/><circle cx="15" cy="44" r="3" fill="#D9C2A0"/><circle cx="32" cy="43" r="3" fill="#D9C2A0"/><circle cx="24" cy="54" r="13" fill="#E3D2B4"/>${E(19, 52, 2.4)}${E(28, 51, 2.4)}<ellipse cx="23" cy="57.5" rx="3" ry="2" fill="#2E3047"/><path d="M19 59l-9 1M28 59l9 1" fill="none" stroke-width="1.2"/><path d="${rep(10, i => { const a = i*Math.PI/5; return `M${f1(44 + 5*Math.cos(a))} ${f1(46 + 5*Math.sin(a))}L${f1(44 + 10*Math.cos(a))} ${f1(46 + 10*Math.sin(a))}`; })}" fill="none" stroke="#4A2A63" stroke-width="1.6"/><circle cx="44" cy="46" r="6" fill="#6B3E8A"/><ellipse cx="38" cy="51" rx="4" ry="3" fill="#7A4F31"/><ellipse cx="50" cy="51" rx="4" ry="3" fill="#7A4F31"/><path d="M2 68q8-5 16 0t16 0t16 0t16 0t16 0t16 0V96H2z" fill="#9ED3F0" opacity=".55" stroke="none"/><path d="M2 68q8-5 16 0t16 0t16 0t16 0t16 0t16 0" fill="none" stroke="#5DADE2" stroke-width="2"/>`,
+  cinciallegra: () => bird({col:'#8FA65A', wing:'#6F8EAA', belly:'#F5D547', head:'#2B2D42', face:'<ellipse cx="33" cy="44" rx="7" ry="5" fill="#fff" stroke="none"/><circle cx="27" cy="37" r="4.6" fill="#fff" stroke="none"/>', wingx:'<path d="M52 57l10 3" stroke="#fff" stroke-width="2" fill="none"/>', extra:'<path d="M42 56Q44 64 42 72" stroke="#2B2D42" stroke-width="4" fill="none"/>', beakCol:'#2B2D42', legCol:'#7D8796'}),
+  sparviero: () => bird({col:'#6F7E95', wing:'#56657D', head:'#6F7E95', belly:'#F3E1C8', beak:'M19 34Q8 34 9 42Q12 46 19 44z', beakCol:'#3E4450', legCol:'#F2C230', tail:'M70 54L94 52L90 66z', face:'<circle cx="27" cy="37" r="4.8" fill="#F2A23B" stroke="none"/><path d="M20 47Q28 51 38 48" stroke="#F3E1C8" stroke-width="2.4" fill="none"/>', extra:'<path d="M33 60h12M31 65h15M34 70h10" stroke="#D98A4E" stroke-width="2" fill="none"/>'}),
+  falco: () => bird({col:'#C47A3E', wing:'#A35F2A', head:'#8E9AAE', belly:'#F3E1C8', beak:'M19 34Q8 34 9 42Q12 46 19 44z', beakCol:'#3E4450', legCol:'#F2C230', tail:'M70 54L94 50L90 66z', face:'<path d="M27 42q-1 6 2 10" stroke="#2E3047" stroke-width="2.6" fill="none"/><circle cx="27" cy="37" r="4.6" fill="#F2C230" stroke="none"/>', wingx:[[56,56],[62,60],[58,62],[66,57]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.5" fill="#2E3047" stroke="none"/>`).join(''), extra:'<circle cx="38" cy="62" r="1.5" fill="#8A5A2B" stroke="none"/><circle cx="44" cy="66" r="1.5" fill="#8A5A2B" stroke="none"/><circle cx="36" cy="68" r="1.5" fill="#8A5A2B" stroke="none"/>'}),
+  fungo: () => `<path d="M6 80Q6 70 18 70H84Q94 70 94 80Q94 90 84 90H18Q6 90 6 80z" fill="#9C7650"/><ellipse cx="86" cy="80" rx="8" ry="10" fill="#D9B48F"/><ellipse cx="86" cy="80" rx="3.5" ry="5" fill="none" stroke="#9C7650" stroke-width="1.4"/><path d="M20 78h20M50 84h22" fill="none" stroke="#7A5A3A" stroke-width="1.4"/><path d="M20 72Q19 66 21 62H26Q28 66 27 72z" fill="#F5EBDD"/><path d="M15 63Q16 55 23.5 55Q31 55 32 63Q23.5 66 15 63z" fill="#B8875A"/><path d="M66 72Q65 64 67 58H73Q75 64 74 72z" fill="#F5EBDD"/><path d="M60 60Q61 48 70 48Q79 48 80 60Q70 63 60 60z" fill="#B8875A"/><path d="M40 72Q38 56 42 46H52Q56 56 54 72z" fill="#F5EBDD"/><path d="M26 48Q28 26 47 26Q66 26 68 48Q47 54 26 48z" fill="#C99A6A"/><path d="M30 48Q47 52 64 48" fill="none" stroke="#8A6440" stroke-width="1.4"/><ellipse cx="38" cy="36" rx="5" ry="2.6" fill="#E3C49E" stroke="none"/>${E(43, 60, 2.2)}${E(51, 60, 2.2)}<path d="M45 65q2 2 4 0" fill="none" stroke-width="1.4"/>`,
+  batteri: () => `<circle cx="50" cy="50" r="44" fill="#F3EEDD"/>${[[30,34,-20,'#9B7FD4'],[62,30,25,'#7CC4A0'],[36,60,10,'#E8A15C'],[66,58,-35,'#9B7FD4']].map(([x,y,a,c],i)=>`<g transform="rotate(${a} ${x} ${y})"><path d="M${x + 13} ${y}q4 -4 8 0t8 0" fill="none" stroke-width="1.4"/><rect x="${x - 13}" y="${y - 5.5}" width="26" height="11" rx="5.5" fill="${c}"/>${i % 2 ? '' : E(x - 4, y - 1, 1.7) + E(x + 3, y - 1, 1.7)}</g>`).join('')}${rep(3, i => `<circle cx="${42 + i*9}" cy="78" r="4.5" fill="#E86A8C"/>`)}<text x="50" y="91" text-anchor="middle" font-size="8" font-weight="800" fill="#7D8796" stroke="none">×1000</text>`
 };
 
 /* =====================================================================
@@ -519,7 +703,17 @@ const ROWS = [
   ['aragosta','l\'','aragosta','crostacei',2,'Vive sui fondali rocciosi.','Ha antenne lunghissime e spinose.'],
   ['porcellino','il ','porcellino di terra','crostacei',3,'Vive sotto i vasi e le foglie umide.','Se lo tocchi si chiude a pallina.','Vive sulla terra, ma è un crostaceo: ha 2 paia di antenne (un paio è piccolissimo), 14 zampe e ha bisogno di umidità per respirare.'],
   ['scolopendra','la ','scolopendra','miriapodi',2,'Vive sotto i sassi e caccia insetti.','Ha un paio di zampe per ogni segmento del corpo.'],
-  ['millepiedi','il ','millepiedi','miriapodi',2,'Quando ha paura si arrotola a spirale.','Ha 2 paia di zampe per ogni segmento.','Di solito non ha davvero mille zampe, ma tantissime: è un miriapode.']
+  ['millepiedi','il ','millepiedi','miriapodi',2,'Quando ha paura si arrotola a spirale.','Ha 2 paia di zampe per ogni segmento.','Di solito non ha davvero mille zampe, ma tantissime: è un miriapode.'],
+  /* aggiunti con la catena alimentare */
+  ['aringa','l\'','aringa','ossei',2,'Vive nei mari freddi, in banchi enormi.','È un pesce argentato che si nutre di plancton.'],
+  ['orca','l\'','orca','mammiferi',3,'Vive in tutti gli oceani e caccia in gruppo.','È bianca e nera, con una pinna dorsale altissima.','La chiamano «balena assassina», ma è un grande delfino: respira con i polmoni e allatta i piccoli, quindi è un mammifero.'],
+  ['topo','il ','topo selvatico','mammiferi',1,'Vive nei boschi e nei campi e mangia semi e ghiande.','Ha orecchie grandi e una coda lunghissima.'],
+  ['volpe','la ','volpe','mammiferi',1,'Ha la coda folta con la punta bianca.','Caccia topi e conigli, ma mangia anche frutta.'],
+  ['zebra','la ','zebra','mammiferi',1,'Vive in branchi nella savana africana.','Ha il mantello a strisce bianche e nere.'],
+  ['lontra','la ','lontra marina','mammiferi',2,'Galleggia sulla schiena tra le alghe dell\'oceano Pacifico.','Rompe i ricci di mare con un sasso appoggiato sulla pancia.','Vive in mare, ma ha una pelliccia foltissima, respira con i polmoni e allatta i piccoli: è un mammifero.'],
+  ['cinciallegra','la ','cinciallegra','uccelli',2,'Si vede spesso nei giardini e alle mangiatoie.','Ha il petto giallo con una striscia nera.'],
+  ['sparviero','lo ','sparviero','uccelli',2,'È un piccolo rapace dei boschi.','Caccia gli uccellini volando veloce tra gli alberi.'],
+  ['falco','il ','falco','uccelli',1,'È un rapace con la vista acutissima.','Si lancia in picchiata sulle prede.']
 ];
 const A = {};
 ROWS.forEach(([k, ar, n, g, d, c1, c2, x])=>{ A[k] = {k, ar, n, g, d, c:[c1, c2], x:x || ''}; });
@@ -557,18 +751,514 @@ const KEYTREE = {
 };
 function leavesOf(topic, next){ if(next.startsWith('G:')) return [next.slice(2)]; return KEYTREE[topic][next].o.flatMap(o=>leavesOf(topic, o[1])); }
 
+/* =====================================================================
+   CATENE ALIMENTARI
+   FO: organismi delle catene. d = disegno in DRAW, r = P produttore / C consumatore / D decompositore,
+   h = ambiente (terra / mare), pl = nome plurale, s = nome breve nella rete,
+   e = che cosa può mangiare davvero (anche fuori dal gioco): serve solo per scegliere
+       risposte sbagliate che siano sbagliate davvero (es. la volpe mangia anche frutta e insetti).
+   ===================================================================== */
+TOPICS.catena = {n:'La catena alimentare', short:'Catena alimentare', groups:[], of:()=>null};
+TOPICS.inventa = {n:'Animali inventati', short:'Animali inventati', groups:[], of:()=>null};
+const FO = {
+  erba:{ar:'l\'', n:'erba', d:'erba', r:'P', h:'terra'},
+  foglie:{ar:'le ', n:'foglie', d:'foglie', r:'P', h:'terra', pl:1},
+  ghiande:{ar:'le ', n:'ghiande', d:'ghiande', r:'P', h:'terra', pl:1},
+  alghe:{ar:'le ', n:'alghe', d:'alghe', r:'P', h:'mare', pl:1},
+  fitoplancton:{ar:'il ', n:'fitoplancton', d:'fitoplancton', r:'P', h:'mare'},
+  zooplancton:{ar:'lo ', n:'zooplancton', d:'zooplancton', r:'C', h:'mare', e:['fitoplancton','zooplancton']},
+  krill:{ar:'il ', n:'krill', d:'krill', r:'C', h:'mare', e:['fitoplancton','zooplancton']},
+  cavalletta:{ar:'la ', n:'cavalletta', d:'cavalletta', r:'C', h:'terra', e:['erba','foglie']},
+  bruco:{ar:'il ', n:'bruco', d:'bruco', r:'C', h:'terra', e:['foglie','erba']},
+  chiocciola:{ar:'la ', n:'chiocciola', d:'chiocciola', r:'C', h:'terra', e:['foglie','erba','fungo']},
+  coniglio:{ar:'il ', n:'coniglio', d:'coniglio', r:'C', h:'terra', e:['erba','foglie']},
+  topo:{ar:'il ', n:'topo selvatico', s:'topo', d:'topo', r:'C', h:'terra', e:['ghiande','erba','foglie','cavalletta','bruco','chiocciola','fungo']},
+  zebra:{ar:'la ', n:'zebra', d:'zebra', r:'C', h:'terra', e:['erba','foglie']},
+  giraffa:{ar:'la ', n:'giraffa', d:'giraffa', r:'C', h:'terra', e:['foglie']},
+  ricciomare:{ar:'il ', n:'riccio di mare', d:'ricciomare', r:'C', h:'mare', e:['alghe']},
+  rana:{ar:'la ', n:'rana', d:'rana', r:'C', h:'terra', e:['cavalletta','bruco','chiocciola']},
+  lucertola:{ar:'la ', n:'lucertola', d:'lucertola', r:'C', h:'terra', e:['cavalletta','bruco']},
+  cinciallegra:{ar:'la ', n:'cinciallegra', d:'cinciallegra', r:'C', h:'terra', e:['bruco','cavalletta','ghiande']},
+  pettirosso:{ar:'il ', n:'pettirosso', d:'pettirosso', r:'C', h:'terra', e:['bruco','cavalletta','chiocciola']},
+  riccio:{ar:'il ', n:'riccio', d:'riccio', r:'C', h:'terra', e:['chiocciola','bruco','cavalletta','rana','topo','lucertola']},
+  aringa:{ar:'l\'', n:'aringa', d:'aringa', r:'C', h:'mare', e:['zooplancton','krill']},
+  serpente:{ar:'il ', n:'serpente', d:'biscia', r:'C', h:'terra', e:['rana','topo','lucertola','cinciallegra','pettirosso','coniglio']},
+  volpe:{ar:'la ', n:'volpe', d:'volpe', r:'C', h:'terra', e:['coniglio','topo','rana','cavalletta','bruco','chiocciola','lucertola','cinciallegra','pettirosso','riccio','serpente','erba','foglie','ghiande']},
+  gufo:{ar:'il ', n:'gufo reale', d:'gufo', r:'C', h:'terra', e:['topo','coniglio','riccio','rana','serpente','cinciallegra','pettirosso','lucertola','volpe','sparviero','falco','cavalletta']},
+  sparviero:{ar:'lo ', n:'sparviero', d:'sparviero', r:'C', h:'terra', e:['cinciallegra','pettirosso','topo']},
+  falco:{ar:'il ', n:'falco', d:'falco', r:'C', h:'terra', e:['serpente','lucertola','topo','coniglio','rana','cinciallegra','pettirosso','cavalletta']},
+  aquila:{ar:'l\'', n:'aquila reale', s:'aquila', d:'aquila', r:'C', h:'terra', e:['coniglio','topo','serpente','volpe','riccio','lucertola']},
+  leone:{ar:'il ', n:'leone', d:'leone', r:'C', h:'terra', e:['zebra','giraffa']},
+  foca:{ar:'la ', n:'foca', d:'foca', r:'C', h:'mare', e:['aringa','krill','tonno','zooplancton']},
+  focaleopardo:{ar:'la ', n:'foca leopardo', d:'foca', r:'C', h:'mare', e:['pinguino','krill','foca','aringa']},
+  tonno:{ar:'il ', n:'tonno', d:'tonno', r:'C', h:'mare', e:['aringa','krill','zooplancton']},
+  lontra:{ar:'la ', n:'lontra marina', s:'lontra', d:'lontra', r:'C', h:'mare', e:['ricciomare','aringa']},
+  pinguino:{ar:'il ', n:'pinguino', d:'pinguino', r:'C', h:'mare', e:['krill','aringa','zooplancton']},
+  balena:{ar:'la ', n:'balenottera azzurra', s:'balenottera', d:'balena', r:'C', h:'mare', e:['krill','zooplancton']},
+  orca:{ar:'l\'', n:'orca', d:'orca', r:'C', h:'mare', e:['foca','focaleopardo','aringa','tonno','pinguino','lontra','balena']},
+  fungo:{ar:'il ', n:'fungo', d:'fungo', r:'D', h:'terra', x:'Il fungo è un decompositore: si nutre dei resti di piante e animali morti e degli escrementi e li trasforma in sali minerali, che tornano nel terreno e servono di nuovo alle piante. Lavora su tutti i livelli della catena, per questo sta a parte. Lo aiutano animali come il lombrico, che sminuzza i resti (è un detritivoro).'},
+  batteri:{ar:'i ', n:'batteri', d:'batteri', r:'D', h:'terra', pl:1, x:'I batteri sono decompositori: trasformano i resti di piante e animali morti e gli escrementi in sali minerali, che tornano nel terreno o nell\'acqua e servono di nuovo alle piante e alle alghe. Lavorano su tutti i livelli della catena, per questo stanno a parte.'}
+};
+const fon = k => FO[k].ar + FO[k].n;   /* nome con l'articolo */
+const ART_DA = {'il ':'dal ', 'lo ':'dallo ', 'la ':'dalla ', 'l\'':'dall\'', 'i ':'dai ', 'le ':'dalle '};
+const ART_A = {'il ':'al ', 'lo ':'allo ', 'la ':'alla ', 'l\'':'all\'', 'i ':'ai ', 'le ':'alle '};
+const ART_DI = {'il ':'del ', 'lo ':'dello ', 'la ':'della ', 'l\'':'dell\'', 'i ':'dei ', 'le ':'delle '};
+const prep = (M, k) => M[FO[k].ar] + FO[k].n;
+const andList = arr => arr.length < 2 ? arr.join('') : arr.slice(0, -1).join(', ') + ' e ' + arr[arr.length - 1];
+const ROLES = ['Produttore','Consumatore primario','Consumatore secondario','Consumatore terziario'];
+/* catene vere, dalla base alla cima */
+const CHAINS = [
+  ['erba','cavalletta','rana','serpente','falco'],
+  ['erba','cavalletta','lucertola','serpente','falco'],
+  ['fitoplancton','zooplancton','aringa','foca','orca'],
+  ['fitoplancton','zooplancton','aringa','tonno','orca'],
+  ['fitoplancton','krill','pinguino','focaleopardo','orca'],
+  ['foglie','bruco','cinciallegra','sparviero'],
+  ['foglie','bruco','pettirosso','sparviero'],
+  ['foglie','chiocciola','riccio','gufo'],
+  ['alghe','ricciomare','lontra','orca'],
+  ['ghiande','topo','serpente','falco'],
+  ['ghiande','topo','volpe'],
+  ['ghiande','topo','gufo'],
+  ['erba','coniglio','volpe'],
+  ['erba','coniglio','aquila'],
+  ['erba','zebra','leone'],
+  ['foglie','giraffa','leone'],
+  ['fitoplancton','krill','balena']
+];
+/* reti alimentari: N = posizione nel disegno (viewBox 300 × 240), E = frecce [chi è mangiato, chi mangia] */
+const WEBS = {
+  prato:{n:'Prato e bosco', h:'terra', N:{serpente:[50,24], volpe:[160,24], gufo:[260,24], rana:[50,82], cavalletta:[50,142], coniglio:[150,142], topo:[250,142], erba:[100,206], ghiande:[250,206]},
+    E:[['erba','cavalletta'],['erba','coniglio'],['ghiande','topo'],['cavalletta','rana'],['rana','serpente'],['coniglio','volpe'],['topo','volpe'],['topo','gufo']]},
+  bosco:{n:'Bosco', h:'terra', N:{sparviero:[50,24], gufo:[160,24], volpe:[260,24], cinciallegra:[50,82], riccio:[150,82], bruco:[50,142], chiocciola:[150,142], topo:[250,142], foglie:[100,206], ghiande:[250,206]},
+    E:[['foglie','bruco'],['foglie','chiocciola'],['ghiande','topo'],['bruco','cinciallegra'],['bruco','riccio'],['chiocciola','riccio'],['cinciallegra','sparviero'],['riccio','gufo'],['topo','gufo'],['topo','volpe']]},
+  mare:{n:'Mare', h:'mare', N:{orca:[150,22], foca:[70,70], tonno:[230,70], aringa:[150,118], balena:[255,166], zooplancton:[150,166], fitoplancton:[150,214]},
+    E:[['fitoplancton','zooplancton'],['zooplancton','aringa'],['zooplancton','balena'],['aringa','foca'],['aringa','tonno'],['foca','orca'],['tonno','orca']]}
+};
+/* livello 5: «che cosa succede se…» — a giusta, p due plausibili, f una lontana, x spiegazione */
+const SCEN = [
+  {k:['erba','cavalletta','rana','serpente'], q:'Se spariscono le rane, che cosa succede alle cavallette?', a:'Aumentano, perché nessuno le mangia più', p:['Diminuiscono, perché la catena si interrompe','Restano uguali, perché non mangiano le rane'], f:'Si trasformano in rane', x:'Le rane sono i predatori delle cavallette: senza rane le cavallette aumentano, e poi possono mangiare troppa erba.'},
+  {k:['erba','cavalletta','rana','serpente'], q:'Se spariscono le rane, che cosa succede ai serpenti?', a:'Diminuiscono, perché hanno meno cibo', p:['Aumentano, perché hanno più spazio','Non cambia niente, perché i serpenti non mangiano erba'], f:'Cominciano a fare la fotosintesi', x:'In questa catena il serpente mangia le rane: senza rane ha meno cibo, quindi diminuisce o deve cercare altre prede.'},
+  {k:['alghe','ricciomare','lontra'], q:'Se le lontre marine spariscono, che cosa succede alle foreste di alghe?', a:'Diminuiscono, perché i ricci di mare aumentano e le mangiano', p:['Aumentano, perché le lontre non ci sono più','Restano uguali, perché le lontre non mangiano alghe'], f:'Le alghe si spostano sulla terraferma', x:'È successo davvero lungo le coste del Pacifico: dove le lontre erano state cacciate, i ricci di mare si sono moltiplicati e hanno distrutto le foreste di alghe. Un predatore protegge anche le piante, in modo indiretto.'},
+  {k:['fitoplancton','zooplancton','aringa','foca','orca'], q:'Se nel mare sparisse il fitoplancton, che cosa succederebbe alle orche?', a:'Diminuirebbero anche loro, perché senza produttori manca il cibo a tutta la catena', p:['Non cambierebbe niente, perché le orche non mangiano il fitoplancton','Aumenterebbero, perché ci sarebbe più spazio nel mare'], f:'Comincerebbero a fare la fotosintesi', x:'Il fitoplancton è il produttore: tutta l\'energia della catena parte da lui. Se sparisce, diminuisce lo zooplancton, poi le aringhe, poi le foche e infine le orche.'},
+  {k:['foglie','fungo','batteri'], na:1, q:'Se in un bosco sparissero tutti i funghi e i batteri decompositori, che cosa succederebbe?', a:'Foglie e resti morti si accumulerebbero e il terreno resterebbe senza sali minerali per le piante', p:['Le piante crescerebbero meglio, perché nessuno le rovina','Non cambierebbe niente, perché i decompositori non mangiano animali vivi'], f:'Gli animali smetterebbero subito di respirare', x:'I decompositori trasformano i resti di piante e animali in sali minerali che tornano nel terreno: le piante li assorbono con le radici. Senza di loro la materia non verrebbe riciclata.'},
+  {w:'prato', q:'Se spariscono i topi, chi è più in difficoltà in questa rete?', a:'Il gufo reale, perché qui mangia solo topi', p:['La volpe, perché è più grande','Il coniglio, perché è un erbivoro come il topo'], f:'L\'erba', x:'In questa rete il gufo reale ha una sola preda, il topo; la volpe può mangiare anche i conigli. Chi ha più prede sopporta meglio la scomparsa di una di esse.'},
+  {w:'prato', q:'Se le volpi spariscono, che cosa succede ai conigli e all\'erba?', a:'I conigli aumentano e l\'erba diminuisce', p:['I conigli diminuiscono e l\'erba aumenta','Aumentano sia i conigli sia l\'erba'], f:'L\'erba si mette a mangiare i conigli', x:'Senza il loro predatore i conigli si moltiplicano; più conigli mangiano più erba, quindi l\'erba diminuisce.'},
+  {w:'bosco', q:'Se gli sparvieri spariscono, che cosa succede alle cinciallegre e ai bruchi?', a:'Le cinciallegre aumentano e i bruchi diminuiscono', p:['Le cinciallegre diminuiscono e i bruchi aumentano','Aumentano sia le cinciallegre sia i bruchi'], f:'Le querce si mettono a mangiare i bruchi', x:'Senza sparvieri le cinciallegre hanno meno predatori e aumentano; più cinciallegre mangiano più bruchi, che quindi diminuiscono.'},
+  {k:['erba','cavalletta','rana','serpente','falco'], q:'Un veleno usato nei campi resta nel corpo di chi lo mangia e non viene eliminato. Chi ne avrà di più nel corpo?', a:'Il falco, in cima alla catena', p:['La cavalletta, che mangia l\'erba trattata','La rana, che sta a metà della catena'], f:'Il Sole, che illumina il campo', x:'Ogni predatore mangia tante prede, e con loro tutto il veleno che contengono: il veleno si concentra salendo lungo la catena (bioaccumulo). È successo con il DDT, che ha fatto diminuire molti rapaci.'},
+  {k:['erba','coniglio','volpe'], q:'Perché nelle catene alimentari i grandi predatori, come la volpe, sono pochi?', a:'Perché a ogni passaggio si perde gran parte dell\'energia e in cima ne arriva poca', p:['Perché i predatori vivono poco','Perché i predatori non hanno bisogno di mangiare spesso'], f:'Perché le volpi fanno la fotosintesi di notte', x:'Ogni organismo usa quasi tutta l\'energia del cibo per vivere (muoversi, scaldarsi, crescere): al livello successivo passa solo circa il 10%. Per questo servono tantissime piante per nutrire pochi conigli e ancora meno volpi.'},
+  {k:['fitoplancton','zooplancton','aringa','foca','orca'], q:'Se si pescano troppe aringhe, che cosa succede allo zooplancton e alle foche?', a:'Lo zooplancton aumenta e le foche diminuiscono', p:['Lo zooplancton diminuisce e le foche aumentano','Diminuiscono tutti e due'], f:'Lo zooplancton diventa un pesce', x:'Le aringhe mangiano lo zooplancton e sono mangiate dalle foche: senza aringhe lo zooplancton ha meno predatori e aumenta, mentre le foche hanno meno cibo.'},
+  {k:['erba','zebra','leone'], q:'Se nella savana non piove per molto tempo e l\'erba secca, che cosa succede ai leoni?', a:'Diminuiscono anche loro, perché le zebre hanno meno cibo e diminuiscono', p:['Aumentano, perché hanno più spazio per cacciare','Non cambia niente, perché i leoni non mangiano erba'], f:'Si trasformano in zebre', x:'Anche se il leone non mangia l\'erba, dipende da lei: senza erba diminuiscono le zebre, e allora anche i leoni hanno meno prede. Tutta la catena dipende dai produttori.'},
+  {k:['foglie','bruco','cinciallegra','sparviero'], q:'Se una malattia uccide quasi tutti i bruchi, chi soffre per primo la fame?', a:'Le cinciallegre, che mangiano i bruchi', p:['Gli sparvieri, che sono in cima alla catena','Le foglie, che restano senza bruchi'], f:'Il Sole', x:'Chi mangia direttamente i bruchi (le cinciallegre) resta subito senza cibo; poi, se le cinciallegre diminuiscono, ne risentono anche gli sparvieri. Le foglie invece vengono mangiate meno.'},
+  {k:['alghe','ricciomare','lontra','orca'], q:'In alcune zone dell\'Alaska le orche hanno cominciato a mangiare molte lontre marine. Che cosa è successo ai ricci di mare?', a:'Sono aumentati, perché le lontre che li mangiavano sono diminuite', p:['Sono diminuiti, perché anche le orche li mangiano','Non è cambiato niente, perché le orche non mangiano ricci'], f:'Sono diventati alghe', x:'È stato osservato davvero negli anni Novanta: meno lontre, più ricci di mare, meno alghe. Un cambiamento in cima alla catena si fa sentire fino alla base (cascata trofica).'}
+];
+function foMini(k){ return `<div class="acard mini">${aSVG(FO[k].d)}<span class="nm">${cap(FO[k].n)}</span></div>`; }
+function miniChain(keys, arrows){ return `<div class="mchain">${keys.map(foMini).join(arrows === false ? '' : '<span class="carr">→</span>')}</div>`; }
+function webSVG(wk, uid, hl){
+  const W = WEBS[wk], R = 15, hs = [].concat(hl || []);
+  let s = `<svg class="websvg" viewBox="0 0 300 240" role="img" aria-label="Rete alimentare: ${W.n}"><defs><marker id="ah${uid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5E6A82"/></marker></defs>`;
+  W.E.forEach(([a, b])=>{ const [x1, y1] = W.N[a], [x2, y2] = W.N[b], L = Math.hypot(x2 - x1, y2 - y1), ux = (x2 - x1)/L, uy = (y2 - y1)/L;
+    s += `<line x1="${f1(x1 + ux*(R + 3))}" y1="${f1(y1 + uy*(R + 3))}" x2="${f1(x2 - ux*(R + 6))}" y2="${f1(y2 - uy*(R + 6))}" stroke="#5E6A82" stroke-width="2.2" marker-end="url(#ah${uid})"/>`; });
+  Object.keys(W.N).forEach(k=>{ const [x, y] = W.N[k], on = hs.includes(k);
+    s += `<circle cx="${x}" cy="${y}" r="${R + 2}" fill="#fff" stroke="${on ? '#6A4CD8' : '#C9D3E3'}" stroke-width="${on ? 4 : 1.5}"/><svg x="${x - R}" y="${y - R}" width="${2*R}" height="${2*R}" viewBox="0 0 100 100"><g stroke="#2E3047" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${DRAW[FO[k].d]()}</g></svg><text class="wl" x="${x}" y="${y + R + 12}" text-anchor="middle">${cap(FO[k].s || FO[k].n)}</text>`; });
+  return s + '</svg>';
+}
+function chainExplain(keys, dec){
+  let s = `Alla base c'è il produttore, ${fon(keys[0])}: piante e alghe, con la fotosintesi, usano l'energia del Sole per fabbricare il loro nutrimento. `;
+  s += cap(keys.slice(1).map((k, i)=>`${fon(k)} mangia ${fon(keys[i])}`).join('; ')) + '. ';
+  s += `${cap(fon(keys[1]))} è il consumatore primario${keys[2] ? `, ${fon(keys[2])} il secondario` : ''}${keys[3] ? `, ${fon(keys[3])} il terziario` : ''}${keys[4] ? ` e ${fon(keys[4])} il quaternario` : ''}. `;
+  if(dec) s += FO[dec].x + ' ';
+  return s + 'La freccia va sempre da chi è mangiato a chi mangia: segue il cammino dell\'energia.';
+}
+/* livelli 1–3: mettere in ordine (3 carte, 4 carte, 4 carte + decompositore con i ruoli) */
+function makeChain(lv, used){
+  used = used || new Set();
+  if(lv >= 5) return makeScen(used);
+  if(lv === 4) return makeWebQ(used);
+  const len = lv === 1 ? 3 : 4;
+  let cands = CHAINS.filter(c=>c.length >= len && !used.has(c.slice(0, len).join()));
+  if(!cands.length) cands = CHAINS.filter(c=>c.length >= len);
+  const keys = pick(cands).slice(0, len); used.add(keys.join());
+  const dec = lv === 3 ? (FO[keys[0]].h === 'mare' ? 'batteri' : pick(['fungo','batteri'])) : null;
+  const sol = dec ? [...keys, dec] : keys;
+  const labels = dec ? [...ROLES.slice(0, len), 'Decompositore'] : keys.map((k, i)=>i === 0 ? '1 · base' : i === len - 1 ? `${len} · cima` : String(i + 1));
+  let tray; do { tray = shuffle(sol); } while(tray.every((k, i)=>k === sol[i]));
+  return {kind:'order', lv, sol, labels, dec, tray, time: lv === 1 ? 60 : lv === 2 ? 75 : 100,
+    topic: dec ? 'Ruoli nella catena alimentare' : 'Catena alimentare',
+    lead: dec ? 'Metti ogni organismo al suo ruolo<small>Produttore → consumatori. Il decompositore va nella casella marrone, a parte: ricicla i resti di tutti.</small>' : 'Metti in ordine la catena alimentare, dalla base alla cima<small>→ vuol dire «è mangiato da»: la freccia va da chi è mangiato a chi mangia.</small>',
+    hint: 'Trascina le carte nelle caselle (oppure tocca una carta e poi la casella), poi premi ✓ Conferma.',
+    qplain: `${dec ? 'Assegna i ruoli nella catena' : 'Ordina la catena dalla base alla cima'}: ${tray.map(k=>FO[k].n).join(', ')}`,
+    a: keys.map(k=>FO[k].n).join(' → ') + (dec ? '; decompositore: ' + FO[dec].n : ''),
+    x: chainExplain(keys, dec), mini: miniChain(keys) + (dec ? miniChain([dec], false) : '')};
+}
+/* livello 4: domande sulla rete alimentare */
+function makeWebQ(used){
+  used = used || new Set();
+  for(let tries = 0; tries < 80; tries++){
+    const wk = pick(Object.keys(WEBS)), W = WEBS[wk], nodes = Object.keys(W.N);
+    const prey = k => W.E.filter(e=>e[1] === k).map(e=>e[0]), pred = k => W.E.filter(e=>e[0] === k).map(e=>e[1]);
+    const eats = (a, b) => (FO[a].e || []).includes(b);
+    const type = pick(['chi','cosa','freccia','quanti']);
+    let key, q, opts, x, hl, long = false;
+    if(type === 'chi'){
+      const X = pick(nodes.filter(k=>pred(k).length)), right = pick(pred(X));
+      const pl = shuffle(nodes.filter(k=>k !== X && FO[k].r === 'C' && !pred(X).includes(k) && !eats(k, X))).slice(0, 2);
+      const far = pick(nodes.filter(k=>FO[k].r === 'P' && k !== X));
+      if(pl.length < 2 || !far) continue;
+      key = wk + ':chi:' + X; hl = X;
+      q = `Quale di questi si nutre ${prep(ART_DI, X)}?`;
+      opts = [{t:cap(FO[right].n), ok:true}, ...pl.map(k=>({t:cap(FO[k].n)})), {t:cap(FO[far].n)}];
+      x = `Le frecce che partono ${prep(ART_DA, X)} arrivano ${andList(pred(X).map(k=>prep(ART_A, k)))}: ${pred(X).length > 1 ? 'sono loro che si nutrono' : 'è l\'unico che si nutre'} ${prep(ART_DI, X)} in questa rete.`;
+    } else if(type === 'cosa'){
+      const Y = pick(nodes.filter(k=>prey(k).length)), right = pick(prey(Y));
+      const cand = nodes.filter(k=>k !== Y && !prey(Y).includes(k) && !eats(Y, k));
+      const plP = shuffle(cand.filter(k=>FO[k].r === 'P')), plC = shuffle(cand.filter(k=>FO[k].r === 'C'));
+      const pl = (plP.length && plC.length ? [plP[0], plC[0]] : shuffle(cand)).slice(0, 2);
+      const far = pick(Object.keys(FO).filter(k=>FO[k].r !== 'D' && FO[k].h !== W.h && !eats(Y, k)));
+      if(pl.length < 2 || !far) continue;
+      key = wk + ':cosa:' + Y; hl = Y;
+      q = `Di che cosa si nutre ${fon(Y)} in questa rete?`;
+      opts = [{t:cap(FO[right].n), ok:true}, ...pl.map(k=>({t:cap(FO[k].n)})), {t:cap(FO[far].n)}];
+      x = `Le frecce che arrivano ${prep(ART_A, Y)} partono ${andList(prey(Y).map(k=>prep(ART_DA, k)))}: è il suo cibo in questa rete.`;
+    } else if(type === 'freccia'){
+      const [pa, pb] = pick(W.E);   /* pa è mangiato da pb */
+      key = wk + ':fr:' + pa + pb; hl = [pa, pb]; long = true;
+      const right = `${cap(fon(pb))} ${FO[pb].pl ? 'mangiano' : 'mangia'} ${fon(pa)}`;
+      q = `Nella rete c'è una freccia ${prep(ART_DA, pa)} ${prep(ART_A, pb)}. Che cosa vuol dire?`;
+      opts = [{t:right, ok:true}, {t:`${cap(fon(pa))} ${FO[pa].pl ? 'mangiano' : 'mangia'} ${fon(pb)}`}, {t:`${cap(fon(pa))} e ${fon(pb)} mangiano lo stesso cibo`}, {t:`${cap(fon(pa))} e ${fon(pb)} sono parenti stretti`}];
+      x = `La freccia va sempre da chi è mangiato a chi mangia: indica il cammino dell'energia, che passa dal cibo a chi lo mangia. Quindi: ${right.charAt(0).toLowerCase() + right.slice(1)}.`;
+    } else {
+      const X = pick(nodes.filter(k=>FO[k].r === 'C' && pred(k).length)), n = pred(X).length;
+      key = wk + ':n:' + X; hl = X;
+      q = `In questa rete, quanti predatori ha ${fon(X)}?`;
+      opts = [{t:String(n), ok:true}, {t:String(n + 1)}, {t:String(n - 1)}, {t:String(n + 4)}];
+      x = `Conta le frecce che partono ${prep(ART_DA, X)}: ${n === 1 ? 'ce n\'è una sola, che va' : `sono ${n} e vanno`} ${andList(pred(X).map(k=>prep(ART_A, k)))}.`;
+    }
+    if(used.has(key) && tries < 60) continue;
+    used.add(key);
+    return {kind:'choice', lv:4, long, pic: uid => webSVG(wk, uid, hl), q: q + '<small>Ricorda: la freccia va da chi è mangiato a chi mangia.</small>', opts: shuffle(opts), x,
+      topic:'Reti alimentari', qplain: q, a: opts[0].t, time:40, mini:'', hint:'Segui le frecce della rete: vanno da chi è mangiato a chi mangia.'};
+  }
+  return makeChain(2, used);   /* non dovrebbe mai servire */
+}
+/* livello 5: ragionamento */
+function makeScen(used){
+  used = used || new Set();
+  let c = SCEN.map((s, i)=>i).filter(i=>!used.has('s' + i)); if(!c.length) c = SCEN.map((s, i)=>i);
+  const i = pick(c), s = SCEN[i]; used.add('s' + i);
+  const pic = () => s.w ? webSVG(s.w, 's' + i + Math.random().toString(36).slice(2, 6)) : miniChain(s.k, !s.na);
+  return {kind:'choice', lv:5, long:true, pic, q:s.q, opts: shuffle([{t:s.a, ok:true}, {t:s.p[0]}, {t:s.p[1]}, {t:s.f}]), x:s.x,
+    topic:'Che cosa succede se…', qplain:s.q, a:s.a, time:50, mini: s.w ? '' : miniChain(s.k, !s.na), hint:'Ragiona sulla catena: chi resta senza cibo? Chi resta senza predatori?'};
+}
+
+/* =====================================================================
+   INVENTA UN ANIMALE: caratteristiche, regole e disegno componibile
+   ===================================================================== */
+const TRAITS = [
+  ['cop','Copertura del corpo',[['piume','Penne e piume'],['peli','Peli'],['squame','Squame'],['pelle','Pelle nuda e umida'],['conchiglia','Conchiglia'],['eso','Esoscheletro']]],
+  ['resp','Respira con',[['polmoni','Polmoni'],['branchie','Branchie'],['pelle','La pelle'],['trachee','Trachee']]],
+  ['sch','Scheletro',[['int','Interno'],['est','Esterno'],['no','Nessuno']]],
+  ['temp','Temperatura del corpo',[['cost','Costante'],['var','Variabile']]],
+  ['ripr','Riproduzione',[['uova','Depone uova'],['vivi','Piccoli vivi']]],
+  ['zampe','Zampe',[['0','0'],['2','2'],['4','4'],['6','6'],['8','8'],['molte','Tantissime']]],
+  ['ali','Ali',[['si','Sì'],['no','No']]],
+  ['amb','Dove vive',[['terra','Sulla terra'],['dolce','Acqua dolce'],['mare','Mare'],['anfibio','Acqua e terra']]]
+];
+const TRV = {cop:{piume:'penne e piume', peli:'peli', squame:'squame', pelle:'pelle nuda e umida', conchiglia:'conchiglia', eso:'esoscheletro (corazza)'}, resp:{polmoni:'polmoni', branchie:'branchie', pelle:'la pelle', trachee:'trachee'}, sch:{int:'interno, con la colonna vertebrale', est:'esterno', no:'nessuno'}, temp:{cost:'costante', var:'variabile'}, ripr:{uova:'depone uova', vivi:'partorisce piccoli vivi'}, zampe:{'0':'nessuna', '2':'2', '4':'4', '6':'6', '8':'8', molte:'tantissime'}, ali:{si:'sì', no:'no'}, amb:{terra:'sulla terra', dolce:'in acqua dolce', mare:'in mare', anfibio:'in acqua e sulla terra'}};
+const VERT_G = ['pesci','anfibi','rettili','uccelli','mammiferi'], INV_G = ['insetti','aracnidi','crostacei','miriapodi','molluschi','anellidi'];
+/* Regole da libro di scienze. Restituisce {ok, g (gruppo), cand (gruppo a cui somiglia), no (perché non esiste), ex (eccezioni vere), nt (curiosità)} */
+function classify(o){
+  const no = [], ex = [], nt = [], add = (a, s)=>{ if(!a.includes(s)) a.push(s); };
+  const C = o.cop, R = o.resp, S = o.sch, z = o.zampe === 'molte' ? 99 : +o.zampe, ali = o.ali === 'si', acqua = o.amb === 'dolce' || o.amb === 'mare';
+  let g = null;
+  if(C === 'piume') g = 'uccelli';
+  else if(C === 'peli') g = 'mammiferi';
+  else if(C === 'squame') g = R === 'branchie' ? 'pesci' : 'rettili';
+  else if(C === 'pelle') g = S === 'int' ? 'anfibi' : S === 'no' ? (R === 'pelle' ? 'anellidi' : 'molluschi') : null;
+  else if(C === 'conchiglia') g = 'molluschi';
+  else if(C === 'eso') g = z === 6 ? 'insetti' : z === 8 ? 'aracnidi' : z === 99 ? (R === 'branchie' ? 'crostacei' : 'miriapodi') : null;
+  const cand = g || (C === 'eso' ? 'insetti' : 'anfibi'), vert = VERT_G.includes(cand);
+  /* copertura e scheletro */
+  if(C === 'piume' && S !== 'int') add(no, 'Penne e piume ce le hanno solo gli uccelli, che sono vertebrati: hanno lo scheletro interno con la colonna vertebrale.');
+  if(C === 'peli' && S !== 'int') add(no, 'I peli ce li hanno solo i mammiferi, che sono vertebrati: hanno lo scheletro interno con la colonna vertebrale.');
+  if(C === 'squame' && S !== 'int') add(no, 'Gli animali con le squame (pesci e rettili) sono vertebrati: hanno lo scheletro interno con la colonna vertebrale.');
+  if(C === 'eso' && S === 'int') add(no, 'Chi ha l\'esoscheletro (gli artropodi) non ha ossa dentro il corpo: il suo scheletro è la corazza esterna.');
+  if(C === 'eso' && S === 'no') add(no, 'L\'esoscheletro è proprio uno scheletro esterno: non può mancare lo scheletro.');
+  if(C === 'conchiglia' && S === 'int') add(no, 'Gli animali con la conchiglia (i molluschi) non hanno lo scheletro interno. La tartaruga ha un guscio, ma è fatto di ossa coperte di squame: per lei scegli squame e scheletro interno.');
+  if(C === 'conchiglia' && S === 'est') add(nt, 'La conchiglia protegge il corpo molle dall\'esterno, ma non è uno scheletro con le articolazioni come quello degli artropodi.');
+  if(C === 'pelle' && S === 'est') add(no, 'Uno scheletro esterno è una corazza dura: non può esserci se la pelle è nuda e umida.');
+  /* arti dei vertebrati: al massimo 4, ali comprese */
+  if(S === 'int'){
+    if(z > 4) add(no, 'Nessun vertebrato ha più di 4 arti: con 6, 8 o più zampe sarebbe un artropode, che però ha l\'esoscheletro e non le ossa.');
+    else if(z + (ali ? 2 : 0) > 4) add(no, 'Le ali dei vertebrati sono le zampe anteriori trasformate: con 4 zampe e 2 ali avrebbe 6 arti, come Pegaso o i draghi delle leggende. Nessun vertebrato vero è così.');
+  }
+  /* respirazione */
+  if(R === 'trachee' && C !== 'eso') add(no, 'Le trachee, tubicini che portano l\'aria in tutto il corpo, le hanno solo gli artropodi (insetti, miriapodi e molti aracnidi).');
+  if(R === 'pelle' && C !== 'pelle') add(no, 'Per respirare con la pelle serve una pelle nuda, sottile e sempre umida, come quella della rana o del lombrico.');
+  if(C === 'piume' && R === 'branchie') add(no, 'Penne e branchie insieme non esistono: gli uccelli respirano con i polmoni, anche il pinguino che nuota sott\'acqua.');
+  if(R === 'branchie' && o.amb === 'terra' && C !== 'eso') add(no, 'Le branchie funzionano solo in acqua: sulla terra l\'animale soffocherebbe.');
+  /* temperatura */
+  if(o.temp === 'cost' && C !== 'piume' && C !== 'peli') add(no, vert ? 'Solo uccelli e mammiferi hanno la temperatura costante; pesci, anfibi e rettili ce l\'hanno variabile (il tonno scalda un po\' i muscoli, ma non tutto il corpo).' : 'Gli invertebrati hanno la temperatura variabile (le api però scaldano l\'alveare facendo vibrare i muscoli delle ali).');
+  if(o.temp === 'var' && C === 'piume') add(no, 'Gli uccelli hanno la temperatura costante: penne e piume servono proprio a non disperdere il calore.');
+  if(o.temp === 'var' && C === 'peli') add(no, 'I mammiferi hanno la temperatura costante: anche in letargo, come la marmotta, il corpo la tiene sotto controllo.');
+  /* ali */
+  if(ali && C !== 'piume' && C !== 'peli' && C !== 'eso') add(no, C === 'squame' ? 'Nessun rettile o pesce di oggi ha le ali: il drago volante (una lucertola) plana con pieghe della pelle e il pesce volante plana con le pinne.' : 'Per volare servono ali robuste: le hanno solo uccelli, pipistrelli e insetti.');
+  if(!ali && C === 'piume') add(no, 'Tutti gli uccelli di oggi hanno le ali, anche quelli che non volano: il pinguino le usa per nuotare, lo struzzo per l\'equilibrio.');
+  /* regole del gruppo */
+  switch(g){
+    case 'uccelli':
+      if(o.ripr === 'vivi') add(no, 'Tutti gli uccelli depongono uova con il guscio.');
+      if(z === 0) add(no, 'Tutti gli uccelli hanno 2 zampe, oltre alle 2 ali.');
+      if(o.amb !== 'terra') add(nt, 'Molti uccelli vivono in acqua o vicino all\'acqua: il pinguino non vola, ma con le ali nuota benissimo.');
+      break;
+    case 'mammiferi':
+      if(R === 'branchie') add(no, 'I mammiferi respirano sempre con i polmoni, anche il delfino e la balena, che salgono in superficie a prendere aria.');
+      if(o.ripr === 'uova') add(ex, 'Quasi tutti i mammiferi partoriscono piccoli vivi, ma l\'ornitorinco e l\'echidna depongono le uova (e poi allattano i piccoli).');
+      if(ali && z === 2) add(ex, 'Come il pipistrello, l\'unico mammifero che vola davvero: le sue ali sono mani con una membrana di pelle tra le dita lunghissime.');
+      if(ali && z === 0) add(no, 'Il pipistrello ha 2 ali e 2 zampe: un mammifero con le ali e senza zampe non esiste.');
+      if(z === 0 && !ali){ if(acqua) add(ex, 'Come il delfino e la balena: le zampe anteriori sono diventate pinne e quelle posteriori sono quasi sparite. Respirano comunque con i polmoni.'); else add(no, 'Un mammifero senza zampe esiste solo in acqua: delfini e balene, che al posto delle zampe hanno le pinne.'); }
+      if(z === 2 && !ali) add(nt, 'Come noi esseri umani: camminiamo su 2 gambe e usiamo le braccia per altro (anche le braccia sono arti).');
+      if(z === 4 && o.amb === 'mare') add(nt, 'Come la foca, che ha 4 zampe trasformate in pinne.');
+      break;
+    case 'rettili':
+      if(o.ripr === 'vivi') add(ex, 'Quasi tutti i rettili depongono uova, ma alcuni partoriscono piccoli vivi, come la vipera e l\'orbettino.');
+      if(z === 0) add(ex, 'Come i serpenti, che sono rettili senza zampe (e come l\'orbettino, una lucertola senza zampe).');
+      if(z === 2 && !ali) add(ex, 'Esiste perfino un rettile con 2 sole zampe: il bipede (Bipes) del Messico, che ha solo le zampe anteriori.');
+      if(o.amb === 'mare') add(nt, 'Come la tartaruga marina: vive in mare ma respira con i polmoni e depone le uova sulla spiaggia.');
+      break;
+    case 'pesci':
+      if(z > 0 && z <= 4) add(no, 'I pesci al posto delle zampe hanno le pinne (il perioftalmo si trascina sul fango con le pinne pettorali, ma non sono vere zampe).');
+      if(o.amb === 'anfibio') add(ex, 'Pochi pesci escono dall\'acqua per un po\', come il perioftalmo, che però deve restare sempre umido.');
+      if(o.ripr === 'vivi') add(ex, 'Quasi tutti i pesci depongono uova, ma alcuni partoriscono piccoli vivi, come il guppy e molti squali.');
+      break;
+    case 'anfibi':
+      if(R === 'branchie') add(ex, 'Gli anfibi hanno le branchie da girini; il proteo delle grotte e l\'axolotl le tengono anche da adulti.');
+      if(R === 'pelle') add(ex, 'Gli anfibi respirano anche con la pelle; alcune salamandre senza polmoni respirano solo con la pelle e la bocca.');
+      if(o.ripr === 'vivi') add(ex, 'Quasi tutti gli anfibi depongono uova in acqua, ma la salamandra pezzata partorisce larve vive e la salamandra alpina piccoli già formati.');
+      if(z === 0) add(ex, 'Come le cecilie, anfibi tropicali senza zampe che sembrano grossi lombrichi.');
+      if(z === 2 && !ali) add(ex, 'Come le sirene (Siren), anfibi americani con le sole 2 zampe anteriori.');
+      if(o.amb === 'mare') add(no, 'Quasi nessun anfibio vive in mare: l\'acqua salata disidrata la pelle nuda (solo pochi, come la rana mangiagranchi, sopportano l\'acqua salmastra).');
+      if(o.amb === 'terra' && R !== 'branchie') add(nt, 'Anche gli anfibi che vivono sulla terra cercano posti umidi e di solito tornano in acqua per deporre le uova.');
+      break;
+    case 'molluschi':
+      if(z > 0) add(no, 'I molluschi non hanno zampe: si muovono con il piede muscoloso (o con le braccia, come il polpo).');
+      if(R === 'polmoni') add(nt, 'Come la chiocciola e la limaccia: una cavità del corpo (il mantello) funziona da polmone.');
+      if(o.ripr === 'vivi') add(ex, 'Quasi tutti i molluschi depongono uova, ma la paludina, una chiocciola d\'acqua dolce, partorisce piccoli già formati.');
+      if(C === 'pelle') add(nt, R === 'branchie' ? 'Un mollusco senza conchiglia che respira con le branchie: come il polpo.' : 'Un mollusco senza conchiglia: come la limaccia.');
+      break;
+    case 'anellidi':
+      if(z > 0) add(no, 'I vermi non hanno zampe: senza uno scheletro le zampe non potrebbero reggere il corpo.');
+      add(nt, 'Come il lombrico, un anellide che respira attraverso la pelle umida.');
+      if(o.ripr === 'vivi') add(ex, 'Il lombrico depone le uova in un piccolo bozzolo: tra i vermi i piccoli vivi sono rarissimi.');
+      break;
+    case 'insetti':
+      if(R === 'polmoni') add(no, 'Gli insetti non hanno polmoni: respirano con le trachee.');
+      if(R === 'branchie'){ if(acqua) add(ex, 'Solo alcune larve di insetti che vivono in acqua (come quelle dell\'effimera) hanno branchie; da adulti respirano con le trachee.'); else add(no, 'Le branchie funzionano solo in acqua: sulla terra l\'animale soffocherebbe.'); }
+      if(o.amb === 'mare') add(ex, 'Quasi nessun insetto vive in mare: fa eccezione l\'alobate, che pattina sulle onde.');
+      if(o.amb === 'dolce' && R === 'trachee') add(nt, 'Gli insetti acquatici, come il ditisco, portano con sé una bolla d\'aria per respirare.');
+      if(ali) add(nt, 'Gli insetti sono gli unici invertebrati capaci di volare.');
+      if(o.ripr === 'vivi') add(ex, 'Quasi tutti gli insetti depongono uova, ma gli afidi in primavera partoriscono piccoli vivi.');
+      break;
+    case 'aracnidi':
+      if(R === 'branchie') add(no, 'Gli aracnidi respirano con «polmoni a libro» e trachee; solo il limulo, un loro parente marino, ha branchie.');
+      if(R === 'polmoni') add(nt, 'Ragni e scorpioni respirano con i «polmoni a libro», fatti di tante lamelle come le pagine di un libro.');
+      if(ali) add(no, 'Gli aracnidi non hanno mai le ali.');
+      if(o.ripr === 'vivi') add(ex, 'Come lo scorpione, che partorisce piccoli vivi e li porta sulla schiena.');
+      if(o.amb === 'dolce') add(ex, 'Come l\'argironeta, il ragno palombaro, che vive sott\'acqua dentro una bolla d\'aria.');
+      if(o.amb === 'mare') add(ex, 'In mare vivono solo alcuni acari piccolissimi.');
+      break;
+    case 'crostacei':
+      if(o.amb === 'terra') add(ex, 'Come il porcellino di terra: un crostaceo che vive sulla terra, ma solo in posti umidi, perché le sue branchie devono restare bagnate.');
+      if(ali) add(no, 'I crostacei non hanno le ali.');
+      if(o.ripr === 'vivi') add(ex, 'Molti crostacei tengono le uova attaccate al corpo; il porcellino di terra le cova in una tasca, da cui escono piccoli già formati.');
+      break;
+    case 'miriapodi':
+      if(R === 'polmoni') add(no, 'I miriapodi respirano con le trachee, non con i polmoni.');
+      if(ali) add(no, 'I miriapodi non hanno le ali.');
+      if(acqua) add(no, 'I miriapodi vivono sulla terra, in posti umidi: sott\'acqua non respirano.');
+      break;
+    default:
+      if(C === 'eso') add(no, 'Gli artropodi hanno almeno 6 zampe articolate: gli insetti 6, gli aracnidi 8, crostacei e miriapodi ancora di più.');
+  }
+  return no.length ? {ok:false, g:null, cand, no, ex:[], nt:[]} : {ok:true, g, cand:g, no, ex, nt};
+}
+function goodWhy(g, o){
+  return ({
+    uccelli:'ha penne e piume, che hanno solo gli uccelli, e 2 ali',
+    mammiferi:'ha i peli e la temperatura costante (e i mammiferi allattano i piccoli)',
+    rettili:'ha le squame asciutte e respira con i polmoni',
+    pesci:'ha le squame, vive in acqua e respira con le branchie',
+    anfibi:'ha la pelle nuda e umida e lo scheletro interno',
+    insetti:'ha l\'esoscheletro e 6 zampe articolate',
+    aracnidi:'ha l\'esoscheletro e 8 zampe articolate',
+    crostacei:'ha l\'esoscheletro, tante zampe articolate e respira con le branchie',
+    miriapodi:'ha l\'esoscheletro, tantissime zampe e respira con le trachee',
+    molluschi: o.cop === 'conchiglia' ? 'ha il corpo molle, senza zampe, protetto da una conchiglia' : 'ha il corpo molle, senza scheletro e senza zampe',
+    anellidi:'ha il corpo molle, senza zampe, e respira attraverso la pelle umida, come un verme'
+  })[g];
+}
+function invText(r, o){
+  if(!r.ok) return `<b>Non può esistere.</b> ${r.no.slice(0, 3).join(' ')}`;
+  return `<b>Sarebbe ${GR[r.g].s}</b> (${VERT_G.includes(r.g) ? 'vertebrati' : 'invertebrati'}): ${goodWhy(r.g, o)}.` + (r.ex.length ? ` <b>Eccezione vera:</b> ${r.ex.join(' ')}` : '') + (r.nt.length ? ' ' + r.nt.join(' ') : '');
+}
+const CPAL = {piume:['#F6C744','#D9A21E'], peli:['#C98B4E','#9C6A38'], squame:['#7CB342','#5E8C2A'], pelle:['#5FC9A0','#3FA27C'], conchiglia:['#EBC9A0','#C99A6A'], eso:['#8E6AD8','#6A4CB0']};
+const WAVE = y => `M0 ${y}q10-5 20 0t20 0t20 0t20 0t20 0t20 0t20 0t20 0`;
+/* l'animaletto inventato, fatto dei pezzi scelti (viewBox 160 × 130) */
+function creatureSVG(o){
+  const [c, dk] = CPAL[o.cop], z = o.zampe === 'molte' ? 14 : +o.zampe, ali = o.ali === 'si', acqua = o.amb === 'dolce' || o.amb === 'mare';
+  const fx = o.cop === 'conchiglia' ? 70 : 80, mirror = s => s + `<g transform="translate(160 0) scale(-1 1)">${s}</g>`;
+  /* ambiente */
+  let s = '<rect width="160" height="130" fill="#E6F4FF" stroke="none"/>';
+  if(o.amb === 'terra') s += '<path d="M0 106Q80 96 160 106V130H0z" fill="#A5D46A" stroke="none"/><path d="M14 112l3-7 3 7M128 114l3-7 3 7M144 110l2-6 3 6" fill="none" stroke="#5E9A33" stroke-width="1.6"/>';
+  else if(o.amb === 'dolce') s += `<rect y="14" width="160" height="116" fill="#CDEFFC" stroke="none"/><path d="${WAVE(14)}" fill="none" stroke="#5DADE2"/><path d="M8 130V86M14 130V94M152 130V82" fill="none" stroke="#5E9A33" stroke-width="2.4"/><ellipse cx="8" cy="82" rx="2.6" ry="7" fill="#8B5E3C" stroke="none"/><ellipse cx="152" cy="78" rx="2.6" ry="7" fill="#8B5E3C" stroke="none"/>`;
+  else if(o.amb === 'mare') s += `<rect y="12" width="160" height="118" fill="#A9DAF2" stroke="none"/><path d="${WAVE(12)}" fill="none" stroke="#3E8FC9"/><path d="M0 118Q80 110 160 118V130H0z" fill="#E8D5A8" stroke="none"/>`;
+  else s += '<path d="M0 104Q40 98 76 106V130H0z" fill="#A5D46A" stroke="none"/><path d="M76 106Q120 98 160 102V130H76z" fill="#9ED3F0" stroke="none"/><path d="M84 114q8-4 16 0t16 0t16 0t16 0" fill="none" stroke="#5DADE2" stroke-width="1.5"/>';
+  if(o.resp === 'branchie' && acqua) s += '<circle cx="122" cy="34" r="3" fill="none" stroke="#5DADE2"/><circle cx="128" cy="24" r="2" fill="none" stroke="#5DADE2"/>';
+  /* dietro il corpo: ali, orecchie, coda, antenne, zampe */
+  if(ali){
+    if(o.cop === 'piume') s += mirror(`<path d="M58 60Q30 38 12 50Q22 56 20 63Q32 61 34 69Q44 64 58 72z" fill="${dk}"/><path d="M24 54q8 2 12 8M32 50q8 4 12 10" fill="none" stroke="#fff" stroke-width="1.5" opacity=".7"/>`);
+    else if(o.cop === 'eso') s += mirror('<ellipse cx="36" cy="44" rx="26" ry="10" fill="#DDF1FF" opacity=".9" transform="rotate(-24 36 44)"/><ellipse cx="38" cy="60" rx="20" ry="8" fill="#DDF1FF" opacity=".9" transform="rotate(10 38 60)"/>');
+    else s += mirror(`<path d="M58 58Q36 34 8 42Q14 50 12 60Q20 55 26 62Q32 57 38 66Q46 59 58 66z" fill="${o.cop === 'peli' ? '#5E5670' : dk}"/>`);
+  }
+  if(o.cop === 'peli') s += `<circle cx="58" cy="44" r="9" fill="${c}"/><circle cx="102" cy="44" r="9" fill="${c}"/><circle cx="58" cy="44" r="4.5" fill="#F7B2C0" stroke="none"/><circle cx="102" cy="44" r="4.5" fill="#F7B2C0" stroke="none"/>`;
+  if(o.cop === 'eso') s += `<path d="M72 42Q66 24 56 18M88 42Q94 24 104 18" fill="none" stroke-width="2.2"/><circle cx="56" cy="18" r="2.4" fill="${dk}"/><circle cx="104" cy="18" r="2.4" fill="${dk}"/>`;
+  if(o.cop === 'conchiglia') s += `<path d="M64 42l-5-11M74 40l1-12" fill="none" stroke="${dk}" stroke-width="3"/><circle cx="59" cy="31" r="2.6" fill="${dk}"/><circle cx="75" cy="28" r="2.6" fill="${dk}"/>`;
+  if(z === 0 && acqua) s += `<path d="M108 66L140 48Q132 66 140 84z" fill="${dk}"/>`;
+  else if(o.cop === 'piume') s += `<path d="M108 60L138 50L134 62L140 70L108 72z" fill="${dk}"/>`;
+  else if(o.cop === 'peli') s += dup('M110 74Q134 74 130 52', 5, c);
+  else if(o.cop === 'squame' || o.cop === 'pelle') s += `<path d="M108 66Q130 70 146 88Q126 84 106 80z" fill="${c}"/>`;
+  const xs = z === 0 ? [] : z === 2 ? [66, 94] : z === 4 ? [54, 70, 90, 106] : Array.from({length:z}, (_, i)=>48 + i*64/(z - 1));
+  xs.forEach(x=>{ const sd = x < 80 ? -1 : 1;
+    if(o.cop === 'eso' || (o.sch === 'est' && o.cop !== 'conchiglia')) s += `<path d="M${f1(x)} 84l${sd*7} 9l${-sd*2} 11" fill="none" stroke="#2E3047" stroke-width="2.6"/>`;
+    else if(o.sch === 'int') s += dup(`M${f1(x)} 84V104`, 6, dk) + `<ellipse cx="${f1(x + sd*2)}" cy="105" rx="6" ry="3.2" fill="${dk}"/>`;
+    else s += dup(`M${f1(x)} 84q${sd*5} 10 0 20`, 4.5, c);
+  });
+  /* corpo */
+  s += `<ellipse cx="80" cy="66" rx="34" ry="28" fill="${c}" stroke-width="${o.sch === 'est' || o.cop === 'eso' ? 4 : 2}"/>`;
+  if(o.cop === 'piume') s += `<path d="M60 80q5 5 10 0q5 5 10 0q5 5 10 0q5 5 10 0M64 88q4 4 8 0q4 4 8 0q4 4 8 0q4 4 8 0" fill="none" stroke="${dk}" stroke-width="1.6"/><path d="M76 40Q72 28 80 26Q78 32 84 30Q82 36 84 40z" fill="${dk}"/>`;
+  if(o.cop === 'peli') s += `<path d="M68 40l4-7 4 6 4-8 4 8 4-6 4 7" fill="${c}"/><ellipse cx="80" cy="82" rx="17" ry="9" fill="#F1D9B5" stroke="none"/>`;
+  if(o.cop === 'squame') s += `<path d="M64 42l4-6 4 5 4-6 4 6 4-5 4 6" fill="${dk}"/><path d="${[76, 84].map(y=>rep(5, i=>`M${60 + i*8} ${y}q4 4 8 0`)).join('')}" fill="none" stroke="${dk}" stroke-width="1.4"/>`;
+  if(o.cop === 'pelle') s += `<ellipse cx="66" cy="50" rx="8" ry="4" fill="#fff" opacity=".55" stroke="none" transform="rotate(-25 66 50)"/><circle cx="98" cy="80" r="3" fill="${dk}" stroke="none"/><circle cx="62" cy="82" r="2.4" fill="${dk}" stroke="none"/>`;
+  if(o.cop === 'eso') s += `<path d="M50 74Q80 82 110 74M54 85Q80 92 106 85" fill="none" stroke="${dk}" stroke-width="2.4"/><ellipse cx="68" cy="48" rx="9" ry="4" fill="#fff" opacity=".35" stroke="none"/>`;
+  if(o.sch === 'int') s += rep(7, i=>{ const a = Math.PI*(1.2 + i*.1); return `<circle cx="${f1(80 + 27*Math.cos(a))}" cy="${f1(66 + 21*Math.sin(a))}" r="2" fill="#fff" opacity=".75" stroke="none"/>`; });
+  if(o.cop === 'conchiglia') s += '<circle cx="110" cy="44" r="21" fill="#E59447"/><path d="M110 44m-3 0a3 3 0 1 1 6 0a7 7 0 1 1-14 0a11 11 0 1 1 22 0a15 15 0 1 1-30 0" fill="none" stroke="#A85E22" stroke-width="2"/>';
+  /* respirazione */
+  if(o.resp === 'branchie') s += mirror('<path d="M50 54q-10-6-15-2M48 61q-12 0-15 4M50 68q-10 6-12 11" fill="none" stroke="#E0566B" stroke-width="3.4"/>');
+  if(o.resp === 'trachee') s += rep(5, i=>`<circle cx="${62 + i*9}" cy="79" r="1.7" fill="#2E3047" stroke="none"/>`);
+  if(o.resp === 'polmoni') s += `<path d="M${fx - 2} 76q-11-1-11 9q1 6 9 4z" fill="#FF8FA3" opacity=".5" stroke="none"/><path d="M${fx + 2} 76q11-1 11 9q-1 6-9 4z" fill="#FF8FA3" opacity=".5" stroke="none"/>`;
+  if(o.resp === 'pelle' || o.cop === 'pelle') s += '<path d="M124 42q4 6 0 8q-4-2 0-8zM34 46q3 5 0 7q-3-2 0-7z" fill="#7FC4E8"/>';
+  /* faccia */
+  s += EW(fx - 10, 57, 4.2) + EW(fx + 10, 57, 4.2) + CK(fx - 18, 67) + CK(fx + 18, 67);
+  if(o.cop === 'piume') s += `<path d="M${fx - 6} 65L${fx} 74L${fx + 6} 65z" fill="#F2A93B"/>`;
+  else if(o.cop === 'peli') s += `<ellipse cx="${fx}" cy="70" rx="8" ry="5.5" fill="#F1D9B5"/><ellipse cx="${fx}" cy="67.5" rx="3" ry="2" fill="#2E3047"/><path d="M${fx - 3} 72q3 2 6 0" fill="none" stroke-width="1.4"/>`;
+  else if(o.cop === 'eso') s += `<path d="M${fx - 4} 68l-2 5M${fx + 4} 68l2 5" fill="none" stroke-width="2"/>`;
+  else s += `<path d="M${fx - 5} 68q5 5 10 0" fill="none" stroke-width="1.8"/>`;
+  /* temperatura e riproduzione */
+  const tc = o.temp === 'cost' ? '#E5483B' : '#2F6FDB', cost = o.temp === 'cost';
+  s += `<rect x="10" y="8" width="9" height="26" rx="4.5" fill="#fff"/><rect x="12.5" y="${cost ? 12 : 24}" width="4" height="${cost ? 20 : 8}" rx="2" fill="${tc}" stroke="none"/><circle cx="14.5" cy="36" r="6" fill="${tc}"/><text x="24" y="20" font-size="8" font-weight="800" fill="${tc}" stroke="none" style="font-family:Nunito,system-ui,sans-serif">${cost ? 'costante' : 'variabile'}</text>`;
+  if(o.ripr === 'uova') s += '<ellipse cx="138" cy="20" rx="6" ry="8" fill="#FFF6E0"/><ellipse cx="150" cy="24" rx="5" ry="7" fill="#FFF6E0"/>';
+  else s += `<path d="M124 14l3 3 3-3q0-3-3-1q-3-2-3 1z" fill="#FF6B8A" stroke="none"/><ellipse cx="144" cy="24" rx="11" ry="9" fill="${c}"/>${E(140, 22, 1.8)}${E(148, 22, 1.8)}<path d="M142 27q2 2 4 0" fill="none" stroke-width="1.2"/>`;
+  return `<svg class="aimg" viewBox="0 0 160 130" aria-hidden="true"><g stroke="#2E3047" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">${s}</g></svg>`;
+}
+const CPRE = {piume:'Piumo', peli:'Pelo', squame:'Squamo', pelle:'Molle', conchiglia:'Guscio', eso:'Corazza'};
+const CSUF = {'0':'striscio', '2':'passo', '4':'trotto', '6':'zampetto', '8':'ragnetto', molte:'millepasso'};
+const creatureName = o => CPRE[o.cop] + (o.ali === 'si' ? 'volo' : CSUF[o.zampe]);
+const idRows = o => TRAITS.map(([k, tt])=>`<li><b>${tt}:</b> ${TRV[k][o[k]]}</li>`).join('');
+const invShort = o => `${TRV.cop[o.cop]}, ${TRV.resp[o.resp]}, ${o.zampe === '0' ? 'senza zampe' : TRV.zampe[o.zampe] + ' zampe'}${o.ali === 'si' ? ', ali' : ''}, ${TRV.amb[o.amb]}`;
+/* animali inventati per la sfida a squadre: lv = livello minimo (la risposta la calcola sempre classify) */
+const mk = (cop, resp, sch, temp, ripr, zampe, ali, amb) => ({cop, resp, sch, temp, ripr, zampe, ali, amb});
+const CREAT = [
+  {lv:1, o:mk('piume','polmoni','int','cost','uova','2','si','terra')},
+  {lv:1, o:mk('peli','polmoni','int','cost','vivi','4','no','terra')},
+  {lv:1, o:mk('squame','branchie','int','var','uova','0','no','mare')},
+  {lv:1, o:mk('eso','trachee','est','var','uova','6','si','terra')},
+  {lv:1, o:mk('squame','polmoni','int','var','uova','4','no','terra')},
+  {lv:1, o:mk('piume','branchie','int','cost','uova','2','si','mare')},
+  {lv:1, o:mk('squame','branchie','int','var','uova','0','no','terra')},
+  {lv:2, o:mk('pelle','polmoni','int','var','uova','4','no','anfibio')},
+  {lv:2, o:mk('eso','trachee','est','var','uova','8','no','terra')},
+  {lv:2, o:mk('conchiglia','branchie','no','var','uova','0','no','mare')},
+  {lv:2, o:mk('eso','branchie','est','var','uova','molte','no','mare')},
+  {lv:2, o:mk('peli','polmoni','int','var','vivi','4','no','terra')},
+  {lv:2, o:mk('peli','polmoni','int','cost','vivi','6','no','terra')},
+  {lv:2, o:mk('peli','branchie','int','cost','vivi','4','no','mare')},
+  {lv:3, o:mk('peli','polmoni','int','cost','vivi','2','si','terra')},
+  {lv:3, o:mk('peli','polmoni','int','cost','vivi','0','no','mare')},
+  {lv:3, o:mk('piume','polmoni','int','cost','uova','2','si','mare')},
+  {lv:3, o:mk('squame','polmoni','int','var','uova','0','no','terra')},
+  {lv:3, o:mk('eso','trachee','est','var','uova','molte','no','terra')},
+  {lv:3, o:mk('squame','polmoni','int','var','uova','4','si','terra')},
+  {lv:3, o:mk('piume','polmoni','int','cost','uova','4','si','terra')},
+  {lv:3, o:mk('conchiglia','polmoni','int','var','uova','4','no','terra')},
+  {lv:4, o:mk('peli','polmoni','int','cost','uova','4','no','dolce')},
+  {lv:4, o:mk('peli','polmoni','int','cost','vivi','4','si','terra')},
+  {lv:4, o:mk('eso','polmoni','est','var','uova','6','si','terra')},
+  {lv:4, o:mk('conchiglia','polmoni','no','var','uova','4','no','terra')},
+  {lv:4, o:mk('eso','branchie','est','var','uova','molte','no','terra')},
+  {lv:4, o:mk('squame','branchie','int','cost','uova','0','no','mare')},
+  {lv:4, o:mk('eso','trachee','int','var','uova','6','si','terra')},
+  {lv:5, o:mk('pelle','branchie','int','var','uova','4','no','dolce')},
+  {lv:5, o:mk('squame','polmoni','int','var','vivi','0','no','terra')},
+  {lv:5, o:mk('eso','polmoni','est','var','vivi','8','no','terra')},
+  {lv:5, o:mk('pelle','trachee','int','var','uova','4','no','terra')},
+  {lv:5, o:mk('eso','trachee','est','var','uova','8','si','terra')},
+  {lv:5, o:mk('peli','polmoni','int','cost','vivi','0','no','terra')},
+  {lv:5, o:mk('pelle','polmoni','no','var','uova','0','no','terra')},
+  {lv:5, o:mk('pelle','pelle','no','var','uova','0','no','terra')}
+];
+const PLAUS = {uccelli:['mammiferi','rettili'], mammiferi:['uccelli','rettili'], rettili:['anfibi','pesci'], anfibi:['rettili','pesci'], pesci:['anfibi','mammiferi'], insetti:['aracnidi','crostacei'], aracnidi:['insetti','miriapodi'], crostacei:['insetti','miriapodi'], miriapodi:['insetti','aracnidi'], molluschi:['anellidi','crostacei'], anellidi:['molluschi','nematodi']};
+/* 4 risposte: la giusta, 2 plausibili (con «non può esistere» se c'è un'eccezione vera), 1 lontana (dall'altro ramo) */
+function invOptions(r){
+  const right = r.ok ? r.g : 'nope';
+  let pl;
+  if(r.ok){ pl = PLAUS[r.g].slice(); if(r.ex.length) pl[1] = 'nope'; }
+  else pl = [r.cand, PLAUS[r.cand][0]];
+  const far = pick((VERT_G.includes(r.cand) ? INV_G : VERT_G).filter(g=>g !== right && !pl.includes(g)));
+  return shuffle([right, ...pl, far]);
+}
+function makeInvent(lv, used){
+  used = used || new Set();
+  let idx = CREAT.map((c, i)=>i).filter(i=>CREAT[i].lv <= lv && CREAT[i].lv >= Math.max(1, lv - 1) && !used.has('i' + i));
+  if(!idx.length) idx = CREAT.map((c, i)=>i).filter(i=>CREAT[i].lv <= lv);
+  const i = pick(idx), o = CREAT[i].o, r = classify(o), right = r.ok ? r.g : 'nope'; used.add('i' + i);
+  const opts = invOptions(r).map(g=>({t: g === 'nope' ? 'Non può esistere' : GR[g].n, ok: g === right, col: g === 'nope' ? '#6B7385' : GR[g].col}));
+  return {kind:'choice', lv, o, pic: () => `<div class="cinv"><div class="acard cinvp">${creatureSVG(o)}<span class="nm">${creatureName(o)}</span></div><ul class="cid">${idRows(o)}</ul></div>`,
+    q:'A quale gruppo apparterrebbe questo animale inventato?<small>Oppure in natura non può esistere?</small>', opts, x: invText(r, o),
+    topic: r.ok ? GR[r.g].n : 'Animali impossibili', qplain: `Animale inventato (${invShort(o)}): a che gruppo apparterrebbe?`, a: r.ok ? GR[r.g].n : 'Non può esistere',
+    time: lv <= 2 ? 35 : 30, mini: `<div class="acard">${creatureSVG(o)}</div>`, hint:'Guarda bene le caratteristiche dell\'animale inventato, poi scegli.'};
+}
+/* esempi del laboratorio */
+const LAB_EX = [
+  ['Ornitorinco', mk('peli','polmoni','int','cost','uova','4','no','dolce')],
+  ['Pipistrello', mk('peli','polmoni','int','cost','vivi','2','si','terra')],
+  ['Pinguino', mk('piume','polmoni','int','cost','uova','2','si','mare')],
+  ['Delfino', mk('peli','polmoni','int','cost','vivi','0','no','mare')],
+  ['Serpente', mk('squame','polmoni','int','var','uova','0','no','terra')],
+  ['Proteo', mk('pelle','branchie','int','var','uova','4','no','dolce')],
+  ['Ragno', mk('eso','polmoni','est','var','uova','8','no','terra')],
+  ['Chiocciola', mk('conchiglia','polmoni','no','var','uova','0','no','terra')],
+  ['Porcellino di terra', mk('eso','branchie','est','var','uova','molte','no','terra')],
+  ['Penne e branchie?', mk('piume','branchie','int','cost','uova','2','si','mare')],
+  ['Pegaso?', mk('peli','polmoni','int','cost','vivi','4','si','terra')],
+  ['Insetto con le ossa?', mk('eso','trachee','int','var','uova','6','si','terra')]
+];
+
 /* ---------- impostazioni ---------- */
 const P = {mode:'smista', topics:['cla'], level:'1', len:2, nteams:2, screen:'touch', layout:'side', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
-try{ const s = JSON.parse(localStorage.getItem('zoo-prefs') || '{}'); Object.keys(P).forEach(k=>{ if(s[k] !== undefined && typeof s[k] === typeof P[k] && Array.isArray(s[k]) === Array.isArray(P[k])) P[k] = s[k]; }); P.topics = P.topics.filter(t=>TOPICS[t]); if(!P.topics.length) P.topics = ['cla']; }catch(e){}
+try{ const s = JSON.parse(localStorage.getItem('zoo-prefs') || '{}'); Object.keys(P).forEach(k=>{ if(s[k] !== undefined && typeof s[k] === typeof P[k] && Array.isArray(s[k]) === Array.isArray(P[k])) P[k] = s[k]; }); P.topics = P.topics.filter(t=>TOPIC_ORDER.includes(t)); if(!P.topics.length) P.topics = ['cla']; }catch(e){}
 const save = ()=>{ try{ localStorage.setItem('zoo-prefs', JSON.stringify(P)); }catch(e){} };
 const MODES = [
   ['smista','🧺','Smistamento','Trascina gli animali nel recinto giusto, tutti insieme e con più dita. Vince chi ne sistema di più prima che finisca il tempo.'],
   ['ident','🔎','Identikit','Compaiono gli indizi uno alla volta: indovina il gruppo prima dell\'altra squadra. Meno indizi usi, più punti prendi.'],
-  ['chiave','🗝️','Chiave dicotomica','Rispondi alle domande (sì o no, quante zampe…) fino ad arrivare al gruppo dell\'animale, come fanno gli scienziati.']
+  ['chiave','🗝️','Chiave dicotomica','Rispondi alle domande (sì o no, quante zampe…) fino ad arrivare al gruppo dell\'animale, come fanno gli scienziati.'],
+  ['catena','🌿','Catena alimentare','Metti in fila chi mangia chi, dalla pianta al superpredatore; poi i ruoli, le reti alimentari e «che cosa succede se…».'],
+  ['inventa','🧪','Inventa un animale','Il gioco inventa un animale con penne, branchie, zampe…: a che gruppo apparterrebbe? Oppure non può esistere?']
 ];
+const NEWM = m => m === 'catena' || m === 'inventa';   /* modalità a sfide, senza la scelta degli argomenti */
+const TL = () => NEWM(P.mode) ? [P.mode] : P.topics;
 const LEVELS = [['1','Base'],['2','Medio'],['3','Avanzato'],['4','Esperto'],['5','Campione'],['cresc','Crescente']];
-const LENS = {smista:[[1,'60 s'],[2,'90 s'],[3,'2 minuti']], ident:[[1,'5 animali'],[2,'8 animali'],[3,'12 animali']], chiave:[[1,'4 animali'],[2,'6 animali'],[3,'10 animali']]};
-const LENV = {smista:{1:60, 2:90, 3:120}, ident:{1:5, 2:8, 3:12}, chiave:{1:4, 2:6, 3:10}};
+const LENS = {smista:[[1,'60 s'],[2,'90 s'],[3,'2 minuti']], ident:[[1,'5 animali'],[2,'8 animali'],[3,'12 animali']], chiave:[[1,'4 animali'],[2,'6 animali'],[3,'10 animali']], catena:[[1,'4 sfide'],[2,'6 sfide'],[3,'10 sfide']], inventa:[[1,'5 animali'],[2,'8 animali'],[3,'12 animali']]};
+const LENV = {smista:{1:60, 2:90, 3:120}, ident:{1:5, 2:8, 3:12}, chiave:{1:4, 2:6, 3:10}, catena:{1:4, 2:6, 3:10}, inventa:{1:5, 2:8, 3:12}};
 function seg(id, key, items){
   const box = $(id);
   box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
@@ -592,8 +1282,23 @@ function renderSetup(){
   $('#rules').innerHTML = ({
     smista: lim ? 'Alla LIM le squadre giocano <b>a turno</b>, ognuna con il suo tempo: si trascina l\'animale nel recinto, oppure si tocca l\'animale e poi il recinto.' : 'Ogni squadra ha i suoi recinti: si trascina l\'animale nel recinto giusto (anche più animali insieme, con più dita), oppure si tocca l\'animale e poi il recinto. Se sbagli, l\'animale torna indietro con un suggerimento.',
     ident: lim ? 'Alla LIM si risponde <b>a turno</b>; se la squadra di turno sbaglia, l\'altra può rubare il punto con un indizio in più.' : 'Gli indizi sono uguali per tutti: risponde per prima la squadra più veloce. Chi sbaglia aspetta il prossimo animale.',
-    chiave: lim ? 'Alla LIM le squadre giocano <b>a turno</b>, un animale per una.' : 'Ogni squadra ha i suoi animali e risponde alle domande della chiave: 3 punti se non sbagli, 2 con un errore, 1 con più errori.'
-  })[P.mode] + ' Livelli: <b>Base</b> animali tipici; <b>Medio</b> anche meno noti; <b>Avanzato</b> anche i trabocchetti; <b>Esperto</b> quasi solo animali difficili; <b>Campione</b> difficili, più veloce e gli errori tolgono punti; <b>Crescente</b> si parte facile e si sale. Nessun dato viene salvato o inviato.';
+    chiave: lim ? 'Alla LIM le squadre giocano <b>a turno</b>, un animale per una.' : 'Ogni squadra ha i suoi animali e risponde alle domande della chiave: 3 punti se non sbagli, 2 con un errore, 1 con più errori.',
+    catena: lim ? 'Alla LIM le squadre giocano <b>a turno</b>, una sfida per una; nelle domande a scelta, se la squadra di turno sbaglia, l\'altra può rubare il punto.' : (P.nteams===1 ? 'La classe risolve una sfida alla volta e conferma la risposta.' : 'Le due squadre hanno la stessa sfida nella loro metà: chi conferma per prima la risposta giusta prende 3 punti, l\'altra 2 se ci arriva prima della fine del tempo. Una conferma sbagliata blocca la metà per un attimo.') + ' Dopo ogni sfida c\'è la spiegazione.',
+    inventa: lim ? 'Alla LIM le squadre rispondono <b>a turno</b>; se la squadra di turno sbaglia, l\'altra può rubare il punto.' : (P.nteams===1 ? 'La classe sceglie il gruppo di ogni animale inventato.' : 'Le due squadre vedono lo stesso animale inventato: chi risponde giusto per primo prende 3 punti, l\'altra 2. Ogni squadra ha una sola risposta.') + ' Dopo ogni animale c\'è la spiegazione, con le eccezioni vere.'
+  })[P.mode] + ({
+    catena: ' Livelli: <b>Base</b> catena di 3; <b>Medio</b> catena di 4; <b>Avanzato</b> catena con i ruoli (produttore, consumatori, decompositore); <b>Esperto</b> reti alimentari, «chi mangia chi?»; <b>Campione</b> «che cosa succede se…» e gli errori tolgono punti; <b>Crescente</b> dal Base al Campione.',
+    inventa: ' Livelli: <b>Base</b> animali tipici e combinazioni impossibili evidenti; <b>Medio</b> tutti i gruppi; <b>Avanzato</b> le prime eccezioni (pipistrello, delfino, serpente); <b>Esperto</b> e <b>Campione</b> eccezioni rare e impossibili nascosti (al Campione gli errori tolgono punti); <b>Crescente</b> si parte facile e si sale.'
+  }[P.mode] || ' Livelli: <b>Base</b> animali tipici; <b>Medio</b> anche meno noti; <b>Avanzato</b> anche i trabocchetti; <b>Esperto</b> quasi solo animali difficili; <b>Campione</b> difficili, più veloce e gli errori tolgono punti; <b>Crescente</b> si parte facile e si sale.') + ' Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
+  /* esempio iniziale per le nuove modalità */
+  $('#topicsF').classList.toggle('hide', NEWM(P.mode));
+  const EX1 = mk('piume','polmoni','int','cost','uova','2','si','terra');
+  $('#modeEx').innerHTML = P.mode === 'catena'
+    ? `<div class="ex">${miniChain(['erba','cavalletta','rana'])}<p><b>Esempio.</b> La cavalletta mangia l'erba e la rana mangia la cavalletta. La freccia va <b>da chi è mangiato a chi mangia</b>: segue il cammino dell'energia, che parte dal Sole e passa dalle piante agli animali. Trascina le carte nelle caselle (o tocca la carta e poi la casella) e premi <b>✓ Conferma</b>: se sbagli, la tua metà si blocca per un attimo.</p></div>`
+    : P.mode === 'inventa'
+    ? `<div class="ex"><div class="acard mini" style="width:130px">${creatureSVG(EX1)}<span class="nm">${creatureName(EX1)}</span></div><p><b>Esempio.</b> Penne, polmoni, 2 zampe, ali, uova, temperatura costante: è un <b>uccello</b>. E con le <b>branchie</b>? Non può esistere: nessun animale con le penne respira con le branchie, nemmeno il pinguino. Attenti alle eccezioni vere: il pipistrello vola ed è un mammifero, l'ornitorinco depone le uova!</p><button class="btn2" id="exLab">🧪 Prova il laboratorio</button></div>`
+    : '';
+  if($('#exLab')) $('#exLab').onclick = ()=>openLab('setup');
+  REG.field('#regField');
 }
 $('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
 $('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
@@ -612,13 +1317,13 @@ const ok = ()=>beep([660, 880], .07), no = ()=>beep([220, 180], .1);
 /* =====================================================================
    PARTITA
    ===================================================================== */
-const G = {ti:0, topic:'cla', teams:[], mist:[], ph:'', raf:0, t0:0, dur:0, timers:[], turn:0, R:null};
+const G = {ti:0, topic:'cla', teams:[], mist:[], ph:'', raf:0, t0:0, dur:0, timers:[], turn:0, R:null, C:null, items:[], rev:[]};   /* items: voci per il registro; rev: riepilogo delle sfide a scheda */
 const nm = t => t===1 ? P.n1 : P.n2;
 const ACT = () => P.nteams===1 ? [1] : [1,2];
 const LIM2 = () => P.screen==='lim' && P.nteams===2;
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
 function later(f, ms){ const id = setTimeout(f, ms); G.timers.push(id); return id; }
-function clearAll(){ G.timers.forEach(clearTimeout); G.timers = []; cancelAnimationFrame(G.raf); clearInterval(G.iv); drags.forEach(d=>d.g.remove()); drags.clear(); }
+function clearAll(){ G.timers.forEach(clearTimeout); G.timers = []; cancelAnimationFrame(G.raf); clearInterval(G.iv); drags.forEach(d=>d.g.remove()); drags.clear(); cdrags.forEach(d=>d.g.remove()); cdrags.clear(); }
 const lvlNum = t => P.level==='cresc' ? G.teams[t-1].lvl : +P.level;
 /* gli animali di un argomento, secondo il livello */
 function poolFor(topic, lv){
@@ -649,7 +1354,7 @@ function stopTimer(){ cancelAnimationFrame(G.raf); $('#clock').textContent = '';
 function start(){
   clearAll();
   P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
-  G.ti = 0; G.mist = [];
+  G.ti = 0; G.mist = []; G.items = []; G.rev = [];
   G.teams = ACT().map(()=>({score:0, ok:0, err:0, lvl:1}));
   $('#game').classList.toggle('table', P.layout==='table' && P.screen==='touch' && P.nteams===2);
   $('#h2').classList.toggle('hide', P.nteams===1);
@@ -660,27 +1365,29 @@ function start(){
 const HOWTO = {
   smista:'Trascina ogni animale nel recinto giusto, oppure tocca l\'animale e poi il recinto.',
   ident:'Leggi gli indizi e tocca il gruppo giusto: prima rispondi, più punti prendi.',
-  chiave:'Rispondi alle domande sull\'animale fino ad arrivare al suo gruppo.'
+  chiave:'Rispondi alle domande sull\'animale fino ad arrivare al suo gruppo.',
+  catena:'Metti in fila chi mangia chi, dalla base alla cima, e premi ✓ Conferma. La freccia va da chi è mangiato a chi mangia.',
+  inventa:'Guarda l\'animale inventato: a che gruppo apparterrebbe? Oppure in natura non può esistere?'
 };
 function startTopic(){
   clearAll();
-  G.topic = P.topics[G.ti];
+  G.topic = TL()[G.ti];
   ACT().forEach(t=>{ buildHalf(t); lock(t, ''); G.teams[t-1].tOk = 0; });
-  $('#topicL').innerHTML = `<small>Argomento ${G.ti + 1} di ${P.topics.length}</small>${TOPICS[G.topic].n}`;
+  $('#topicL').innerHTML = NEWM(P.mode) ? `<small>Modalità</small>${TOPICS[G.topic].n}` : `<small>Argomento ${G.ti + 1} di ${P.topics.length}</small>${TOPICS[G.topic].n}`;
   $('#info').innerHTML = `<small>Livello</small>${LEVELS.find(l=>l[0]===P.level)[1]}`;
   $('#next').classList.add('hide'); stopTimer();
   G.ph = 'intro';
   ACT().forEach(t=>banner(t, `${TOPICS[G.topic].n}<small>${MODES.find(m=>m[0]===P.mode)[2]}: ${HOWTO[P.mode]}</small>`));
-  ({smista:smistaInit, ident:identInit, chiave:keyInit})[P.mode]();
-  later(()=>{ unbanner(); ({smista:smistaGo, ident:identGo, chiave:keyGo})[P.mode](); }, 3800);
+  ({smista:smistaInit, ident:identInit, chiave:keyInit, catena:chInit, inventa:chInit})[P.mode]();
+  later(()=>{ unbanner(); ({smista:smistaGo, ident:identGo, chiave:keyGo, catena:chGo, inventa:chGo})[P.mode](); }, NEWM(P.mode) ? 5200 : 3800);
 }
 function endTopic(){
   clearAll(); stopTimer(); G.ph = 'res';
   ACT().forEach(t=>{ lock(t, ''); const T = G.teams[t-1]; banner(t, `${TOPICS[G.topic].n}<small>${T.tOk} risposte giuste · ${T.score} punti in tutto</small>`); });
   beep([523, 659, 784], .12);
-  $('#next').classList.remove('hide'); $('#next').textContent = G.ti + 1 < P.topics.length ? 'Argomento successivo' : 'Risultati';
+  $('#next').classList.remove('hide'); $('#next').textContent = G.ti + 1 < TL().length ? 'Argomento successivo' : 'Risultati';
 }
-$('#next').onclick = ()=>{ if(G.ph==='res'){ unbanner(); G.ti++; if(G.ti < P.topics.length) startTopic(); else finish(); } else if(G.ph==='reveal' && P.mode==='ident'){ identNext(); } };
+$('#next').onclick = ()=>{ if(G.ph==='res'){ unbanner(); G.ti++; if(G.ti < TL().length) startTopic(); else finish(); } else if(G.ph==='reveal' && P.mode==='ident'){ identNext(); } else if(G.ph==='reveal' && NEWM(P.mode)){ chNext(); } };
 $('#stop').onclick = ()=>{ clearAll(); finish(); };
 
 /* ---------- SMISTAMENTO ---------- */
@@ -688,7 +1395,7 @@ const drags = new Map();
 function smistaInit(){
   const gs = TOPICS[G.topic].groups, n = gs.length, cols = n <= 3 ? n : n === 4 ? 2 : n <= 6 ? 3 : 4;
   ACT().forEach(t=>{
-    const T = G.teams[t-1]; T.tray = [null, null, null]; T.recent = []; T.sel = null;
+    const T = G.teams[t-1]; T.tray = [null, null, null]; T.trayErr = [false, false, false]; T.recent = []; T.sel = null;
     $('#b'+t).classList.add('sm'); $('#b'+t).innerHTML = `<div class="tray" id="tr${t}">${[0,1,2].map(i=>`<div class="slot" data-slot="${i}"></div>`).join('')}</div><div class="pens" id="pn${t}" style="grid-template-columns:repeat(${cols},1fr)">${gs.map(g=>`<div class="pen" data-g="${g}" style="--pc:${GR[g].col}"><div class="pt">${GR[g].n}</div><div class="pin"></div><div class="pc">0</div></div>`).join('')}</div>`;
     hint(t, 'Trascina un animale nel recinto del suo gruppo.');
     $('#tr'+t).addEventListener('pointerdown', e=>trayDown(t, e));
@@ -716,7 +1423,7 @@ function spawn(t, slot){
   const T = G.teams[t-1], pool = poolFor(G.topic, lvlNum(t));
   const avoid = new Set(T.tray.filter(Boolean).concat(T.recent));
   let cand = pool.filter(k=>!avoid.has(k)); if(!cand.length) cand = pool.filter(k=>!T.tray.includes(k)); if(!cand.length) cand = pool;
-  const k = pick(cand); T.tray[slot] = k; T.recent.push(k); if(T.recent.length > Math.min(10, pool.length - 3)) T.recent.shift();
+  const k = pick(cand); T.tray[slot] = k; T.trayErr[slot] = false; T.recent.push(k); if(T.recent.length > Math.min(10, pool.length - 3)) T.recent.shift();
   const s = $(`#tr${t} .slot[data-slot="${slot}"]`); if(!s) return;
   s.innerHTML = cardHTML(k, '', ` data-slot="${slot}"`);
 }
@@ -753,6 +1460,8 @@ function dropOn(t, slot, pen){
   const a = A[k], right = TOPICS[G.topic].of(a), g = pen.dataset.g;
   pen.classList.remove('ok', 'no'); void pen.offsetWidth;
   if(g === right){
+    if(!T.trayErr[slot]) G.items.push({t:GR[right].n, l:lvlNum(t), ok:true});   /* registro: conta il primo tentativo */
+    T.trayErr[slot] = false;
     pen.classList.add('ok'); ok();
     const pts = a.d === 3 ? 2 : 1; addScore(t, pts); T.ok++; T.tOk++;
     const pin = pen.querySelector('.pin'); pin.insertAdjacentHTML('afterbegin', aSVG(k)); while(pin.children.length > 8) pin.lastElementChild.remove();
@@ -762,6 +1471,7 @@ function dropOn(t, slot, pen){
     T.tray[slot] = null; const s = $(`#tr${t} .slot[data-slot="${slot}"]`); if(s) s.innerHTML = '';
     later(()=>{ if(G.ph==='play' && (!LIM2() || G.turn===t)) spawn(t, slot); }, 250);
   } else {
+    if(!T.trayErr[slot]){ T.trayErr[slot] = true; G.items.push({t:GR[right].n, l:lvlNum(t), ok:false, q:`Dove va ${a.ar}${a.n}?`, a:GR[right].n}); }
     pen.classList.add('no'); no(); T.err++;
     if(+P.level===5) addScore(t, -1);
     mistake(t, k, g);
@@ -831,6 +1541,7 @@ function identAnswer(t, g, btn){
 function identReveal(winner, pts){
   const R = G.R; R.done = true; cancelAnimationFrame(G.raf); G.ph = 'reveal';
   const right = TOPICS[G.topic].of(R.a);
+  G.items.push({t:GR[right].n, l: P.level==='cresc' ? Math.min(5, 1 + Math.floor(R.i*5/R.list.length)) : +P.level, ok:!!winner, q:`A che gruppo appartiene ${R.a.ar}${R.a.n}?`, a:GR[right].n});
   ACT().forEach(t=>{ lock(t, ''); $('#mc'+t).className = 'acard mcard'; $('#mc'+t).innerHTML = aSVG(R.a.k) + `<span class="nm">${R.a.n}</span>`;
     $('#an'+t).querySelectorAll('.gbtn').forEach(b=>{ b.classList.toggle('right', b.dataset.g === right); b.classList.toggle('off', b.dataset.g !== right); });
     const who = winner === t ? `<b>Giusto! +${pts}</b> ` : winner ? `<b>Ha indovinato ${nm(winner)}.</b> ` : '<b>Nessuno ha indovinato.</b> ';
@@ -877,6 +1588,7 @@ function keyAnswer(t, i, btn){
     ok(); K.path.push([node.q, lab]);
     if(next.startsWith('G:')){
       K.busy = true; const pts = K.err === 0 ? 3 : K.err === 1 ? 2 : 1; addScore(t, pts); T.ok++; T.tOk++;
+      G.items.push({t:GR[target].n, l: P.level==='cresc' ? Math.min(5, 1 + Math.floor(K.i*5/K.list.length)) : +P.level, ok:K.err === 0, q:`Chiave dicotomica: a che gruppo appartiene ${a.ar}${a.n}?`, a:GR[target].n});
       $('#kp'+t).innerHTML = K.path.map(([q, ans])=>`<div class="kstep">${q} <b>${ans}</b></div>`).join('');
       $('#kq'+t).innerHTML = `<small>Arrivato!</small><span style="color:${GR[target].col}">${GR[target].n}</span>`; $('#ka'+t).innerHTML = '';
       hint(t, `<b>+${pts}</b> ${explain(a, G.topic)}`, 'ok');
@@ -891,14 +1603,189 @@ function keyAnswer(t, i, btn){
   }
 }
 
+/* ---------- SFIDE A SCHEDA: CATENA ALIMENTARE e ANIMALI INVENTATI ----------
+   G.C = {i, n, ch (sfida corrente), st[t] (stato di ogni squadra), done, used, first (chi ha risolto per primo), stolen (rubapunto alla LIM), turn}
+   Sfida 'order': carte da mettere nelle caselle, poi «✓ Conferma» (niente convalida automatica); conferma sbagliata = blocco di 2,5 s.
+   Sfida 'choice': 4 risposte, ogni squadra risponde una volta sola. Primo giusto 3 punti, secondo 2. */
+const cdrags = new Map();
+const chLevel = i => P.level==='cresc' ? Math.min(5, 1 + Math.floor(i*5/G.C.n)) : +P.level;
+function chInit(){
+  G.C = {i:-1, n:LENV[P.mode][P.len], ch:null, st:{}, done:true, used:new Set(), first:0, stolen:false, turn:0};
+  ACT().forEach(t=>{ const b = $('#b'+t); b.innerHTML = `<div class="kdone">${P.mode === 'catena' ? '🌿 → 🐛 → 🐦' : '🧪'}</div>`; b.addEventListener('pointerdown', e=>chDown(t, e)); hint(t, HOWTO[P.mode]); });
+}
+function chGo(){ G.ph = 'play'; chNext(); }
+function chNext(){
+  clearAll(); const C = G.C; C.i++;
+  if(C.i >= C.n){ endTopic(); return; }
+  const lv = chLevel(C.i);
+  C.ch = P.mode === 'catena' ? makeChain(lv, C.used) : makeInvent(lv, C.used);
+  C.done = false; C.first = 0; C.stolen = false; C.turn = LIM2() ? (C.i % 2 === 0 ? 1 : 2) : 0;
+  G.ph = 'play'; $('#next').classList.add('hide');
+  $('#info').innerHTML = `<small>Sfida ${C.i + 1} di ${C.n}</small>${LEVELS[lv - 1][1]}`;
+  ACT().forEach(t=>{ C.st[t] = {done:false, ok:false, block:0, msg:'', sel:null, slots: C.ch.kind === 'order' ? C.ch.sol.map(()=>null) : null, tray: C.ch.kind === 'order' ? C.ch.tray.slice() : null}; chRender(t); hint(t, C.ch.hint); });
+  chLocks();
+  startTimer(Math.round(C.ch.time*(+P.level === 5 ? .85 : 1)), chReveal);
+}
+function chCan(t){ const C = G.C, st = C && C.st[t]; return !!st && G.ph === 'play' && !C.done && !st.done && (!LIM2() || C.turn === t) && st.block <= performance.now(); }
+function chRender(t){
+  const C = G.C, ch = C.ch, b = $('#b'+t);
+  if(ch.kind === 'order'){
+    b.innerHTML = `<div class="cbox"><div class="cq">${ch.lead}</div><div class="ctray" id="ct${t}"></div><div class="crow" id="cr${t}"></div><div class="cact"><button class="cconf" id="cc${t}" disabled>✓ Conferma</button></div></div>`;
+    chDrawOrder(t);
+  } else {
+    b.innerHTML = `<div class="cbox"><div class="cpic">${ch.pic(t + '_' + C.i)}</div><div class="cq">${ch.q}</div><div class="cans${ch.long ? ' long' : ''}" id="ca${t}">${ch.opts.map((o, i)=>`<button class="gbtn${ch.long ? ' long' : ''}" data-i="${i}" style="--pc:${o.col || 'var(--tc)'}">${o.t}</button>`).join('')}</div></div>`;
+  }
+}
+function chDrawOrder(t){
+  const C = G.C, ch = C.ch, st = C.st[t], sel = st.sel, n = ch.sol.length;
+  const lifted = new Set([...cdrags.values()].filter(d=>d.t === t).map(d=>d.k));
+  const card = (k, s) => `<div class="acard ccard${sel && sel.k === k ? ' sel' : ''}${lifted.has(k) ? ' lift' : ''}" data-k="${k}"${s !== undefined ? ` data-s="${s}"` : ''}>${aSVG(FO[k].d)}<span class="nm">${cap(FO[k].n)}</span></div>`;
+  $('#ct'+t).innerHTML = st.tray.length ? st.tray.map(k=>card(k)).join('') : '<span class="cempty">Tutte le carte sono al loro posto: controllate e premete ✓ Conferma!</span>';
+  let row = '';
+  for(let i = 0; i < n; i++){
+    const isDec = ch.dec && i === n - 1, k = st.slots[i];
+    if(i > 0) row += isDec ? '<span class="carr">→<small>resti</small></span>' : '<span class="carr">→</span>';
+    row += `<div class="cslot${isDec ? ' dec' : ''}${sel && !k ? ' armed' : ''}" data-s="${i}"><span class="lab">${ch.labels[i]}</span>${k ? card(k, i) : '<span class="ph">?</span>'}</div>`;
+  }
+  $('#cr'+t).innerHTML = row;
+  $('#cc'+t).disabled = st.slots.some(x=>!x);
+}
+function chDown(t, e){
+  const C = G.C; if(!C || !C.ch || C.done) return;
+  if(C.ch.kind === 'choice'){ const btn = e.target.closest('.gbtn'); if(btn){ e.preventDefault(); chChoose(t, +btn.dataset.i, btn); } return; }
+  if(e.target.closest('.cconf')){ e.preventDefault(); chConfirm(t); return; }
+  if(!chCan(t)) return;
+  const st = C.st[t], card = e.target.closest('.ccard');
+  if(card){   /* un dito per carta: trascinamento con la copia «fantasma» */
+    e.preventDefault();
+    const k = card.dataset.k, from = card.dataset.s !== undefined ? {k, s:+card.dataset.s} : {k};
+    const r = card.getBoundingClientRect(), g = card.cloneNode(true);
+    g.classList.add('ghost'); g.classList.remove('sel'); g.style.width = r.width + 'px'; document.body.appendChild(g);
+    const d = {t, k, from, el:card, g, w:r.width, h:r.height, x0:e.clientX, y0:e.clientY, rot:$('#game').classList.contains('table') && t === 1, moved:false};
+    cdrags.set(e.pointerId, d); card.classList.add('lift'); moveGhost(d, e.clientX, e.clientY);
+    try{ card.setPointerCapture(e.pointerId); }catch(err){}
+    return;
+  }
+  const slot = e.target.closest('.cslot');
+  if(slot && st.sel){ e.preventDefault(); chPlace(t, st.sel, +slot.dataset.s); return; }
+  if(e.target.closest('.ctray') && st.sel && st.sel.s !== undefined){ e.preventDefault(); chToTray(t, st.sel.s); }
+}
+document.addEventListener('pointermove', e=>{ const d = cdrags.get(e.pointerId); if(!d) return; if(Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 10) d.moved = true; moveGhost(d, e.clientX, e.clientY); });
+function chUp(e){
+  const d = cdrags.get(e.pointerId); if(!d) return;
+  cdrags.delete(e.pointerId); d.g.remove(); d.el.classList.remove('lift');
+  const C = G.C;
+  if(!chCan(d.t)){ if(C && !C.done && C.ch.kind === 'order') chDrawOrder(d.t); return; }
+  const st = C.st[d.t];
+  if(!d.moved){   /* tocco: seleziona la carta, oppure mette la carta già scelta al posto di questa */
+    if(st.sel && d.from.s !== undefined && st.sel.k !== d.k){ chPlace(d.t, st.sel, d.from.s); return; }
+    st.sel = st.sel && st.sel.k === d.k ? null : d.from; chDrawOrder(d.t); return;
+  }
+  const el = document.elementFromPoint(e.clientX, e.clientY), h = $('#h'+d.t);
+  const slot = el && el.closest('.cslot'), tray = el && el.closest('.ctray');
+  if(slot && h.contains(slot)) chPlace(d.t, d.from, +slot.dataset.s);
+  else if(tray && h.contains(tray) && d.from.s !== undefined) chToTray(d.t, d.from.s);
+  else chDrawOrder(d.t);
+}
+document.addEventListener('pointerup', chUp);
+document.addEventListener('pointercancel', chUp);
+function chPlace(t, from, to){
+  const st = G.C.st[t];
+  if(from.s !== undefined){
+    if(st.slots[from.s] !== from.k){ st.sel = null; chDrawOrder(t); return; }   /* nel frattempo un altro dito l'ha spostata */
+    if(from.s !== to){ const x = st.slots[to]; st.slots[to] = from.k; st.slots[from.s] = x; }
+  } else {
+    const i = st.tray.indexOf(from.k); if(i < 0){ st.sel = null; chDrawOrder(t); return; }
+    const x = st.slots[to]; st.slots[to] = from.k;
+    if(x) st.tray[i] = x; else st.tray.splice(i, 1);
+  }
+  st.sel = null; chDrawOrder(t); beep([600], .05);
+}
+function chToTray(t, s){ const st = G.C.st[t]; if(st.slots[s]){ st.tray.push(st.slots[s]); st.slots[s] = null; } st.sel = null; chDrawOrder(t); }
+function chConfirm(t){
+  if(!chCan(t)) return;
+  const C = G.C, st = C.st[t], ch = C.ch;
+  if(st.slots.some(x=>!x)){ hint(t, 'Prima mettete tutte le carte nelle caselle.', 'no'); return; }
+  const good = st.slots.filter((k, i)=>k === ch.sol[i]).length;
+  if(good === ch.sol.length){ chWin(t); return; }
+  no(); G.teams[t-1].err++;
+  if(+P.level === 5) addScore(t, -1);
+  st.block = performance.now() + 2500; st.msg = `Non ancora: ${good} su ${ch.sol.length} al posto giusto`; st.sel = null;
+  hint(t, `<b>Non ancora:</b> ${good} ${good === 1 ? 'carta è' : 'carte sono'} al posto giusto su ${ch.sol.length}. ${ch.dec ? 'Ricordate: il decompositore va nella casella marrone.' : 'Partite da chi fa la fotosintesi.'}`, 'no');
+  chLocks();
+  later(()=>{ if(!C.done){ chLocks(); if(C.ch.kind === 'order') chDrawOrder(t); } }, 2600);
+}
+function chWin(t){
+  const C = G.C, st = C.st[t], T = G.teams[t-1], pts = (C.first || C.stolen) ? 2 : 3;
+  if(!C.first) C.first = t;
+  st.done = st.ok = true; addScore(t, pts); T.ok++; T.tOk++; ok();
+  hint(t, `<b>Giusto! +${pts}</b>${ACT().length > 1 && !LIM2() && pts === 3 ? ' Siete stati i primi!' : ''}`, 'ok');
+  if(LIM2() || ACT().every(x=>C.st[x].done)) later(chReveal, 700); else chLocks();
+}
+function chChoose(t, i, btn){
+  if(!chCan(t)) return;
+  const C = G.C, st = C.st[t], o = C.ch.opts[i], T = G.teams[t-1];
+  st.done = true;
+  if(o.ok){ btn.classList.add('right'); chWin(t); return; }
+  no(); T.err++;
+  if(+P.level === 5) addScore(t, -1);
+  btn.classList.remove('shake'); void btn.offsetWidth; btn.classList.add('shake');
+  $('#ca'+t).querySelectorAll('.gbtn').forEach(b=>b.classList.add('off'));
+  hint(t, '<b>No!</b> Aspettate la spiegazione.', 'no');
+  if(LIM2()){ const other = t === 1 ? 2 : 1;
+    if(!C.st[other].done){ C.turn = other; C.stolen = true; hint(other, `<b>Rubapunto!</b> ${nm(t)} ha sbagliato: tocca a voi.`); chLocks(); startTimer(15, chReveal); return; } }
+  if(ACT().every(x=>C.st[x].done)) later(chReveal, 700); else chLocks();
+}
+function chLocks(){
+  const C = G.C, now = performance.now();
+  ACT().forEach(t=>{ const st = C.st[t]; let m = '';
+    if(!C.done && st){
+      if(LIM2() && C.turn !== t) m = `Tocca a ${nm(C.turn)}…`;
+      else if(st.block > now) m = st.msg;
+      else if(st.done && ACT().length > 1 && !LIM2()) m = st.ok ? 'Fatto! Aspettate l\'altra squadra…' : 'Aspettate la spiegazione…';
+    }
+    lock(t, m);
+  });
+}
+function chSolution(t){
+  const ch = G.C.ch, b = $('#b'+t), box = b.querySelector('.cbox'); if(!box) return;
+  if(ch.kind === 'order'){
+    const n = ch.sol.length;
+    box.innerHTML = `<div class="cq">Ecco la soluzione</div><div class="crow sol">${ch.sol.map((k, i)=>{ const isDec = ch.dec && i === n - 1; return (i ? (isDec ? '<span class="carr">→<small>resti</small></span>' : '<span class="carr">→</span>') : '') + `<div class="cslot${isDec ? ' dec' : ''}"><span class="lab">${isDec ? 'Decompositore' : ROLES[i]}</span><div class="acard ccard">${aSVG(FO[k].d)}<span class="nm">${cap(FO[k].n)}</span></div></div>`; }).join('')}</div><div class="cexp">${ch.x}</div>`;
+  } else {
+    const bs = b.querySelectorAll('.gbtn');
+    ch.opts.forEach((o, i)=>{ if(bs[i]){ bs[i].classList.toggle('right', !!o.ok); bs[i].classList.toggle('off', !o.ok); } });
+    box.insertAdjacentHTML('beforeend', `<div class="cexp">${ch.x}</div>`);
+  }
+}
+function chReveal(){
+  const C = G.C; if(!C || C.done) return;
+  C.done = true; G.ph = 'reveal'; stopTimer();
+  cdrags.forEach(d=>d.g.remove()); cdrags.clear();
+  const ch = C.ch, anyOk = ACT().some(t=>C.st[t].ok);
+  ACT().forEach(t=>{ const st = C.st[t]; lock(t, ''); chSolution(t);
+    if(!st.ok) hint(t, st.done ? '<b>Peccato!</b> Leggete la spiegazione.' : anyOk ? `<b>Ha risolto ${nm(C.first)}.</b> Leggete la spiegazione.` : '<b>Tempo scaduto!</b> Ecco la soluzione.'); });
+  G.items.push({t:ch.topic, l:ch.lv, ok:anyOk, q:ch.qplain, a:ch.a});
+  G.rev.push({ok:anyOk, q:ch.qplain, a:ch.a, x:ch.x, mini:ch.mini || ''});
+  $('#next').classList.remove('hide'); $('#next').textContent = C.i + 1 < C.n ? 'Sfida successiva' : 'Fine delle sfide';
+  later(chNext, 18000);
+}
+
 /* ---------- fine ---------- */
 function finish(){
   clearAll(); G.ph = 'end';
   const sc = G.teams.map(T=>T.score);
   $('#res').textContent = P.nteams===1 ? (G.teams[0].err <= 2 ? 'Zoologi esperti!' : G.teams[0].err <= 6 ? 'Bravi, ottimo lavoro!' : 'Si può fare meglio: riprova!') : sc[0]===sc[1] ? 'Pareggio!' : `Vince ${sc[0] > sc[1] ? P.n1 : P.n2}!`;
   $('#finals').innerHTML = G.teams.map((T,i)=>`<div class="final t${i+1}"><h3>${nm(i+1)}</h3><div class="big">${T.score} punti</div><div>Risposte giuste: <b>${T.ok}</b> · errori: <b>${T.err}</b></div></div>`).join('');
-  $('#revT').textContent = G.mist.length ? 'Da ripassare' : 'Nessun errore: complimenti!';
-  $('#review').innerHTML = G.mist.map(m=>{ const a = A[m.k], g = TOPICS[m.topic].of(a); return `<div class="rv" style="--pc:${GR[g].col}">${cardHTML(m.k)}<div><b>${cap(a.n)}</b> <span class="tagg">${GR[g].n}</span><br>${explain(a, m.topic)}${m.chosen ? `<span class="was">Era stato messo tra: ${GR[m.chosen].n}</span>` : ''}</div></div>`; }).join('');
+  if(NEWM(P.mode)){   /* sfide a scheda: tutte le sfide con la spiegazione */
+    $('#revT').textContent = G.rev.length ? 'Riepilogo delle sfide' : 'Nessuna sfida giocata';
+    $('#review').innerHTML = G.rev.map(r=>`<div class="rv" style="--pc:${r.ok ? 'var(--ok)' : 'var(--bad)'}">${P.mode === 'inventa' ? r.mini : ''}<div><b>${r.ok ? '✓' : '✗'} ${r.q}</b><br>Risposta: <b>${r.a}</b><br>${r.x}${P.mode === 'catena' ? r.mini : ''}</div></div>`).join('');
+  } else {
+    $('#revT').textContent = G.mist.length ? 'Da ripassare' : 'Nessun errore: complimenti!';
+    $('#review').innerHTML = G.mist.map(m=>{ const a = A[m.k], g = TOPICS[m.topic].of(a); return `<div class="rv" style="--pc:${GR[g].col}">${cardHTML(m.k)}<div><b>${cap(a.n)}</b> <span class="tagg">${GR[g].n}</span><br>${explain(a, m.topic)}${m.chosen ? `<span class="was">Era stato messo tra: ${GR[m.chosen].n}</span>` : ''}</div></div>`; }).join('');
+  }
+  /* registro di classe e verifica formativa */
+  REG.report('#regBox', REG.save({gioco:'zoo', titolo:'Lo zoo della classificazione', modo:MODES.find(m=>m[0]===P.mode)[2], livello:LEVELS.find(l=>l[0]===P.level)[1], squadre:G.teams.map((T, i)=>({nome:nm(i + 1), punti:T.score})), items:G.items}));
   beep([523, 659, 784, 1047], .13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -924,12 +1811,38 @@ $('#modal').onclick = e=>{ if(e.target.id==='modal') $('#modal').classList.remov
 $('#toAlbum').onclick = openAlbum; $('#toAlbum2').onclick = openAlbum;
 $('#albBack').onclick = ()=>{ renderSetup(); show('setup'); };
 
+/* ---------- laboratorio: inventa un animale ---------- */
+const LAB = {o:mk('peli','polmoni','int','cost','vivi','4','no','terra'), from:'setup'};
+function openLab(from){ LAB.from = from || 'setup'; $('#modal').classList.remove('on'); show('lab'); renderLab(); }
+function renderLab(){
+  const o = LAB.o;
+  $('#labTraits').innerHTML = TRAITS.map(([k, tt, vs])=>`<div class="tr2"><span>${tt}</span><div class="chips sm">${vs.map(([v, l])=>`<button class="chip" data-k="${k}" data-v="${v}" aria-pressed="${o[k] === v}">${l}</button>`).join('')}</div></div>`).join('');
+  $('#labTraits').querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ LAB.o = Object.assign({}, LAB.o, {[b.dataset.k]: b.dataset.v}); renderLab(); });
+  $('#labPic').innerHTML = creatureSVG(o) + `<span class="nm">${creatureName(o)}</span>`;
+  const r = classify(o), box = $('#labRes');
+  box.style.setProperty('--pc', r.ok ? GR[r.g].col : 'var(--bad)');
+  box.innerHTML = r.ok
+    ? `<div><span class="tagg" style="--pc:${VERT_G.includes(r.g) ? GR.vert.col : GR.inv.col}">${VERT_G.includes(r.g) ? 'Vertebrati' : 'Invertebrati'}</span> › <span class="tagg" style="--pc:${GR[r.g].col}">${GR[r.g].n}</span></div><h3>Sarebbe ${GR[r.g].s}!</h3><p>Perché ${goodWhy(r.g, o)}.</p>${r.ex.length ? `<p><b>Eccezione vera:</b> ${r.ex.join(' ')}</p>` : ''}${r.nt.length ? `<p class="note">${r.nt.join(' ')}</p>` : ''}`
+    : `<h3>In natura non può esistere!</h3><ul>${r.no.map(s=>`<li>${s}</li>`).join('')}</ul><p class="note">Assomiglia a ${GR[r.cand].s}: prova a cambiare le caratteristiche che non vanno.</p>`;
+  $('#labEx').innerHTML = LAB_EX.map(([n], i)=>`<button class="chip" data-i="${i}">${n}</button>`).join('');
+  $('#labEx').querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ LAB.o = Object.assign({}, LAB_EX[+b.dataset.i][1]); renderLab(); });
+}
+$('#labRnd').onclick = ()=>{
+  if(Math.random() < .5) LAB.o = Object.assign({}, pick(CREAT).o);
+  else { const o = {}; TRAITS.forEach(([k, , vs])=>{ o[k] = pick(vs)[0]; }); LAB.o = o; }
+  renderLab();
+};
+$('#labPlay').onclick = ()=>{ P.mode = 'inventa'; save(); renderSetup(); show('setup'); };
+$('#labBack').onclick = ()=>{ if(LAB.from === 'album') openAlbum(); else { renderSetup(); show('setup'); } };
+$('#toLab').onclick = ()=>openLab('setup');
+$('#toLab2').onclick = ()=>openLab('album');
+
 document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on')) e.preventDefault(); });
 $('#go').onclick = start;
 $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 renderSetup();
-window.__zooTest = {A, GR, TOPICS, KEYTREE, leavesOf, poolFor, explain, G, P, aSVG, DRAW, KEYS};   // solo per le verifiche automatiche
+window.__zooTest = {A, GR, TOPICS, KEYTREE, leavesOf, poolFor, explain, G, P, aSVG, DRAW, KEYS, FO, CHAINS, WEBS, SCEN, CREAT, classify, makeChain, makeInvent, creatureSVG};   // solo per le verifiche automatiche
 })();
 </script>
 </body>

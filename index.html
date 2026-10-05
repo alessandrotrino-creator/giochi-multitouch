@@ -7,44 +7,69 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-/* launcher: stessa identità dei giochi, una tessera grande per gioco, facile da toccare sulla LIM */
+/* launcher: giochi raggruppati per categoria, tessere compatte da toccare, filtro in alto */
 :root{
   --bg:#EEF2F8; --surface:#FFFFFF; --surface-2:#F5F7FB; --ink:#18223A; --muted:#5E6A82; --line:#D5DDEA;
   --t1:#2F6FDB; --t1-soft:#E3ECFC; --t2:#E8801F; --t2-soft:#FDEEDD; --accent:#6A4CD8; --accent-soft:#ECE7FC;
+  --c-rip:#6A4CD8; --c-mat:#2F6FDB; --c-sci:#1F9D63;
   --font-title:'Baloo 2', 'Nunito', system-ui, sans-serif; --font-body:'Nunito', system-ui, sans-serif;
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
   --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
-  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --accent:#9A82F2; --accent-soft:#2A2350; color-scheme:dark;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --accent:#9A82F2; --accent-soft:#2A2350;
+  --c-rip:#9A82F2; --c-mat:#5B92F0; --c-sci:#39C685; color-scheme:dark;
 }}
 :root[data-theme="dark"]{
   --bg:#0F1524; --surface:#18203A; --surface-2:#1F2946; --ink:#EEF2FA; --muted:#A3AEC6; --line:#2E3A5C;
-  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --accent:#9A82F2; --accent-soft:#2A2350; color-scheme:dark;
+  --t1:#5B92F0; --t1-soft:#1D2E55; --t2:#F29A48; --t2-soft:#3C2A18; --accent:#9A82F2; --accent-soft:#2A2350;
+  --c-rip:#9A82F2; --c-mat:#5B92F0; --c-sci:#39C685; color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);min-height:100vh}
-.wrap{max-width:1100px;margin:0 auto;padding:32px 16px 48px;display:flex;flex-direction:column;gap:28px}
-header{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-header svg{width:64px;height:64px;flex:none}
-h1,h2{font-family:var(--font-title);margin:0;line-height:1.1;text-wrap:balance}
-h1{font-size:clamp(2rem,5vw,3rem)}
-header p{margin:4px 0 0;color:var(--muted);font-weight:700;font-size:1.1rem;max-width:62ch}
-.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.game{display:flex;flex-direction:column;gap:14px;background:var(--surface);border:2px solid var(--line);border-radius:24px;padding:22px;text-decoration:none;color:inherit;min-width:0;transition:transform .12s, border-color .12s, box-shadow .12s}
-.game:hover,.game:focus-visible{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 12px 28px rgba(20,30,60,.12);outline:none}
-.game .art{height:120px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(90deg,var(--t1-soft) 50%,var(--t2-soft) 50%)}
-.game h2{font-size:1.8rem}
-.game p{margin:0;line-height:1.5;color:var(--muted);font-weight:700}
-.tags{display:flex;flex-wrap:wrap;gap:6px}
-.tags span{font-size:.85rem;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
-.play{align-self:flex-start;margin-top:auto;font-family:var(--font-title);font-size:1.35rem;font-weight:800;background:var(--accent);color:#fff;border-radius:14px;padding:8px 26px}
-.soon{border:2px dashed var(--line);border-radius:24px;padding:18px 22px;color:var(--muted);font-weight:700;line-height:1.6}
-.soon b{color:var(--ink)}
-footer{color:var(--muted);font-size:.95rem;line-height:1.5}
-.mini-card{width:74px;height:52px;border-radius:10px;background:var(--surface);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-title);font-weight:800;font-size:1.2rem;color:var(--ink)}
+.wrap{max-width:1680px;margin:0 auto;padding:20px 16px 40px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--font-title);margin:0;line-height:1.1;text-wrap:balance}
+header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+header svg{width:52px;height:52px;flex:none}
+h1{font-size:clamp(1.8rem,3.4vw,2.6rem)}
+header p{margin:2px 0 0;color:var(--muted);font-weight:700;font-size:1rem}
+.regbtn{margin-left:auto;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);background:var(--surface);border:2px solid var(--accent);border-radius:18px;padding:8px 16px 8px 10px;font-weight:800;min-height:56px}
+.regbtn svg{width:36px;height:36px}
+.regbtn small{display:block;color:var(--muted);font-weight:700;font-size:.8rem}
+.regbtn:hover,.regbtn:focus-visible{box-shadow:0 8px 20px rgba(20,30,60,.12);outline:none}
+/* filtro */
+.filters{display:flex;flex-wrap:wrap;gap:10px;position:sticky;top:0;z-index:3;background:var(--bg);padding:6px 0}
+.filters button{font:inherit;font-weight:800;font-size:1.1rem;min-height:52px;padding:8px 20px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px}
+.filters button i{width:14px;height:14px;border-radius:50%;background:var(--c)}
+.filters button[aria-pressed="true"]{background:var(--c, var(--ink));border-color:var(--c, var(--ink));color:#fff}
+.filters button[aria-pressed="true"] i{background:#fff}
+.filters button span{font-size:.85rem;opacity:.8}
+/* sezioni */
+.sec{display:flex;flex-direction:column;gap:12px}
+.sec.hide{display:none}
+.sec h2{font-size:1.5rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sec h2::before{content:'';width:8px;height:1.1em;border-radius:4px;background:var(--c)}
+.sec h2 small{font-family:var(--font-body);font-size:.95rem;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.game{display:grid;grid-template-columns:118px 1fr;grid-template-rows:auto 1fr auto;column-gap:14px;row-gap:4px;background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px;text-decoration:none;color:inherit;min-width:0;position:relative;transition:transform .12s,border-color .12s,box-shadow .12s;border-top:6px solid var(--c)}
+.game:hover,.game:focus-visible{transform:translateY(-2px);border-color:var(--c);box-shadow:0 10px 24px rgba(20,30,60,.12);outline:none}
+.game:active{transform:translateY(1px)}
+.art{grid-row:1 / 4;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:4px;background:linear-gradient(90deg,var(--t1-soft) 50%,var(--t2-soft) 50%);min-height:118px;overflow:hidden}
+.art svg{max-width:100%}
+.game h3{font-size:1.35rem;align-self:end}
+.game p{margin:0;line-height:1.4;color:var(--muted);font-weight:700;font-size:.95rem}
+.tags{display:flex;flex-wrap:wrap;gap:5px;align-items:center}
+.tags span{font-size:.78rem;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);color:var(--muted)}
+.tags .new{background:var(--accent);border-color:var(--accent);color:#fff}
+.mini-card{width:46px;height:36px;border-radius:8px;background:var(--surface);border:3px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--font-title);font-weight:800;font-size:.95rem;color:var(--ink)}
 .mini-card.b{border-color:var(--t1)} .mini-card.o{border-color:var(--t2)}
-.vs{font-family:var(--font-title);font-weight:800;font-size:1.6rem;color:var(--accent)}
+.vs{font-family:var(--font-title);font-weight:800;font-size:1.1rem;color:var(--accent)}
+.soon .grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr))}
+.soon .item{border:2px dashed var(--line);border-radius:18px;padding:12px 14px;color:var(--muted);font-weight:700;display:flex;gap:10px;align-items:center}
+.soon .item b{color:var(--ink);display:block;font-family:var(--font-title);font-size:1.1rem}
+.soon .item .ic{font-size:1.8rem;flex:none}
+footer{color:var(--muted);font-size:.92rem;line-height:1.5}
+@media (max-width:520px){ .game{grid-template-columns:86px 1fr} .art{min-height:86px} .art svg{transform:scale(.8)} .regbtn{margin-left:0} }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
 </head>
@@ -54,79 +79,115 @@ footer{color:var(--muted);font-size:.95rem;line-height:1.5}
     <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="4" y="10" width="26" height="44" rx="8" fill="#2F6FDB"/><rect x="34" y="10" width="26" height="44" rx="8" fill="#E8801F"/><circle cx="17" cy="32" r="6" fill="#fff"/><circle cx="47" cy="32" r="6" fill="#fff"/></svg>
     <div>
       <h1>Giochi multitouch</h1>
-      <p>Giochi a squadre di matematica e scienze per lo schermo multitouch e per la LIM. Scegli un gioco: si apre subito, senza installare nulla.</p>
+      <p>Giochi a squadre di matematica e scienze per lo schermo multitouch e per la LIM. Tocca un gioco: si apre subito.</p>
     </div>
+    <a class="regbtn" href="registro.html"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="6" width="48" height="54" rx="8" fill="#6A4CD8"/><rect x="16" y="38" width="7" height="14" rx="2" fill="#fff"/><rect x="28.5" y="28" width="7" height="24" rx="2" fill="#fff"/><rect x="41" y="18" width="7" height="34" rx="2" fill="#fff"/></svg><span>Registro e statistiche<small>classi, argomenti, classifiche</small></span></a>
   </header>
 
-  <main class="games">
-    <a class="game" href="duello.html">
-      <div class="art" aria-hidden="true"><div class="mini-card b">7 · 8</div><span class="vs">?</span><div class="mini-card o">56</div></div>
-      <h2>Duello a squadre</h2>
-      <p>La stessa domanda per due squadre, quattro risposte: vince il punto chi tocca per primo quella giusta. Sfide classiche, di velocità (raffica) e di ragionamento, cinque livelli e domanda bonus.</p>
-      <div class="tags"><span>Matematica</span><span>Scienze</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="coppie.html">
-      <div class="art" aria-hidden="true"><div class="mini-card b">3²</div><span class="vs">↔</span><div class="mini-card o">9</div></div>
-      <h2>Caccia alle coppie</h2>
-      <p>Carte da abbinare: figura e nome, operazione e risultato, grandezza e unità. Si trascina una carta sulla compagna, tutti insieme. Alla LIM a turni, anche in versione memory.</p>
-      <div class="tags"><span>Matematica</span><span>Scienze</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="leve.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 160 70" style="width:150px;height:70px"><path d="M72 66h16l-8-16z" fill="#8D96A5"/><rect x="10" y="44" width="140" height="7" rx="3" fill="#C58A4A" transform="rotate(-6 80 48)"/><rect x="22" y="30" width="16" height="16" rx="3" fill="#C8553D" transform="rotate(-6 30 38)"/><ellipse cx="128" cy="30" rx="14" ry="10" fill="#2F8F3A" transform="rotate(-6 128 30)"/></svg></div>
-      <h2>Leve e bilance</h2>
-      <p>Oggetti veri da trascinare (bottiglia, mattone, zucca, anguria…) per mettere in equilibrio una bilancia o una leva: forza · braccio uguale dai due lati. Cinque livelli, fino alla scatola misteriosa da pesare.</p>
-      <div class="tags"><span>Scienze</span><span>Matematica</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="frazioni.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:74px;height:74px"><circle cx="32" cy="32" r="28" fill="#F7D774" stroke="#C98B4B" stroke-width="5"/><path d="M32 32V4A28 28 0 0 1 56.2 18z" fill="#2F6FDB"/><path d="M32 32L56.2 18A28 28 0 0 1 56.2 46z" fill="#E8801F"/><path d="M32 4v56M7.8 18l48.4 28M7.8 46l48.4-28" stroke="#8A5A2B" stroke-width="1.5"/></svg><span class="vs">=</span><div class="mini-card o">2/6</div></div>
-      <h2>Frazioni da spezzare</h2>
-      <p>Pizze, tavolette di cioccolato, nastri e biscotti da dividere e colorare con le dita. Riconoscere, confrontare, ridurre e sommare frazioni, fino ai problemi. Cinque livelli.</p>
-      <div class="tags"><span>Matematica</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="geopiano.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:78px;height:78px"><rect x="2" y="2" width="60" height="60" rx="8" fill="#E2BF8C" stroke="#CFA46B" stroke-width="2"/><polygon points="14,48 50,48 50,26 30,14" fill="rgba(232,128,31,.3)" stroke="#E8801F" stroke-width="3.5" stroke-linejoin="round"/><g fill="#7A818C"><circle cx="14" cy="14" r="2.5"/><circle cx="30" cy="14" r="2.5"/><circle cx="50" cy="14" r="2.5"/><circle cx="14" cy="30" r="2.5"/><circle cx="30" cy="30" r="2.5"/><circle cx="50" cy="30" r="2.5"/><circle cx="14" cy="48" r="2.5"/><circle cx="30" cy="48" r="2.5"/><circle cx="50" cy="48" r="2.5"/></g></svg></div>
-      <h2>Geopiano</h2>
-      <p>Tendi l'elastico tra i chiodini e costruisci la figura richiesta: aree, perimetri, triangoli, quadrilateri, simmetrie, fino al teorema di Pick e a Pitagora. Cinque livelli.</p>
-      <div class="tags"><span>Matematica</span><span>Geometria</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="circuiti.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:78px;height:78px"><rect x="2" y="2" width="60" height="60" rx="10" fill="#2E6B4F"/><path d="M14 46V18h36v28H14" fill="none" stroke="#D9822B" stroke-width="4" stroke-linejoin="round"/><rect x="8" y="26" width="12" height="14" rx="2" fill="#30353F"/><rect x="8" y="26" width="12" height="5" fill="#E8801F"/><circle cx="32" cy="18" r="11" fill="#FFE66B" opacity=".55"/><circle cx="32" cy="18" r="7" fill="#FFF6C2" stroke="#9AA2AE" stroke-width="1.5"/></svg></div>
-      <h2>Circuiti elettrici</h2>
-      <p>Pile, fili, lampadine, interruttori, motori e cicalini da collegare: circuito aperto e chiuso, conduttori e isolanti, serie e parallelo, cortocircuito, legge di Ohm. Disegno realistico o schema elettrico, ed editor libero.</p>
-      <div class="tags"><span>Scienze</span><span>Tecnologia</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="tangram.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 8 8" style="width:74px;height:74px"><polygon points="0,0 8,0 4,4" fill="#E74C3C"/><polygon points="0,0 4,4 0,8" fill="#3498DB"/><polygon points="8,4 8,8 4,8" fill="#2ECC71"/><polygon points="4,4 6,6 4,8 2,6" fill="#F1C40F"/><polygon points="8,0 8,4 6,6 6,2" fill="#9B59B6"/><polygon points="4,4 6,2 6,6" fill="#E67E22"/><polygon points="0,8 2,6 4,8" fill="#1ABC9C"/></svg></div>
-      <h2>Tangram</h2>
-      <p>I sette pezzi del tangram da trascinare e ruotare per ricomporre sagome sempre nuove; aree come frazioni del quadrato ed equiscomposizione. Cinque livelli, fino a «ricomponi il quadrato».</p>
-      <div class="tags"><span>Matematica</span><span>Geometria</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="energia.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:78px;height:78px"><rect width="64" height="64" rx="14" fill="#9ED17B"/><circle cx="48" cy="14" r="8" fill="#FFD43B"/><rect x="8" y="34" width="12" height="22" fill="#5E6A82"/><rect x="22" y="26" width="12" height="30" fill="#4B5568"/><g fill="#FFE66B"><rect x="11" y="38" width="3" height="3"/><rect x="15" y="44" width="3" height="3"/><rect x="25" y="30" width="3" height="3"/><rect x="29" y="38" width="3" height="3"/></g><path d="M46 56V30" stroke="#fff" stroke-width="3"/><g stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M46 30l9-6M46 30l-1 11M46 30l-9-5"/></g></svg></div>
-      <h2>Città dell'energia</h2>
-      <p>Gioco di strategia: costruisci centrali solari, eoliche, idroelettriche, a carbone, a petrolio, a gas o nucleari e dai energia alla tua città per tutta la giornata, senza blackout e con poca CO₂. Dati ufficiali (IPCC, IRENA, Terna, WMO). Partita rapida o campagna, anche a una sola squadra. Con tutorial guidato e Laboratorio delle centrali: 10 mini giochi su come funziona ogni centrale e come si trasforma l'energia.</p>
-      <div class="tags"><span>Scienze</span><span>Tecnologia</span><span>Educazione civica</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-    <a class="game" href="zoo.html">
-      <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:74px;height:74px"><rect width="64" height="64" rx="14" fill="#FFF8EC"/><path d="M38 52h7M48 52h7" stroke="#F08A2B" stroke-width="3"/><ellipse cx="46" cy="36" rx="14" ry="18" fill="#2B2D42"/><path d="M35 39Q38 27 46 27Q54 27 57 39Q56 52 46 52Q36 52 35 39z" fill="#fff"/><circle cx="42" cy="24" r="2" fill="#1E1E2E"/><circle cx="50" cy="24" r="2" fill="#1E1E2E"/><path d="M43 28L46 33L49 28z" fill="#F2A93B"/><path d="M8 40Q4 30 12 22Q20 16 26 22Q30 30 22 40z" fill="#E8735A"/><circle cx="14" cy="28" r="2" fill="#1E1E2E"/><circle cx="21" cy="28" r="2" fill="#1E1E2E"/><path d="M10 40q-2 8 2 12M16 40q0 8 2 12M22 40q2 8 0 12" stroke="#E8735A" stroke-width="3" fill="none"/></svg><span class="vs">→</span><div class="mini-card b" style="width:96px;font-size:1rem">Uccelli</div></div>
-      <h2>Lo zoo della classificazione</h2>
-      <p>Più di 90 animali disegnati da mettere nel gruppo giusto: vertebrati e invertebrati, le classi dei vertebrati, i phyla degli invertebrati, artropodi, molluschi, pesci ossei e cartilaginei. Tre modalità (smistamento con le dita, identikit a indizi, chiave dicotomica), animali «trabocchetto» e album da consultare.</p>
-      <div class="tags"><span>Scienze</span><span>Multitouch</span><span>LIM</span></div>
-      <span class="play">Gioca</span>
-    </a>
-  </main>
+  <nav class="filters" aria-label="Filtra i giochi per categoria">
+    <button data-f="all" aria-pressed="true">Tutti <span>9</span></button>
+    <button data-f="rip" style="--c:var(--c-rip)"><i></i>Ripasso a quiz <span>2</span></button>
+    <button data-f="mat" style="--c:var(--c-mat)"><i></i>Matematica e geometria <span>3</span></button>
+    <button data-f="sci" style="--c:var(--c-sci)"><i></i>Scienze e tecnologia <span>4</span></button>
+  </nav>
 
-  <div class="soon"><b>In arrivo:</b> linea del tempo.</div>
+  <section class="sec" data-s="rip" style="--c:var(--c-rip)">
+    <h2>Ripasso a quiz <small>tutte le materie, domande sempre nuove</small></h2>
+    <div class="grid">
+      <a class="game" href="duello.html">
+        <div class="art" aria-hidden="true"><div class="mini-card b">7·8</div><span class="vs">?</span><div class="mini-card o">56</div></div>
+        <h3>Duello a squadre</h3>
+        <p>Stessa domanda, quattro risposte: vince chi tocca prima quella giusta. Velocità, ragionamento, Countdown, Highlander e le tue domande.</p>
+        <div class="tags"><span>Matematica</span><span>Scienze</span><span class="new">Le mie domande</span></div>
+      </a>
+      <a class="game" href="coppie.html">
+        <div class="art" aria-hidden="true"><div class="mini-card b">3²</div><span class="vs">↔</span><div class="mini-card o">9</div></div>
+        <h3>Caccia alle coppie</h3>
+        <p>Carte da abbinare: figura e nome, operazione e risultato, grandezza e unità. Alla LIM anche in versione memory.</p>
+        <div class="tags"><span>Matematica</span><span>Scienze</span></div>
+      </a>
+    </div>
+  </section>
 
-  <footer>Consiglio: sullo schermo multitouch apri il gioco a schermo intero (tasto F11). I giochi non salvano e non inviano dati degli studenti; ricordano solo le ultime impostazioni scelte su questo computer.</footer>
+  <section class="sec" data-s="mat" style="--c:var(--c-mat)">
+    <h2>Matematica e geometria <small>si costruisce con le dita</small></h2>
+    <div class="grid">
+      <a class="game" href="frazioni.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:62px;height:62px"><circle cx="32" cy="32" r="28" fill="#F7D774" stroke="#C98B4B" stroke-width="5"/><path d="M32 32V4A28 28 0 0 1 56.2 18z" fill="#2F6FDB"/><path d="M32 32L56.2 18A28 28 0 0 1 56.2 46z" fill="#E8801F"/><path d="M32 4v56M7.8 18l48.4 28M7.8 46l48.4-28" stroke="#8A5A2B" stroke-width="1.5"/></svg></div>
+        <h3>Frazioni da spezzare</h3>
+        <p>Pizze, cioccolato, nastri e biscotti da dividere e colorare; frazioni equivalenti, confronti, problemi e retta dei numeri.</p>
+        <div class="tags"><span>Frazioni</span><span class="new">Retta dei numeri</span></div>
+      </a>
+      <a class="game" href="geopiano.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:70px;height:70px"><rect x="2" y="2" width="60" height="60" rx="8" fill="#E2BF8C" stroke="#CFA46B" stroke-width="2"/><polygon points="14,48 50,48 50,26 30,14" fill="rgba(232,128,31,.3)" stroke="#E8801F" stroke-width="3.5" stroke-linejoin="round"/><g fill="#7A818C"><circle cx="14" cy="14" r="2.5"/><circle cx="30" cy="14" r="2.5"/><circle cx="50" cy="14" r="2.5"/><circle cx="14" cy="30" r="2.5"/><circle cx="30" cy="30" r="2.5"/><circle cx="50" cy="30" r="2.5"/><circle cx="14" cy="48" r="2.5"/><circle cx="30" cy="48" r="2.5"/><circle cx="50" cy="48" r="2.5"/></g></svg></div>
+        <h3>Geopiano</h3>
+        <p>L'elastico tra i chiodini: aree, perimetri, triangoli, quadrilateri, simmetrie, fino a Pick e Pitagora.</p>
+        <div class="tags"><span>Geometria</span></div>
+      </a>
+      <a class="game" href="tangram.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 8 8" style="width:64px;height:64px"><polygon points="0,0 8,0 4,4" fill="#E74C3C"/><polygon points="0,0 4,4 0,8" fill="#3498DB"/><polygon points="8,4 8,8 4,8" fill="#2ECC71"/><polygon points="4,4 6,6 4,8 2,6" fill="#F1C40F"/><polygon points="8,0 8,4 6,6 6,2" fill="#9B59B6"/><polygon points="4,4 6,2 6,6" fill="#E67E22"/><polygon points="0,8 2,6 4,8" fill="#1ABC9C"/></svg></div>
+        <h3>Tangram</h3>
+        <p>Sette pezzi da trascinare e ruotare per ricomporre sagome; aree come frazioni del quadrato ed equiscomposizione.</p>
+        <div class="tags"><span>Geometria</span><span>Aree</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec" data-s="sci" style="--c:var(--c-sci)">
+    <h2>Scienze e tecnologia <small>esperimenti e simulazioni</small></h2>
+    <div class="grid">
+      <a class="game" href="zoo.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:64px;height:64px"><rect width="64" height="64" rx="14" fill="#FFF8EC"/><path d="M38 52h7M48 52h7" stroke="#F08A2B" stroke-width="3"/><ellipse cx="46" cy="36" rx="14" ry="18" fill="#2B2D42"/><path d="M35 39Q38 27 46 27Q54 27 57 39Q56 52 46 52Q36 52 35 39z" fill="#fff"/><circle cx="42" cy="24" r="2" fill="#1E1E2E"/><circle cx="50" cy="24" r="2" fill="#1E1E2E"/><path d="M43 28L46 33L49 28z" fill="#F2A93B"/><path d="M8 40Q4 30 12 22Q20 16 26 22Q30 30 22 40z" fill="#E8735A"/><circle cx="14" cy="28" r="2" fill="#1E1E2E"/><circle cx="21" cy="28" r="2" fill="#1E1E2E"/><path d="M10 40q-2 8 2 12M16 40q0 8 2 12M22 40q2 8 0 12" stroke="#E8735A" stroke-width="3" fill="none"/></svg></div>
+        <h3>Lo zoo della classificazione</h3>
+        <p>100 animali disegnati da classificare: vertebrati, invertebrati, classi e phyla. Catene alimentari e animali da inventare.</p>
+        <div class="tags"><span>Viventi</span><span class="new">Catena alimentare</span><span class="new">Inventa un animale</span></div>
+      </a>
+      <a class="game" href="leve.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 160 70" style="width:110px;height:50px"><path d="M72 66h16l-8-16z" fill="#8D96A5"/><rect x="10" y="44" width="140" height="7" rx="3" fill="#C58A4A" transform="rotate(-6 80 48)"/><rect x="22" y="30" width="16" height="16" rx="3" fill="#C8553D" transform="rotate(-6 30 38)"/><ellipse cx="128" cy="30" rx="14" ry="10" fill="#2F8F3A" transform="rotate(-6 128 30)"/></svg></div>
+        <h3>Leve e bilance</h3>
+        <p>Oggetti veri da trascinare per mettere in equilibrio bilance e leve: forza · braccio uguale dai due lati.</p>
+        <div class="tags"><span>Fisica</span><span class="new">Sfide con le stelle</span></div>
+      </a>
+      <a class="game" href="circuiti.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:68px;height:68px"><rect x="2" y="2" width="60" height="60" rx="10" fill="#2E6B4F"/><path d="M14 46V18h36v28H14" fill="none" stroke="#D9822B" stroke-width="4" stroke-linejoin="round"/><rect x="8" y="26" width="12" height="14" rx="2" fill="#30353F"/><rect x="8" y="26" width="12" height="5" fill="#E8801F"/><circle cx="32" cy="18" r="11" fill="#FFE66B" opacity=".55"/><circle cx="32" cy="18" r="7" fill="#FFF6C2" stroke="#9AA2AE" stroke-width="1.5"/></svg></div>
+        <h3>Circuiti elettrici</h3>
+        <p>Pile, fili, lampadine, interruttori e motori: serie e parallelo, conduttori, cortocircuito, legge di Ohm. Con editor libero.</p>
+        <div class="tags"><span>Elettricità</span><span class="new">Sfide con le stelle</span></div>
+      </a>
+      <a class="game" href="energia.html">
+        <div class="art" aria-hidden="true"><svg viewBox="0 0 64 64" style="width:68px;height:68px"><rect width="64" height="64" rx="14" fill="#9ED17B"/><circle cx="48" cy="14" r="8" fill="#FFD43B"/><rect x="8" y="34" width="12" height="22" fill="#5E6A82"/><rect x="22" y="26" width="12" height="30" fill="#4B5568"/><g fill="#FFE66B"><rect x="11" y="38" width="3" height="3"/><rect x="15" y="44" width="3" height="3"/><rect x="25" y="30" width="3" height="3"/><rect x="29" y="38" width="3" height="3"/></g><path d="M46 56V30" stroke="#fff" stroke-width="3"/><g stroke="#fff" stroke-width="3" stroke-linecap="round"><path d="M46 30l9-6M46 30l-1 11M46 30l-9-5"/></g></svg></div>
+        <h3>Città dell'energia</h3>
+        <p>Strategia: centrali da costruire per dare energia alla città giorno e notte, con poca CO₂. Dati ufficiali, tutorial e laboratorio.</p>
+        <div class="tags"><span>Energia</span><span>Ed. civica</span><span class="new">15 sfide a obiettivo</span></div>
+      </a>
+    </div>
+  </section>
+
+  <section class="sec soon" data-s="soon" style="--c:var(--line)">
+    <h2>In arrivo</h2>
+    <div class="grid">
+      <div class="item"><span class="ic" aria-hidden="true">🔐</span><span><b>Escape room scientifica</b>enigmi in sequenza per uscire dal laboratorio</span></div>
+      <div class="item"><span class="ic" aria-hidden="true">🫀</span><span><b>Il corpo umano</b>organi, ossa, il viaggio del cibo e del sangue</span></div>
+      <div class="item"><span class="ic" aria-hidden="true">🧪</span><span><b>Laboratorio di chimica</b>miscugli, indicatori e reazioni</span></div>
+      <div class="item"><span class="ic" aria-hidden="true">⏳</span><span><b>Linea del tempo</b>scoperte ed eventi da mettere in ordine</span></div>
+    </div>
+  </section>
+
+  <footer>Tutti i giochi funzionano sia sullo schermo multitouch (squadre insieme) sia alla LIM (a turni). Consiglio: apri il gioco a schermo intero (tasto F11). I giochi non inviano dati e non chiedono nomi di alunni; se nelle impostazioni indichi la classe, i risultati restano nel registro di questo computer (si possono esportare e unire tra computer diversi).</footer>
 </div>
+<script>
+(function(){
+  const btns = [...document.querySelectorAll('.filters button')], secs = [...document.querySelectorAll('.sec')];
+  function apply(f){
+    btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
+    secs.forEach(s => s.classList.toggle('hide', f !== 'all' && s.dataset.s !== f));
+    try{ localStorage.setItem('gm-home-filtro', f); }catch(e){}
+  }
+  btns.forEach(b => b.addEventListener('click', () => apply(b.dataset.f)));
+  let f = 'all'; try{ f = localStorage.getItem('gm-home-filtro') || 'all'; }catch(e){}
+  if(!btns.some(b => b.dataset.f === f)) f = 'all';
+  apply(f);
+})();
+</script>
 </body>
 </html>

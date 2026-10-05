@@ -146,6 +146,30 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -162,6 +186,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
     </div>
+    <div class="field"><span>Classe</span><div id="regField"></div></div>
     <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
     <div class="row">
       <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
@@ -222,9 +247,73 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -319,7 +408,7 @@ function syncSetup(){
   $('#rules').innerHTML = (lim
     ? 'LIM a turni: una squadra alla volta; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dai pezzi come sono. Basta un tocco alla volta.'
     : 'Multitouch: le due squadre hanno la stessa sagoma, ognuna sul suo tavolo, e giocano insieme: più dita possono spostare più pezzi nello stesso momento. Vince il punto chi completa per primo la sagoma.')
-    + ' Ogni modo corretto di riempire la sagoma va bene, anche se è diverso da quello pensato dal gioco. Nessun dato viene salvato o inviato.';
+    + ' Ogni modo corretto di riempire la sagoma va bene, anche se è diverso da quello pensato dal gioco. Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
 }
 function renderSetup(){
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
@@ -331,6 +420,7 @@ function renderSetup(){
   seg('#timeT', 'timeT', [[0,'Senza limite'],[45,'45 s'],[60,'60 s'],[90,'90 s']]);
   seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
   $('#howto').innerHTML = `<svg viewBox="-.5 -.5 9 9" class="tg">${SQUARE().map((p,i)=>`<polygon points="${verts(p).map(v=>v.join(',')).join(' ')}" fill="${COLORS[i]}" stroke="rgba(0,0,0,.3)" stroke-width=".07"/>`).join('')}</svg><span>Trascina i pezzi sulla sagoma grigia. <b>Un tocco</b> sul pezzo lo ruota di 45°. <b>Tieni premuto</b> il parallelogramma (viola) per capovolgerlo. I pezzi si agganciano da soli agli angoli vicini.<br>Se il triangolo piccolo vale 1: triangolo medio, quadrato e parallelogramma valgono 2, il triangolo grande 4, il quadrato intero 16.</span>`;
+  REG.field('#regField');
   $('#n1').value = P.n1; $('#n2').value = P.n2;
   syncSetup();
 }
@@ -356,17 +446,17 @@ function makeChallenge(l){
   for(let g=0; g<100; g++){
     const v = rnd(0, 2);   /* 0 e 1: sagoma da comporre; 2: domanda sulle aree */
     if(v < 2){
-      if(l===5 && Math.random() < 0.3) return {l, kind:'build', target:SQUARE(), task:'Ricomponi il <b>quadrato</b> con tutti e sette i pezzi.', sol:'i due triangoli grandi formano metà quadrato (lungo la diagonale); gli altri cinque pezzi riempiono l\'altra metà'};
+      if(l===5 && Math.random() < 0.3) return {l, t:'Ricomporre il quadrato', kind:'build', target:SQUARE(), task:'Ricomponi il <b>quadrato</b> con tutti e sette i pezzi.', sol:'i due triangoli grandi formano metà quadrato (lungo la diagonale); gli altri cinque pezzi riempiono l\'altra metà'};
       const n = l===1 ? 2 : l===2 ? 3 : l===3 ? rnd(4,5) : l===4 ? 6 : 7;
       const types = l===1 ? pick([['ST','ST'],['ST','ST'],['BT','BT'],['MT','ST'],['SQ','ST'],['PA','ST'],['MT','SQ']]) : subset(n);
       const target = genShape(types); if(!target) continue;
-      return {l, kind:'build', target, task:`Componi la <b>sagoma</b> con questi ${types.length} pezzi.`, sol:'una delle soluzioni possibili è mostrata dalle linee di aiuto'};
+      return {l, t:'Comporre una sagoma', kind:'build', target, task:`Componi la <b>sagoma</b> con questi ${types.length} pezzi.`, sol:'una delle soluzioni possibili è mostrata dalle linee di aiuto'};
     }
     /* domande sulle aree */
     if(l===1){ const t = pick(['BT','MT','SQ','PA']), u = UNITS[t]; const shape = [{type:t, rot:rnd(0,1)*2, x:0, y:0}];
-      return {l, kind:'choice', show:shape, opts:opts4(String(u), [String(u*2), String(u+1), String(u===4 ? 3 : 4)], String(u*8)), task:`Quanti <b>triangoli piccoli</b> servono per coprire il ${NAME[t]}?`, sol:`${u}: il ${NAME[t]} vale ${u} triangoli piccoli`}; }
+      return {l, t:'Aree dei pezzi', kind:'choice', show:shape, opts:opts4(String(u), [String(u*2), String(u+1), String(u===4 ? 3 : 4)], String(u*8)), task:`Quanti <b>triangoli piccoli</b> servono per coprire il ${NAME[t]}?`, sol:`${u}: il ${NAME[t]} vale ${u} triangoli piccoli`}; }
     if(l===2){ const t = pick(['BT','MT','SQ','PA','ST']), [a,b] = fracOf(UNITS[t]); const [c,d] = fracOf(UNITS[t]*2), [e,f] = fracOf(Math.max(1, UNITS[t]/2));
-      return {l, kind:'choice', show:SQUARE(), hi:SQUARE().findIndex(p=>p.type===t), opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(1,7)], frac(b,a)), task:`Che frazione del quadrato intero è il <b>${NAME[t]}</b> evidenziato?`, sol:`${frac(a,b)}: il quadrato vale 16 triangoli piccoli, il ${NAME[t]} ne vale ${UNITS[t]}`}; }
+      return {l, t:'Frazioni del quadrato', kind:'choice', show:SQUARE(), hi:SQUARE().findIndex(p=>p.type===t), opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(1,7)], frac(b,a)), task:`Che frazione del quadrato intero è il <b>${NAME[t]}</b> evidenziato?`, sol:`${frac(a,b)}: il quadrato vale 16 triangoli piccoli, il ${NAME[t]} ne vale ${UNITS[t]}`}; }
     if(l===3){ const same = Math.random() < 0.6;
       let A, B;
       if(same){ const pairs = [[['MT'],['SQ']],[['MT'],['PA']],[['SQ'],['PA']],[['ST','ST'],['MT']],[['ST','ST'],['SQ']],[['BT'],['MT','SQ']],[['BT'],['ST','ST','PA']],[['MT','ST'],['SQ','ST']],[['BT'],['ST','ST','MT']]]; const [x,y] = pick(pairs); A = genShape(x); B = genShape(y); }
@@ -374,11 +464,11 @@ function makeChallenge(l){
       if(!A || !B) continue;
       const uA = unitsOf(A), uB = unitsOf(B), right = uA===uB ? 'sì, hanno la stessa area' : uA > uB ? 'no, A ha l\'area maggiore' : 'no, B ha l\'area maggiore';
       const others = ['sì, hanno la stessa area', 'no, A ha l\'area maggiore', 'no, B ha l\'area maggiore'].filter(x=>x!==right);
-      return {l, kind:'choice', show:A, show2:B, opts:opts4(right, others, 'non si può sapere senza misurare'), task:'Le figure <b>A</b> e <b>B</b> hanno la stessa area?', sol:`A vale ${uA} triangoli piccoli, B ne vale ${uB}${uA===uB ? ': sono equiscomposte, cioè equivalenti' : ''}`}; }
+      return {l, t:'Equiscomposizione', kind:'choice', show:A, show2:B, opts:opts4(right, others, 'non si può sapere senza misurare'), task:'Le figure <b>A</b> e <b>B</b> hanno la stessa area?', sol:`A vale ${uA} triangoli piccoli, B ne vale ${uB}${uA===uB ? ': sono equiscomposte, cioè equivalenti' : ''}`}; }
     if(l===4){ const types = subset(rnd(3,6)), shape = genShape(types); if(!shape) continue; const u = unitsOf(shape);
-      return {l, kind:'choice', show:shape, opts:opts4(String(u), [String(types.length), String(u+2), String(u-1)], String(u*4)), task:'Se il triangolo piccolo vale 1, <b>quanto vale l\'area</b> di questa sagoma?', sol:`${u}: ${types.map(t=>`${NAME[t]} (${UNITS[t]})`).join(' + ')}`}; }
+      return {l, t:'Area della sagoma', kind:'choice', show:shape, opts:opts4(String(u), [String(types.length), String(u+2), String(u-1)], String(u*4)), task:'Se il triangolo piccolo vale 1, <b>quanto vale l\'area</b> di questa sagoma?', sol:`${u}: ${types.map(t=>`${NAME[t]} (${UNITS[t]})`).join(' + ')}`}; }
     const types = subset(rnd(3,6)), shape = genShape(types); if(!shape) continue; const u = unitsOf(shape), [a,b] = fracOf(u), [c,d] = fracOf(Math.min(15, u+1)), [e,f] = fracOf(u*2 <= 16 ? u*2 : Math.max(1, u-2));
-    return {l, kind:'choice', show:shape, opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(types.length, 7)], frac(b, a)), task:'Che <b>frazione del quadrato intero</b> è questa sagoma?', sol:`la sagoma vale ${u} triangoli piccoli su 16: ${frac(u,16)}${a!==u ? ` = ${frac(a,b)}` : ''}`};
+    return {l, t:'Frazioni del quadrato', kind:'choice', show:shape, opts:opts4(frac(a,b), [frac(c,d), frac(e,f), frac(types.length, 7)], frac(b, a)), task:'Che <b>frazione del quadrato intero</b> è questa sagoma?', sol:`la sagoma vale ${u} triangoli piccoli su 16: ${frac(u,16)}${a!==u ? ` = ${frac(a,b)}` : ''}`};
   }
   return makeChallenge(Math.max(1, l-1));
 }
@@ -538,6 +628,11 @@ function finish(){
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
   $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
   $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per ogni sfida conclusa (risolta da almeno una squadra, alla LIM anche con il rubapunto);
+     per le sagome la «soluzione» non si può scrivere a parole, quindi resta solo il testo della sfida */
+  const items = S.log.filter(r=>r.done).map(r=>({t:r.ch.t, l:r.ch.l, ok:r.who > 0, q:r.ch.task, a:r.ch.kind==='choice' || r.ch.t==='Ricomporre il quadrato' ? r.ch.sol : null}));
+  REG.report('#regBox', items.length ? REG.save({gioco:'tangram', titolo:'Tangram', modo:P.screen==='lim' ? 'LIM a turni' : 'Multitouch', livello:LVN[P.lvl],
+    squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}) : {items:[]});
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -547,7 +642,7 @@ function win(id){
   if(BD[id].phase==='done') return;
   S.playing = false; cancelAnimationFrame(S.raf);
   BD[id].phase = 'done';
-  S.score[team-1]++; S.log[S.i].who = team;
+  S.score[team-1]++; S.log[S.i].who = team; S.log[S.i].done = true;
   beep([660, 880, 1100], 0.1);
   if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
   $('#s'+team).textContent = S.score[team-1];
@@ -579,7 +674,7 @@ function runClock(){
   const tick = now=>{
     if(!S.playing || S.paused) return;
     const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
-    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>{ showSolution(t); banner(t, `Tempo scaduto!<small>${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'Ecco una soluzione possibile'}</small>`); }); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    if(f <= 0){ S.playing = false; S.log[S.i].done = true; beep([330, 262], 0.16); [1,2].forEach(t=>{ showSolution(t); banner(t, `Tempo scaduto!<small>${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'Ecco una soluzione possibile'}</small>`); }); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
     S.raf = requestAnimationFrame(tick);
   };
   S.raf = requestAnimationFrame(tick);
@@ -630,7 +725,7 @@ function limFail(why){
     limTimer(P.timeT ? Math.min(P.timeT, 45) : 0);
     return;
   }
-  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); showSolution('L');
+  S.playing = false; S.log[S.i].done = true; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); showSolution('L');
   $('#lmsg').innerHTML = `${why} Nessun punto. ${S.ch.kind==='choice' ? 'Soluzione: ' + S.ch.sol : 'Ecco una soluzione possibile.'}`;
   S.next = setTimeout(nextChallenge, 5000);
 }

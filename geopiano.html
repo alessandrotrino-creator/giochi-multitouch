@@ -154,6 +154,30 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -170,6 +194,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
     </div>
+    <div class="field"><span>Classe</span><div id="regField"></div></div>
     <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
     <div class="row">
       <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
@@ -230,9 +255,73 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -338,7 +427,7 @@ function syncSetup(){
   $('#rules').innerHTML = (lim
     ? 'LIM a turni: una squadra alla volta costruisce la figura; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dall\'elastico com\'è. Basta un tocco alla volta.'
     : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sul suo geopiano, e giocano insieme. Vince il punto chi costruisce per primo la figura giusta; una risposta sbagliata (nelle domande a scelta) blocca la squadra per 2 secondi.')
-    + ' Nessun dato viene salvato o inviato.';
+    + ' Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
 }
 function renderSetup(){
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
@@ -350,6 +439,7 @@ function renderSetup(){
   seg('#timeT', 'timeT', [[0,'Senza limite'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
   seg('#sound', 'sound', [[true,'Sì'],[false,'No']]);
   $('#howto').innerHTML = geoSVG({pts:[[1,4],[4,4],[4,2],[2,1]], closed:true}, null, 5) + '<span>Tocca un chiodino dopo l\'altro (oppure trascina il dito da un chiodino al successivo, come se tirassi l\'elastico).<br>Per chiudere la figura tocca di nuovo il primo chiodino.<br>«Annulla» toglie l\'ultimo pezzo, «Ricomincia» libera tutto il geopiano.</span>';
+  REG.field('#regField');
   $('#n1').value = P.n1; $('#n2').value = P.n2;
   syncSetup();
 }
@@ -401,39 +491,39 @@ function makeChallenge(l){
   for(let g=0; g<300; g++){
     const v = rnd(0, l===1 ? 2 : 3);
     if(l===1){
-      if(v===0){ const t = pick(TPL); return {l, kind:'build', ref:t, task:'Costruisci sul geopiano <b>la stessa figura</b> del modello (puoi metterla dove vuoi, ma non girarla).', test:a=>need(canon(a,true)===canon(simplify(t),true), 'non è uguale al modello: controlla i lati'), sol:'la stessa figura del modello, spostata'}; }
-      if(v===1){ const A = pick([4,6,8,9,10,12]); return {l, kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>!isRect(a) ? 'non è un rettangolo' : areaMsg(a, A), sol:`per esempio ${pick([[1,A],[2,A/2],[3,A/3],[4,A/4]].filter(([x,y])=>Number.isInteger(y) && y <= 8 && x <= 8)).join(' e ')}`}; }
-      const k = rnd(3,6); return {l, kind:'build', task:`Costruisci un <b>${nameK[k]}</b> (una figura con ${k} lati).`, test:a=>need(a.length===k, `ha ${a.length} lati: ne servono ${k}`), sol:`una figura qualsiasi con ${k} lati`};
+      if(v===0){ const t = pick(TPL); return {l, t:'Copiare una figura', kind:'build', ref:t, task:'Costruisci sul geopiano <b>la stessa figura</b> del modello (puoi metterla dove vuoi, ma non girarla).', test:a=>need(canon(a,true)===canon(simplify(t),true), 'non è uguale al modello: controlla i lati'), sol:'la stessa figura del modello, spostata'}; }
+      if(v===1){ const A = pick([4,6,8,9,10,12]); return {l, t:'Area', kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>!isRect(a) ? 'non è un rettangolo' : areaMsg(a, A), sol:`per esempio ${pick([[1,A],[2,A/2],[3,A/3],[4,A/4]].filter(([x,y])=>Number.isInteger(y) && y <= 8 && x <= 8)).join(' e ')}`}; }
+      const k = rnd(3,6); return {l, t:'Poligoni', kind:'build', task:`Costruisci un <b>${nameK[k]}</b> (una figura con ${k} lati).`, test:a=>need(a.length===k, `ha ${a.length} lati: ne servono ${k}`), sol:`una figura qualsiasi con ${k} lati`};
     }
     if(l===2){
-      if(v===0){ const A = pick([5,6,7,8,9,10]), noRect = Math.random() < 0.5; return {l, kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b>${noRect ? ' che <b>non sia un rettangolo</b>' : ''}.`, test:a=>noRect && isRect(a) ? 'è un rettangolo: serve un\'altra figura' : areaMsg(a, A), sol:noRect ? 'per esempio una figura a L o un triangolo' : 'per esempio un rettangolo'}; }
-      if(v===1){ const Pp = pick([10,12,14,16,18]); return {l, kind:'build', task:`Costruisci una figura con <b>perimetro ${Pp}</b>, usando solo lati orizzontali e verticali.`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : need(perim(a)===Pp, `il perimetro è ${N(perim(a))}: ne serve ${Pp}`), sol:`per esempio un rettangolo di lati ${Pp/2 - 2} e 2`}; }
-      if(v===2){ const A = pick([2,3,4,6]); return {l, kind:'build', task:`Costruisci un <b>triangolo rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isRightTri(a) ? 'non ha un angolo retto' : areaMsg(a, A), sol:`per esempio con i cateti 2 e ${A}`}; }
+      if(v===0){ const A = pick([5,6,7,8,9,10]), noRect = Math.random() < 0.5; return {l, t:'Area', kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b>${noRect ? ' che <b>non sia un rettangolo</b>' : ''}.`, test:a=>noRect && isRect(a) ? 'è un rettangolo: serve un\'altra figura' : areaMsg(a, A), sol:noRect ? 'per esempio una figura a L o un triangolo' : 'per esempio un rettangolo'}; }
+      if(v===1){ const Pp = pick([10,12,14,16,18]); return {l, t:'Perimetro', kind:'build', task:`Costruisci una figura con <b>perimetro ${Pp}</b>, usando solo lati orizzontali e verticali.`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : need(perim(a)===Pp, `il perimetro è ${N(perim(a))}: ne serve ${Pp}`), sol:`per esempio un rettangolo di lati ${Pp/2 - 2} e 2`}; }
+      if(v===2){ const A = pick([2,3,4,6]); return {l, t:'Triangoli', kind:'build', task:`Costruisci un <b>triangolo rettangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isRightTri(a) ? 'non ha un angolo retto' : areaMsg(a, A), sol:`per esempio con i cateti 2 e ${A}`}; }
       const t = pick(TPL), m = placeRandom(t), A = area2(m)/2, B = boundary(m);
-      return {l, kind:'choice', model:m, opts:numOpts(A, [B, A+1, A-1].filter(x=>x!==A), A*4 + 2), task:'Qual è l\'<b>area</b> della figura (in quadretti)?', sol:`${N(A)} quadretti`};
+      return {l, t:'Area', kind:'choice', model:m, opts:numOpts(A, [B, A+1, A-1].filter(x=>x!==A), A*4 + 2), task:'Qual è l\'<b>area</b> della figura (in quadretti)?', sol:`${N(A)} quadretti`};
     }
     if(l===3){
-      if(v===0){ const a = rnd(2,6), b = rnd(2,6), A = a*b, Pp = 2*(a+b); return {l, kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A}</b> e perimetro <b>${Pp}</b>.`, test:x=>!isRect(x) ? 'non è un rettangolo' : areaMsg(x, A) || need(Math.abs(perim(x)-Pp) < 1e-9, `il perimetro è ${Ptxt(x)}: ne serve ${Pp}`), sol:`un rettangolo di lati ${Math.min(a,b)} e ${Math.max(a,b)}`}; }
-      if(v===1){ const [S,u] = pick([[2,'1 e 1'],[5,'1 e 2'],[8,'2 e 2'],[10,'1 e 3'],[13,'2 e 3']]); return {l, kind:'build', task:`Costruisci un <b>quadrato «storto»</b> (con i lati obliqui) di area <b>${S} quadretti</b>.`, test:a=>!isSquare(a) ? 'non è un quadrato: lati uguali e angoli retti' : rectil(a) ? 'è un quadrato «dritto»: i lati devono essere obliqui' : areaMsg(a, S), sol:`ogni lato si sposta di ${u} chiodini`}; }
+      if(v===0){ const a = rnd(2,6), b = rnd(2,6), A = a*b, Pp = 2*(a+b); return {l, t:'Area e perimetro', kind:'build', task:`Costruisci un <b>rettangolo</b> con area <b>${A}</b> e perimetro <b>${Pp}</b>.`, test:x=>!isRect(x) ? 'non è un rettangolo' : areaMsg(x, A) || need(Math.abs(perim(x)-Pp) < 1e-9, `il perimetro è ${Ptxt(x)}: ne serve ${Pp}`), sol:`un rettangolo di lati ${Math.min(a,b)} e ${Math.max(a,b)}`}; }
+      if(v===1){ const [S,u] = pick([[2,'1 e 1'],[5,'1 e 2'],[8,'2 e 2'],[10,'1 e 3'],[13,'2 e 3']]); return {l, t:'Quadrilateri', kind:'build', task:`Costruisci un <b>quadrato «storto»</b> (con i lati obliqui) di area <b>${S} quadretti</b>.`, test:a=>!isSquare(a) ? 'non è un quadrato: lati uguali e angoli retti' : rectil(a) ? 'è un quadrato «dritto»: i lati devono essere obliqui' : areaMsg(a, S), sol:`ogni lato si sposta di ${u} chiodini`}; }
       if(v===2){ const t = pick(TPL), w = Math.max(...t.map(p=>p[0])); if(w > 4) continue; const m = place(t, 4 - w - rnd(0, Math.min(1, 4-w)), rnd(0, G - Math.max(...t.map(p=>p[1])))); const mir = m.map(([x,y])=>[8-x, y]);
-        return {l, kind:'build', axis:4, model:m, task:'Costruisci la figura <b>simmetrica</b> di quella grigia rispetto all\'asse tratteggiato.', test:a=>need(canon(a,false)===canon(simplify(mir),false), 'non è la figura simmetrica: ogni punto deve stare alla stessa distanza dall\'asse, dall\'altra parte'), sol:'la figura riflessa a destra dell\'asse'}; }
-      const A = pick([4,6,8,9]); return {l, kind:'build', task:`Costruisci un <b>parallelogramma</b> che <b>non sia un rettangolo</b>, con area <b>${A} quadretti</b>.`, test:a=>!isPara(a) ? 'non è un parallelogramma: i lati opposti devono essere paralleli e uguali' : isRect(a) ? 'è un rettangolo: inclina i lati' : areaMsg(a, A), sol:`per esempio base ${A % 3===0 ? 3 : 2}, altezza ${A % 3===0 ? A/3 : A/2}, spostando il lato di sopra di un chiodino`};
+        return {l, t:'Simmetria', kind:'build', axis:4, model:m, task:'Costruisci la figura <b>simmetrica</b> di quella grigia rispetto all\'asse tratteggiato.', test:a=>need(canon(a,false)===canon(simplify(mir),false), 'non è la figura simmetrica: ogni punto deve stare alla stessa distanza dall\'asse, dall\'altra parte'), sol:'la figura riflessa a destra dell\'asse'}; }
+      const A = pick([4,6,8,9]); return {l, t:'Quadrilateri', kind:'build', task:`Costruisci un <b>parallelogramma</b> che <b>non sia un rettangolo</b>, con area <b>${A} quadretti</b>.`, test:a=>!isPara(a) ? 'non è un parallelogramma: i lati opposti devono essere paralleli e uguali' : isRect(a) ? 'è un rettangolo: inclina i lati' : areaMsg(a, A), sol:`per esempio base ${A % 3===0 ? 3 : 2}, altezza ${A % 3===0 ? A/3 : A/2}, spostando il lato di sopra di un chiodino`};
     }
     if(l===4){
-      if(v===0){ const A = pick([6,8,10,12,15,16]), mp = minPerim(A); return {l, kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b> e il <b>perimetro più piccolo possibile</b> (solo lati orizzontali e verticali).`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : areaMsg(a, A) || need(perim(a)===mp, `perimetro ${N(perim(a))}: si può fare più piccolo`), sol:`perimetro ${mp}: una figura il più possibile simile a un quadrato`}; }
-      if(v===1){ const A = pick([3,4,6,8]); return {l, kind:'build', task:`Costruisci un <b>triangolo isoscele</b> (che non sia rettangolo) con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isIso(a) ? 'non è isoscele: servono due lati uguali' : isRightTri(a) ? 'è rettangolo: serve un triangolo isoscele senza angolo retto' : areaMsg(a, A), sol:`per esempio base 2 e altezza ${A}, con il vertice in mezzo`}; }
-      if(v===2){ const A = pick([4,5,6,8,9]); return {l, kind:'build', task:`Costruisci un <b>trapezio</b> con area <b>${A} quadretti</b>.`, test:a=>!isTrap(a) ? 'non è un trapezio: serve una sola coppia di lati paralleli' : areaMsg(a, A), sol:`per esempio basi 1 e ${A-1}, altezza 2`}; }
-      const A = pick([2,3,4,5,6]); return {l, kind:'build', task:`Costruisci un <b>triangolo ottusangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isObtuse(a) ? 'non ha un angolo ottuso (più grande di un angolo retto)' : areaMsg(a, A), sol:`per esempio base 2, altezza ${A}, con il vertice spostato fuori dalla base`};
+      if(v===0){ const A = pick([6,8,10,12,15,16]), mp = minPerim(A); return {l, t:'Area e perimetro', kind:'build', task:`Costruisci una figura con area <b>${A} quadretti</b> e il <b>perimetro più piccolo possibile</b> (solo lati orizzontali e verticali).`, test:a=>!rectil(a) ? 'ci sono lati obliqui: usa solo orizzontali e verticali' : areaMsg(a, A) || need(perim(a)===mp, `perimetro ${N(perim(a))}: si può fare più piccolo`), sol:`perimetro ${mp}: una figura il più possibile simile a un quadrato`}; }
+      if(v===1){ const A = pick([3,4,6,8]); return {l, t:'Triangoli', kind:'build', task:`Costruisci un <b>triangolo isoscele</b> (che non sia rettangolo) con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isIso(a) ? 'non è isoscele: servono due lati uguali' : isRightTri(a) ? 'è rettangolo: serve un triangolo isoscele senza angolo retto' : areaMsg(a, A), sol:`per esempio base 2 e altezza ${A}, con il vertice in mezzo`}; }
+      if(v===2){ const A = pick([4,5,6,8,9]); return {l, t:'Quadrilateri', kind:'build', task:`Costruisci un <b>trapezio</b> con area <b>${A} quadretti</b>.`, test:a=>!isTrap(a) ? 'non è un trapezio: serve una sola coppia di lati paralleli' : areaMsg(a, A), sol:`per esempio basi 1 e ${A-1}, altezza 2`}; }
+      const A = pick([2,3,4,5,6]); return {l, t:'Triangoli', kind:'build', task:`Costruisci un <b>triangolo ottusangolo</b> con area <b>${A} quadretti</b>.`, test:a=>a.length!==3 ? 'non è un triangolo' : !isObtuse(a) ? 'non ha un angolo ottuso (più grande di un angolo retto)' : areaMsg(a, A), sol:`per esempio base 2, altezza ${A}, con il vertice spostato fuori dalla base`};
     }
     /* livello 5 */
-    if(v===0){ const [A,I] = pick([[4,0],[5,0],[6,0],[3,1],[4,1],[5,1],[6,1],[4,2],[5,2],[6,2],[6,3]]); return {l, kind:'build', pick:true, task:`Costruisci una figura con area <b>${A} quadretti</b> che abbia esattamente <b>${I} chiodin${I===1 ? 'o' : 'i'} all'interno</b> (non sul bordo).`, test:a=>areaMsg(a, A) || need(interior(a)===I, `dentro ci sono ${interior(a)} chiodini: ne servono ${I}`), sol:`teorema di Pick: A = I + ${frac('B','2')} − 1 (I = chiodini interni, B = chiodini sul bordo), quindi servono ${2*A - 2*I + 2} chiodini sul bordo`}; }
-    if(v===1){ if(Math.random() < 0.5) return {l, kind:'build', task:'Costruisci un <b>triangolo rettangolo</b> con l\'<b>ipotenusa lunga 5</b>, che non sia né orizzontale né verticale.', test:a=>{ if(a.length!==3 || !isRightTri(a)) return 'non è un triangolo rettangolo'; const e = edges(a).map(len2), h = Math.max(...e), hv = edges(a)[e.indexOf(h)]; return h!==25 ? `l'ipotenusa è lunga ${N(Math.round(Math.sqrt(h)*100)/100)}: ne serve 5` : (hv[0]===0 || hv[1]===0) ? 'l\'ipotenusa deve essere obliqua' : ''; }, sol:'cateti 3 e 4: 3² + 4² = 25 = 5²'};
-      return {l, kind:'build', task:'Costruisci un <b>quadrato storto</b> con il <b>lato lungo 5</b>.', test:a=>!isSquare(a) ? 'non è un quadrato' : rectil(a) ? 'deve essere storto (lati obliqui)' : need(len2(edges(a)[0])===25, `il lato è lungo ${N(Math.round(Math.sqrt(len2(edges(a)[0]))*100)/100)}: ne serve 5`), sol:'ogni lato si sposta di 3 e di 4 chiodini: √(3² + 4²) = 5; area 25'}; }
+    if(v===0){ const [A,I] = pick([[4,0],[5,0],[6,0],[3,1],[4,1],[5,1],[6,1],[4,2],[5,2],[6,2],[6,3]]); return {l, t:'Teorema di Pick', kind:'build', pick:true, task:`Costruisci una figura con area <b>${A} quadretti</b> che abbia esattamente <b>${I} chiodin${I===1 ? 'o' : 'i'} all'interno</b> (non sul bordo).`, test:a=>areaMsg(a, A) || need(interior(a)===I, `dentro ci sono ${interior(a)} chiodini: ne servono ${I}`), sol:`teorema di Pick: A = I + ${frac('B','2')} − 1 (I = chiodini interni, B = chiodini sul bordo), quindi servono ${2*A - 2*I + 2} chiodini sul bordo`}; }
+    if(v===1){ if(Math.random() < 0.5) return {l, t:'Teorema di Pitagora', kind:'build', task:'Costruisci un <b>triangolo rettangolo</b> con l\'<b>ipotenusa lunga 5</b>, che non sia né orizzontale né verticale.', test:a=>{ if(a.length!==3 || !isRightTri(a)) return 'non è un triangolo rettangolo'; const e = edges(a).map(len2), h = Math.max(...e), hv = edges(a)[e.indexOf(h)]; return h!==25 ? `l'ipotenusa è lunga ${N(Math.round(Math.sqrt(h)*100)/100)}: ne serve 5` : (hv[0]===0 || hv[1]===0) ? 'l\'ipotenusa deve essere obliqua' : ''; }, sol:'cateti 3 e 4: 3² + 4² = 25 = 5²'};
+      return {l, t:'Teorema di Pitagora', kind:'build', task:'Costruisci un <b>quadrato storto</b> con il <b>lato lungo 5</b>.', test:a=>!isSquare(a) ? 'non è un quadrato' : rectil(a) ? 'deve essere storto (lati obliqui)' : need(len2(edges(a)[0])===25, `il lato è lungo ${N(Math.round(Math.sqrt(len2(edges(a)[0]))*100)/100)}: ne serve 5`), sol:'ogni lato si sposta di 3 e di 4 chiodini: √(3² + 4²) = 5; area 25'}; }
     if(v===2){ const sh = pick([[[0,0],[4,0],[0,3]], [[0,0],[4,0],[4,3]], [[0,0],[3,0],[3,4]], [[0,3],[2,3],[6,0],[0,0]], [[0,0],[4,3],[4,6],[0,6]]]); const m = placeRandom(sh), Pv = perim(m); if(!Number.isInteger(Math.round(Pv*1e6)/1e6)) continue;
       const rect = edges(m).reduce((s,v)=>s + (v[0]===0 || v[1]===0 ? Math.sqrt(len2(v)) : Math.abs(v[0]) + Math.abs(v[1])), 0);
-      return {l, kind:'choice', model:m, opts:numOpts(Math.round(Pv), [Math.round(rect), Math.round(Pv) - 1].filter(x=>x!==Math.round(Pv)), Math.round(area2(m)/2) * 4 + 1), task:'Qual è il <b>perimetro</b> della figura? (I lati obliqui sono ipotenuse.)', sol:`perimetro ${N(Math.round(Pv))}: il lato obliquo è lungo 5 (3² + 4² = 5²)`}; }
+      return {l, t:'Teorema di Pitagora', kind:'choice', model:m, opts:numOpts(Math.round(Pv), [Math.round(rect), Math.round(Pv) - 1].filter(x=>x!==Math.round(Pv)), Math.round(area2(m)/2) * 4 + 1), task:'Qual è il <b>perimetro</b> della figura? (I lati obliqui sono ipotenuse.)', sol:`perimetro ${N(Math.round(Pv))}: il lato obliquo è lungo 5 (3² + 4² = 5²)`}; }
     const a0 = rnd(2,4), b0 = rnd(2,4), A = a0*b0, P0 = 2*(a0+b0), x0 = rnd(0, 8-a0), y0 = rnd(0, 8-b0), m = [[x0,y0],[x0+a0,y0],[x0+a0,y0+b0],[x0,y0+b0]];
-    return {l, kind:'build', model:m, task:`La figura grigia ha area ${A} e perimetro ${P0}. Costruisci una figura con la <b>stessa area</b> ma con il <b>perimetro più grande</b> (solo lati orizzontali e verticali).`, test:x=>!rectil(x) ? 'usa solo lati orizzontali e verticali' : areaMsg(x, A) || need(perim(x) > P0, `il perimetro è ${N(perim(x))}: deve essere più di ${P0}`), sol:`per esempio un rettangolo di lati 1 e ${A}${A > 8 ? ' (non entra: allora una figura a L)' : ''}`};
+    return {l, t:'Area e perimetro', kind:'build', model:m, task:`La figura grigia ha area ${A} e perimetro ${P0}. Costruisci una figura con la <b>stessa area</b> ma con il <b>perimetro più grande</b> (solo lati orizzontali e verticali).`, test:x=>!rectil(x) ? 'usa solo lati orizzontali e verticali' : areaMsg(x, A) || need(perim(x) > P0, `il perimetro è ${N(perim(x))}: deve essere più di ${P0}`), sol:`per esempio un rettangolo di lati 1 e ${A}${A > 8 ? ' (non entra: allora una figura a L)' : ''}`};
   }
   return makeChallenge(Math.max(1, l-1));
 }
@@ -568,6 +658,10 @@ function finish(){
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
   $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
   $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per ogni sfida conclusa (risolta da almeno una squadra, alla LIM anche con il rubapunto) */
+  const items = S.log.filter(r=>r.done).map(r=>({t:r.ch.t, l:r.ch.l, ok:r.who > 0, q:r.ch.task, a:r.ch.sol}));
+  REG.report('#regBox', items.length ? REG.save({gioco:'geopiano', titolo:'Geopiano', modo:P.screen==='lim' ? 'LIM a turni' : 'Multitouch', livello:LVN[P.lvl],
+    squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}) : {items:[]});
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -576,7 +670,7 @@ function win(id){
   const team = teamOf(id);
   S.playing = false; cancelAnimationFrame(S.raf);
   BD[id].phase = 'done';
-  S.score[team-1]++; S.log[S.i].who = team;
+  S.score[team-1]++; S.log[S.i].who = team; S.log[S.i].done = true;
   beep([660, 880, 1100], 0.1);
   if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
   $('#s'+team).textContent = S.score[team-1];
@@ -608,7 +702,7 @@ function runClock(){
   const tick = now=>{
     if(!S.playing || S.paused) return;
     const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
-    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    if(f <= 0){ S.playing = false; S.log[S.i].done = true; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
     S.raf = requestAnimationFrame(tick);
   };
   S.raf = requestAnimationFrame(tick);
@@ -657,7 +751,7 @@ function limFail(why){
     limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
     return;
   }
-  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
+  S.playing = false; S.log[S.i].done = true; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
   $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
   S.next = setTimeout(nextChallenge, 5000);
 }

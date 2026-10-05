@@ -290,7 +290,59 @@ sub{font-size:.7em}
 .mini svg{width:62px;height:62px;border-radius:12px}
 @media (max-width:860px){ #labPlay{grid-template-columns:1fr;height:auto} .lscene{aspect-ratio:4/3} .baskets{min-height:320px} }
 
+/* ---------- sfide a obiettivo ---------- */
+.sclist{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px}
+.scard{text-align:left;border:2px solid var(--line);background:var(--surface-2);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;line-height:1.35;font-size:.92rem;font-weight:700;min-height:46px}
+.scard[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--surface))}
+.scard .sch{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.scard .sch b{font-family:var(--font-title);font-size:1.18rem;line-height:1.1}
+.scard small{color:var(--muted);font-weight:700}
+.sgoal{font-weight:800}
+.sthr{display:flex;flex-wrap:wrap;gap:4px}
+.sthr span{border-radius:999px;padding:1px 8px;background:var(--surface);border:1px solid var(--line);font-size:.8rem;font-weight:800;white-space:nowrap}
+.spl{display:flex;gap:3px;flex-wrap:wrap}
+.spl svg{width:28px;height:28px;border-radius:6px}
+.stars{color:#F1B800;letter-spacing:.04em;white-space:nowrap}
+.stars i{font-style:normal;color:var(--line)}
+.sgl{font-weight:800;font-size:clamp(.66rem,1.4vh,.86rem);color:var(--muted);line-height:1.3}
+.sgl b{color:var(--ink)}
+.ev .thr{display:block;margin-top:4px;color:var(--muted);font-size:.78rem;line-height:1.35}
+.half.cover .lock{background:var(--surface);color:var(--ink);text-shadow:none}
+.final .stars{font-size:2.6rem;line-height:1}
+.final .ssub{font-weight:800;color:var(--muted)}
+.chk{display:flex;flex-direction:column;gap:2px;font-weight:700}
+.ssol{display:grid;grid-template-columns:minmax(0,360px) 1fr;gap:16px;align-items:start;background:var(--surface-2);border:1px solid var(--line);border-left:5px solid #F1B800;border-radius:16px;padding:12px 14px;line-height:1.5;font-weight:700}
+.ssol svg{width:100%;height:auto;border-radius:12px;display:block}
+.ssol .src{display:block;color:var(--muted);font-size:.85rem;font-weight:800;margin-top:6px}
+.ssol .sst{font-family:var(--font-title);font-size:1.1rem;margin-bottom:4px}
+@media (max-width:760px){ .ssol{grid-template-columns:1fr} }
+
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -309,9 +361,14 @@ sub{font-size:.7em}
       <div class="field"><span>Squadre in gioco</span><div class="seg" id="nteams"></div></div>
     </div>
     <div class="row">
-      <div class="field"><span>Partita</span><div class="seg" id="days"></div></div>
-      <div class="field"><span>Tempo per costruire</span><div class="seg" id="tplan"></div></div>
+      <div class="field"><span>Modalità</span><div class="seg" id="modo"></div></div>
+      <div class="field"><span>Classe</span><div id="regField"></div></div>
     </div>
+    <div class="row">
+      <div class="field" id="daysF"><span>Partita</span><div class="seg" id="days"></div></div>
+      <div class="field" id="tplanF"><span>Tempo per costruire</span><div class="seg" id="tplan"></div></div>
+    </div>
+    <div class="field hide" id="sfBox"><span>Sfide a obiettivo: scegli il livello e lo scenario</span><div class="seg" id="slv"></div><div class="sclist" id="sclist"></div></div>
     <div class="row">
       <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
       <div class="field" id="layoutF"><span>Squadre</span><div class="seg" id="layout"></div></div>
@@ -363,11 +420,76 @@ sub{font-size:.7em}
   <div class="card0">
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
+    <div id="scSol"></div>
+    <div id="regBox"></div>
     <h2>Lo sapevi?</h2>
     <div class="facts" id="facts"></div>
-    <div class="actions"><button class="start" id="again">Nuova partita</button><button class="btn2" id="labE">🔬 Laboratorio delle centrali</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div class="actions"><button class="start" id="again">Nuova partita</button><button class="btn2 big2 hide" id="nextSc">Prossima sfida ›</button><button class="btn2" id="labE">🔬 Laboratorio delle centrali</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
   </div>
 </section>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -437,7 +559,119 @@ const ORDER = ['sol','eol','idro','geo','mar','carb','petr','gas','nuc','bat'];
 const STACK = ['sol','eol','idro','geo','mar','nuc','carb','petr','gas','bat'];
 const LEG = {sol:'Sole', eol:'vento', idro:'acqua', geo:'geotermico', mar:'maree', nuc:'nucleare', carb:'carbone', petr:'petrolio', gas:'gas', bat:'batterie'};
 const TER = {prato:'pianura', collina:'collina soleggiata', costa:'costa ventosa', fiume:'fiume', montagna:'montagna', citta:'città', geo:'sorgente geotermica', baia:'baia delle maree'};
-const palOf = () => ORDER.filter(k=>!PL[k].rare || S.map.includes(PL[k].on[0]));
+const palOf = () => ORDER.filter(k=>(!PL[k].rare || S.map.includes(PL[k].on[0])) && (!S.sc || S.sc.only.includes(k)));
+
+/* ===================================================================================
+   SFIDE A OBIETTIVO — scenari di una giornata, con mappa, tempo, vento e domanda fissi
+   (la previsione mentre si costruisce coincide con la giornata vera).
+   map: 24 lettere, 4 righe da 6 (p pianura, k collina, c costa, f fiume, m montagna, x città, g sorgente geotermica, b baia delle maree).
+   W: vento per le 24 ore, oppure [media, ampiezza, fase] di un'onda; dem: domanda rispetto alla città della partita (1 ≈ 110.000 abitanti).
+   Stelle: ★ = nessun blackout (e CO₂ ≤ co2max, se c'è); ★★ e ★★★ se la misura (met: 'co2' in t oppure 'spesa' in M€) è entro s2 e s3.
+   sol: una soluzione da ★★★ (S fotovoltaico, E eolico, I idroelettrica, G gas, B batterie, N nucleare, T geotermica, M maree, C carbone, P petrolio),
+   verificata con le regole del gioco: window.__enTest.checkSfide() deve dare 3 stelle e nessun errore per ogni scenario.
+   I numeri delle spiegazioni vengono da PL (IPCC AR5 2014 per la CO₂, IRENA 2023 e IEA/NEA 2020 per i costi, WNA per le scorie). */
+const LEVELS = ['Primi passi', 'Vincoli', 'Accumuli e notte', 'Imprevisti e fortuna', 'Esperti'];
+const COMUNI = ['sol','eol','idro','carb','petr','gas','bat'];   /* tutte tranne nucleare e le due «botte di fortuna» */
+const SCN = [
+  {id:'s11', lv:1, n:'Il villaggio ventoso', story:'Una cittadina di circa 55.000 abitanti vicino al mare. Il vento soffia giorno e notte, più forte al mattino.',
+   map:'kpkppc'+'pxxpkc'+'kpppcc'+'ppkpcc', ev:'sereno', W:[.5,.25,0], dem:.5, budget:150, only:['sol','eol','gas','bat'], co2max:0, met:'co2', s3:20, s2:100,
+   sol:'.B.BBE'+'...B.E'+'....EE'+'....E.', hint:'Pale eoliche sulla costa e batterie per la sera',
+   x:'Sulla costa le pale eoliche rendono il 130% e qui il vento soffia anche di notte. Cinque pale e quattro batterie bastano: le batterie si caricano quando le pale producono più del necessario e restituiscono l\'energia la sera, quando la città ne chiede di più. L\'eolico emette circa 11 g di CO₂ per kWh nel ciclo di vita, il gas circa 490 g (IPCC).'},
+  {id:'s12', lv:1, n:'La città del fiume', story:'Una città di circa 110.000 abitanti attraversata da un grande fiume. Il vento non interessa: qui si sceglie tra acqua, Sole e gas.',
+   map:'kpfppc'+'ppfxxc'+'pkfppc'+'kpfkpc', ev:'sereno', W:[.5,.25,0], dem:1, budget:400, only:['sol','idro','gas'], co2max:0, met:'co2', s3:45, s2:150,
+   sol:'..I...'+'..I...'+'..I...'+'..I...', hint:'Centrali idroelettriche lungo tutto il fiume',
+   x:'Le centrali idroelettriche si accendono quando serve, giorno e notte, ed emettono circa 24 g di CO₂ per kWh (IPCC): meno dei pannelli (48 g) e venti volte meno del gas (490 g). Quattro centrali (4 × 30 MW = 120 MW) superano il picco della sera (108 MW). Costano 84 M€ l\'una: costruirle costa molto, ma l\'acqua del fiume è gratis.'},
+  {id:'s13', lv:1, n:'Sole e batterie', story:'Una cittadina di circa 66.000 abitanti tra colline soleggiate, senza fiumi e quasi senza vento.',
+   map:'kkpkpp'+'pxxkpk'+'kpkppp'+'ppkpkp', ev:'sereno', W:[.3,.1,0], dem:.6, budget:200, only:['sol','gas','bat'], co2max:0, met:'co2', s3:200, s2:300,
+   sol:'SSSSGB'+'B..S.S'+'S.S...'+'..S.S.', hint:'Pannelli sulle colline, batterie, gas solo di notte',
+   x:'Sulle colline i pannelli rendono il 120%. A mezzogiorno producono più del necessario: le batterie conservano quell\'energia per la sera. Di notte però il Sole non c\'è e a mezzanotte le batterie sono scariche: serve una centrale a gas, che si regola e lavora solo quando manca energia. Più pannelli e batterie significano meno ore di gas e quindi meno CO₂.'},
+  {id:'s21', lv:2, n:'L\'isola senza vento costante', story:'Un\'isola di circa 66.000 abitanti, senza fiumi. Al mattino soffia il vento del mare, dal pomeriggio l\'aria si ferma fino a notte.',
+   map:'cccccc'+'ckxxpc'+'cpkppc'+'cccccc', ev:'sereno', W:[.35,.35,.35,.35,.3,.3,.45,.55,.6,.6,.55,.5,.4,.3,.2,.1,.05,.05,.05,.05,.05,.05,.05,.05], dem:.6, budget:220, only:['sol','eol','carb','petr','gas','bat'], co2max:150, met:'co2', s3:40, s2:125,
+   sol:'EEEEES'+'SS..BB'+'.BSBB.'+'......', hint:'Vento e Sole caricano le batterie per la sera',
+   x:'Il vento del mattino e il Sole di mezzogiorno producono più energia di quella che serve: con molte batterie la si conserva per la sera e la notte, quando il vento cala. Sulla costa le pale rendono il 130%. La centrale a carbone invece non si spegne mai: da sola, in un giorno, emetterebbe circa 787 t di CO₂ (40 MW × 24 h × 820 g per kWh, IPCC).'},
+  {id:'s22', lv:2, n:'La città di montagna', story:'Una città di circa 77.000 abitanti in una valle tra le montagne, con un torrente. Oggi in valle l\'aria è ferma.',
+   map:'mmfmmk'+'mkfxxk'+'pkfkpm'+'mpfppm', ev:'calma', W:[.4,.2,9], dem:.7, budget:260, only:COMUNI, co2max:0, met:'co2', s3:30, s2:60,
+   sol:'..I...'+'..I...'+'..I...'+'......', hint:'Tre centrali idroelettriche sul torrente',
+   x:'In montagna l\'acqua scende con forza: l\'idroelettrico è la fonte giusta. Con 260 M€ si possono costruire tre centrali da 30 MW (252 M€): insieme danno 90 MW, più del picco della sera (76 MW), giorno e notte, con circa 24 g di CO₂ per kWh (IPCC). In Italia l\'idroelettrico è da sempre una delle fonti rinnovabili più importanti, soprattutto sulle Alpi.'},
+  {id:'s23', lv:2, n:'Ondata di caldo', story:'Una città di circa 110.000 abitanti in piena estate: nel pomeriggio tutti accendono i condizionatori e la richiesta sale del 30%.',
+   map:'kpfkpc'+'ppfxxc'+'kkfppc'+'kpfkpc', ev:'caldo', W:[.3,.15,0], dem:1, budget:260, only:COMUNI, co2max:400, met:'co2', s3:200, s2:280,
+   sol:'SSISS.'+'GB....'+'SS.BB.'+'S..S..', hint:'Tanti pannelli: il caldo arriva quando c\'è il Sole',
+   x:'Il caldo arriva proprio quando il Sole è alto: i pannelli fotovoltaici (meglio sulle colline, 120%) coprono gran parte del picco del pomeriggio. Una centrale idroelettrica e tre batterie coprono la sera; la centrale a gas serve solo nelle ore più difficili. Più pannelli vuol dire meno gas e quindi meno CO₂.'},
+  {id:'s31', lv:3, n:'Sera e notte senza vento', story:'Una città di circa 77.000 abitanti. Oggi c\'è pochissimo vento e a mezzanotte le batterie sono scariche: bisogna pensare alla sera e alla notte.',
+   map:'kpkppc'+'pxxpkc'+'kpfppc'+'ppfpcc', ev:'calma', W:[.5,.25,0], dem:.7, budget:300, only:COMUNI, co2max:150, met:'co2', s3:45, s2:100,
+   sol:'SSSBBE'+'...BSE'+'S.I..E'+'....E.', hint:'Idroelettrico per la notte, Sole e batterie la sera',
+   x:'Di notte non c\'è Sole e il vento è debolissimo: la centrale idroelettrica sul fiume dà 30 MW, quasi tutto quello che serve. Cinque pannelli caricano le batterie a mezzogiorno e le batterie coprono il picco della sera. Anche con così poco vento, quattro pale sulla costa danno di notte quel piccolo aiuto che evita il blackout.'},
+  {id:'s32', lv:3, n:'Inverno in pianura', story:'Una città di circa 110.000 abitanti in inverno: il Sole è basso e la sera serve il 20% di energia in più per luci e riscaldamento.',
+   map:'mpkfpc'+'pxxfkc'+'kppppc'+'pkpppc', ev:'inverno', W:[.45,.2,4], dem:1, budget:300, only:COMUNI, co2max:200, met:'co2', s3:35, s2:100,
+   sol:'EBEIBE'+'...IEE'+'.....E'+'.....E', hint:'Vento sulla costa e in montagna, acqua per la sera',
+   x:'D\'inverno i pannelli producono poco: meglio puntare sul vento, che sulla costa e in montagna rende il 130%, e sulle due centrali idroelettriche, che si accendono quando serve. Due batterie conservano il vento in più per il picco della sera.'},
+  {id:'s33', lv:3, n:'100% rinnovabili', story:'La città (circa 110.000 abitanti) vuole usare solo fonti rinnovabili: niente carbone, petrolio, gas o nucleare.',
+   map:'mpkfpc'+'pxxfkc'+'kppppc'+'mkpppc', ev:'sereno', W:[.4,.25,2], dem:1, budget:330, only:['sol','eol','idro','bat'], co2max:0, met:'spesa', s3:260, s2:290,
+   sol:'ESS.SE'+'B...SE'+'SBBBBE'+'ESB..E', hint:'Mescola Sole, vento e batterie: costano poco', src:'IRENA, Renewable Power Generation Costs in 2023, 2024',
+   x:'Sole e vento costano poco (11 e 14 M€) e si completano: il vento soffia anche di notte, il Sole a mezzogiorno. Le batterie (16 M€) spostano l\'energia in più verso la sera. Così si spende meno che con l\'idroelettrico (84 M€ l\'una). Tra il 2010 e il 2023 il costo per costruire un impianto fotovoltaico è sceso dell\'86% e quello di un parco eolico a terra del 49% (IRENA).'},
+  {id:'s41', lv:4, n:'Siccità', story:'Una città di circa 99.000 abitanti. Non piove da settimane: il fiume è basso e ogni centrale idroelettrica dà solo 12 MW invece di 30.',
+   map:'mpfkpc'+'kpfxxc'+'kpfppc'+'pkfppc', ev:'siccita', W:[.35,.2,5], dem:.9, budget:300, only:COMUNI, co2max:120, met:'co2', s3:45, s2:80,
+   sol:'ES.ESE'+'SS...E'+'S..BBE'+'BS.B.E', hint:'Con la siccità punta su Sole, vento e batterie', src:'IPCC, Sesto Rapporto (AR6), Gruppo di lavoro I, 2021 (in sintesi)',
+   x:'Con la siccità una centrale idroelettrica costa sempre 84 M€ ma dà solo 12 MW: conviene investire in pannelli e pale, che qui rendono di più, e in batterie per la sera. Secondo l\'IPCC, con il riscaldamento globale in molte regioni, tra cui il Mediterraneo, le siccità diventano più frequenti: per questo conviene non dipendere da una sola fonte.'},
+  {id:'s42', lv:4, n:'L\'isola del vulcano', story:'Un\'isola vulcanica di circa 66.000 abitanti, con una sorgente geotermica ★. Oggi il vento è debolissimo.',
+   map:'cccccc'+'cgxxkc'+'cpkppc'+'cccccc', ev:'calma', W:[.4,.2,0], dem:.6, budget:220, only:['sol','eol','geo','carb','petr','gas','bat'], co2max:120, met:'co2', s3:45, s2:105,
+   sol:'......'+'ST..S.'+'.BSBB.'+'......', hint:'Geotermica per la notte, Sole e batterie di giorno', src:'Storia dell\'energia geotermica in Italia',
+   x:'La centrale geotermica produce 25 MW sempre, giorno e notte, con circa 38 g di CO₂ per kWh (IPCC): copre quasi tutta la notte. Di giorno i pannelli caricano le batterie, che aiutano la sera. In Italia l\'energia geotermica si produce in Toscana, a Larderello, dove si accesero le prime lampadine geotermiche del mondo.'},
+  {id:'s43', lv:4, n:'La baia delle maree', story:'Una cittadina di circa 77.000 abitanti su una baia con maree fortissime ★. Il vento è debole e si vogliono solo fonti rinnovabili.',
+   map:'kpkppb'+'pxxpkc'+'kpppcc'+'ppkpcc', ev:'sereno', W:[.2,.1,0], dem:.7, budget:330, only:['sol','eol','mar','bat'], tide:3, co2max:0, met:'spesa', s3:305, s2:320,
+   sol:'SBSBBM'+'B...SE'+'S...EE'+'......', hint:'La centrale mareomotrice copre la notte',
+   x:'Di notte non c\'è Sole e il vento è debole: la marea, che sale e scende due volte al giorno, fa girare la turbina anche al buio. La centrale mareomotrice costa molto (150 M€) ma qui è indispensabile. Pannelli e batterie pensano al giorno e alla sera, tre pale sulla costa aiutano. Le maree si prevedono con anni di anticipo: si sa sempre quando la centrale produrrà.'},
+  {id:'s51', lv:5, n:'Inverno senza vento', story:'Una città di circa 88.000 abitanti in inverno, con l\'aria ferma, che vuole solo fonti rinnovabili. Il Sole è basso e la sera serve più energia.',
+   map:'mpfkpc'+'kpfxxc'+'kpfppc'+'pkpppc', ev:{k:'invcalmo', n:'Inverno senza vento', t:'Il Sole è basso, la sera serve più energia per luci e riscaldamento e l\'aria è ferma.', sun:.6, winter:true, wind:.15}, W:[.5,.2,0], dem:.8, budget:450, only:['sol','eol','idro','bat'], co2max:0, met:'spesa', s3:340, s2:380,
+   sol:'.SISS.'+'SSI...'+'SS.SS.'+'BSBB..', hint:'Due idroelettriche, tanti pannelli e batterie',
+   x:'Senza vento restano l\'acqua e il Sole. Due centrali idroelettriche (60 MW) coprono la notte; con il Sole basso servono molti pannelli per caricare le batterie a mezzogiorno, così da coprire il picco della sera (104 MW). Una terza centrale idroelettrica costerebbe 84 M€: i pannelli (11 M€) e le batterie (16 M€) costano meno.'},
+  {id:'s52', lv:5, n:'La città che cresce', story:'La città è cresciuta: circa 143.000 abitanti, il 30% in più. C\'è un grande fiume e soffia un po\' di vento.',
+   map:'kpfppc'+'ppfxxc'+'kpfpkc'+'ppfpkc', ev:'sereno', W:[.35,.2,8], dem:1.3, budget:420, only:['sol','eol','idro','carb','petr','gas','nuc','bat'], co2max:150, met:'co2', s3:45, s2:90,
+   sol:'EEI..E'+'..I..E'+'E.I.EE'+'....EE', hint:'Tre idroelettriche e pale sulla costa e sulle colline',
+   x:'Tre centrali idroelettriche (90 MW) e nove pale eoliche: l\'acqua si regola e riempie i buchi quando il vento cala. Tutta l\'energia viene da fonti rinnovabili, con circa 11 g (eolico) e 24 g (idroelettrico) di CO₂ per kWh (IPCC). La centrale nucleare costerebbe da sola 400 M€: qui non serve.'},
+  {id:'s53', lv:5, n:'Grande città, notte senza vento', story:'Una grande città di circa 165.000 abitanti, con poca acqua (due tratti di fiume) e niente vento. La sera chiede fino a 162 MW.',
+   map:'kpfppc'+'ppfxxc'+'kpppkc'+'pppkkc', ev:'calma', W:[.4,.2,8], dem:1.5, budget:600, only:['sol','eol','idro','carb','petr','gas','nuc','bat'], co2max:100, met:'spesa', s3:540, s2:580,
+   sol:'SN.BB.'+'BB....'+'SB..S.'+'...S..', hint:'Una fonte senza CO₂ sempre accesa: il nucleare', src:'World Nuclear Association, Nuclear Fuel Cycle Overview',
+   x:'Con queste regole la notte è il problema: niente Sole, niente vento, poca acqua e batterie scariche a mezzanotte; con il gas si supererebbero le 100 t di CO₂. La piccola centrale nucleare dà 80 MW giorno e notte con circa 12 g di CO₂ per kWh (IPCC); pannelli e batterie coprono la sera. Però costa 400 M€ e in un giorno produce circa 6,7 kg di combustibile esaurito, radioattivo per migliaia di anni, da custodire con grande cura (World Nuclear Association).'}
+];
+const SF = {best:{}};   /* stelle migliori della sessione (non salvate) */
+const BK = {S:'sol', E:'eol', I:'idro', G:'gas', B:'bat', N:'nuc', T:'geo', M:'mar', C:'carb', P:'petr'};
+const TL = {p:'prato', k:'collina', c:'costa', f:'fiume', m:'montagna', x:'citta', g:'geo', b:'baia'};
+const mapOf = s => s.split('').map(ch=>TL[ch]);
+const scEv = sc => typeof sc.ev==='string' ? EVENTS.find(e=>e.k===sc.ev) : sc.ev;
+const windOf = sc => sc.W.length===24 ? sc.W.slice() : Array.from({length:24}, (_,h)=>Math.max(.05, Math.min(1, sc.W[0] + sc.W[1]*Math.sin(2*Math.PI*(h + sc.W[2])/24))));
+function scDay(sc, map){ const ev = scEv(sc); return {ev, D:demand(1, ev).map(v=>Math.round(v*sc.dem)), W:windOf(sc), map, tide:sc.tide || 0}; }
+const starsHTML = n => `<span class="stars" aria-label="${n} stell${n===1 ? 'a' : 'e'} su 3">${'★'.repeat(n)}<i>${'★'.repeat(3-n)}</i></span>`;
+const goalTxt = sc => `Nessun blackout${sc.co2max ? ` e al massimo ${sc.co2max} t di ${CO2}` : ''}, ${sc.met==='co2' ? `con meno ${CO2} possibile` : 'spendendo il meno possibile'}. Budget: ${sc.budget} M€.`;
+const thrList = sc => ['★ obiettivo raggiunto'].concat(sc.met==='co2' ? [`★★ ${CO2} fino a ${sc.s2} t`, `★★★ ${CO2} fino a ${sc.s3} t`] : [`★★ spesa fino a ${sc.s2} M€`, `★★★ spesa fino a ${sc.s3} M€`]);
+/* valutazione: si confrontano i valori arrotondati, quelli che la squadra vede */
+function evalSc(sc, r, spent){
+  const co2 = Math.round(r.co2), okBo = r.bo===0, okCo2 = !sc.co2max || co2 <= sc.co2max, m = sc.met==='co2' ? co2 : spent;
+  return {stars: !(okBo && okCo2) ? 0 : m <= sc.s3 ? 3 : m <= sc.s2 ? 2 : 1, co2, spent, okBo, okCo2, m, bo:r.bo, cov:r.cov, ren:r.ren};
+}
+/* righe ✓ / ✗ dell'esito */
+function scChecks(sc, e){
+  const ok = (b, t) => `<span class="${b ? 'okc' : 'koc'}">${b ? '✓' : '✗'}</span> ${t}`, req = e.okBo && e.okCo2, u = sc.met==='co2' ? 't' : 'M€', w = sc.met==='co2' ? CO2 : 'spesa';
+  const rows = [ok(e.okBo, e.bo ? `${e.bo} or${e.bo===1 ? 'a' : 'e'} di blackout` : 'Luci sempre accese')];
+  if(sc.co2max) rows.push(ok(e.okCo2, `${CO2}: ${N(e.co2)} t (limite ${sc.co2max} t)`));
+  rows.push(ok(req && e.m <= sc.s2, `★★ ${w} fino a ${sc.s2} ${u}`), ok(req && e.m <= sc.s3, `★★★ ${w} fino a ${sc.s3} ${u}`));
+  return rows;
+}
+/* la soluzione di riferimento, costruita e simulata con le stesse regole della partita */
+function scRef(sc){
+  const map = mapOf(sc.map), team = {map:Array(MC*MR).fill(null)}, errs = []; let spent = 0;
+  sc.sol.split('').forEach((ch,i)=>{ if(ch==='.') return; const k = BK[ch]; const why = canBuild(k, map, i); if(why) errs.push(`riquadro ${i}, ${k}: ${why}`); if(!sc.only.includes(k)) errs.push(`${k} non è tra le centrali dello scenario`); team.map[i] = k; spent += PL[k].cost; });
+  if(spent > sc.budget) errs.push('budget superato');
+  const r = simulate(team, scDay(sc, map));
+  return {map, team, spent, r, e:evalSc(sc, r, spent), errs};
+}
+function checkSfide(){ return SCN.map(sc=>{ const x = scRef(sc); if(x.e.stars !== 3) x.errs.push(`stelle: ${x.e.stars}`); return {id:sc.id, lv:sc.lv, stars:x.e.stars, spesa:x.spent, co2:x.e.co2, blackout:x.e.bo, errori:x.errs}; }); }
+/* piccola mappa della soluzione */
+function miniMap(map, plants){
+  let h = '';
+  map.forEach((ter,i)=>{ const x = (i % MC)*100, y = Math.floor(i/MC)*100; h += terrSVG(ter, x, y) + (plants[i] ? plantSVG(plants[i], x+8, y+8, 84) : '') + `<rect x="${x}" y="${y}" width="100" height="100" fill="none" stroke="rgba(0,0,0,.08)"/>`; });
+  return `<svg viewBox="0 0 ${MC*100} ${MR*100}" role="img" aria-label="Mappa con una buona soluzione">${h.replace(/class="win"/g, 'class="win" fill="#FFE66B"')}</svg>`;
+}
 
 /* ---------- disegni ---------- */
 function terrSVG(t, x, y){
@@ -468,7 +702,7 @@ function plantSVG(k, x, y, sz){
 const cardSVG = k => `<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#DCEBCF"/>${k==='del' ? '<path d="M28 28l44 44M72 28L28 72" stroke="#D6334C" stroke-width="10" stroke-linecap="round"/>' : plantSVG(k, 0, 0, 100)}</svg>`;
 
 /* ---------- impostazioni ---------- */
-const P = {days:1, nteams:2, tplan:60, screen:'touch', layout:'side', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {days:1, nteams:2, tplan:60, screen:'touch', layout:'side', sound:true, n1:'Squadra blu', n2:'Squadra arancione', modo:'partita', slv:1, sid:'s11'};
 try{ const s = JSON.parse(localStorage.getItem('energia-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
 const save = ()=>{ try{ localStorage.setItem('energia-prefs', JSON.stringify(P)); }catch(e){} };
 function seg(id, key, items){
@@ -479,11 +713,31 @@ function seg(id, key, items){
 function syncSetup(){
   const lim = P.screen==='lim';
   $('#layoutF').classList.toggle('hide', lim || P.nteams===1); $('#n2F').classList.toggle('hide', P.nteams===1);
+  const sf = P.modo==='sfida';
+  $('#daysF').classList.toggle('hide', sf); $('#tplanF').classList.toggle('hide', sf); $('#sfBox').classList.toggle('hide', !sf);
+  $('#go').textContent = sf ? 'Inizia la sfida' : 'Inizia';
+  if(sf){
+    if(!SCN.some(s=>s.id===P.sid && s.lv===P.slv)){ P.sid = SCN.find(s=>s.lv===P.slv).id; save(); }
+    drawScList();
+    $('#rules').innerHTML = '<b>Sfide a obiettivo</b>: uno scenario breve (una giornata) con un obiettivo preciso, la stessa mappa e lo stesso tempo per tutti. Le stelle dipendono da quanto bene si raggiunge l\'obiettivo: le soglie sono scritte su ogni scenario. Non c\'è tempo limite e demolire restituisce tutto il costo: quando pensate di aver finito premete <b>✓ Conferma</b>. '
+      + (P.nteams===1 ? 'Si gioca <b>con una sola città</b>, tutti insieme.' : lim ? 'Alla LIM le squadre costruiscono <b>a turno</b>: mentre una costruisce, la città dell\'altra è nascosta.' : 'Sullo schermo multitouch le due squadre affrontano lo stesso scenario <b>insieme</b>, ognuna nella sua metà.')
+      + ' Alla fine: le stelle di ogni squadra e una buona soluzione spiegata. Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
+    return;
+  }
   $('#rules').innerHTML = (P.days===1 ? '<b>Partita rapida</b>: un solo giorno. ' : `<b>Campagna di ${P.days} giorni</b>: ogni giorno arrivano nuovi soldi, la città consuma un po' di più e cambia il tempo (nuvole, vento, siccità, caldo…). Le centrali costruite restano. `)
     + (P.nteams===1 ? 'Si gioca <b>con una sola città</b>, tutti insieme: alla fine un giudizio dice com\'è andata. ' : lim ? 'Alla LIM le squadre costruiscono <b>a turno</b> (prima una, poi l\'altra); poi la giornata scorre per tutte e due le città.' : 'Sullo schermo multitouch le squadre costruiscono <b>insieme</b>, ognuna sulla sua città (stessa mappa e stesso tempo); quando tutte e due hanno premuto «Fatto!» (o finisce il tempo) la giornata scorre.')
-    + ' Si tocca una centrale nella tavolozza (compare la sua scheda) e poi un riquadro della mappa. Punti: energia fornita, nessun blackout, quota di rinnovabili e soldi risparmiati; si perdono punti per la CO₂ e per le scorie radioattive. Nessun dato viene salvato o inviato.';
+    + ' Si tocca una centrale nella tavolozza (compare la sua scheda) e poi un riquadro della mappa. Punti: energia fornita, nessun blackout, quota di rinnovabili e soldi risparmiati; si perdono punti per la CO₂ e per le scorie radioattive. Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
+}
+/* elenco degli scenari del livello scelto, con obiettivo e soglie delle stelle */
+function drawScList(){
+  const box = $('#sclist');
+  box.innerHTML = SCN.filter(s=>s.lv===P.slv).map(s=>`<button class="scard" data-id="${s.id}" aria-pressed="${s.id===P.sid}"><div class="sch"><b>${s.n}</b>${SF.best[s.id] !== undefined ? starsHTML(SF.best[s.id]) : ''}</div><small>${s.story}</small><div class="sgoal">🎯 ${goalTxt(s)}</div><div class="sthr">${thrList(s).map(x=>`<span>${x}</span>`).join('')}</div><div class="spl">${s.only.map(k=>cardSVG(k)).join('')}</div></button>`).join('');
+  box.querySelectorAll('.scard').forEach(b=>b.onclick = ()=>{ P.sid = b.dataset.id; save(); drawScList(); });
 }
 function renderSetup(){
+  seg('#modo', 'modo', [['partita','Partita'],['sfida','Sfide a obiettivo ★']]);
+  seg('#slv', 'slv', LEVELS.map((n,i)=>[i+1, `${i+1} · ${n}`]));
+  REG.field('#regField');
   seg('#nteams', 'nteams', [[2,'Due squadre'],[1,'Una squadra (tutta la classe)']]);
   seg('#days', 'days', [[1,'Rapida (1 giorno)'],[3,'Campagna di 3 giorni'],[5,'Campagna di 5 giorni']]);
   seg('#tplan', 'tplan', [[45,'45 s'],[60,'60 s'],[90,'90 s'],[0,'Senza limite']]);
@@ -592,7 +846,8 @@ function scoreOf(r, budget){
 }
 
 /* ---------- partita ---------- */
-const S = {day:0, days:1, map:[], teams:[], ph:'', t0:0, raf:0, tick:0, next:0, turn:0, dayData:null, hour:0, facts:[], tut:null, last:{}};
+const S = {day:0, days:1, map:[], teams:[], ph:'', t0:0, raf:0, tick:0, next:0, turn:0, dayData:null, hour:0, facts:[], tut:null, last:{}, sc:null};
+const tplan = () => (S.tut || S.sc) ? 0 : P.tplan;   /* nelle sfide e nel tutorial non c'è tempo limite */
 const nm = t => t===1 ? P.n1 : P.n2;
 const ACT = () => (S.tut || P.nteams===1) ? [1] : [1,2];   /* squadre in gioco */
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
@@ -615,7 +870,7 @@ function buildHalf(t){
     <div class="pal" id="pal${t}"></div>
     <div class="info" id="info${t}"></div>
     <div class="dash" id="dash${t}"></div>
-    <div class="chartw"><div class="legend">${STACK.filter(k=>!PL[k].rare || S.map.includes(PL[k].on[0])).map(k=>`<span><i style="background:${PL[k].col}"></i>${LEG[k]}</span>`).join('')}<span><i style="background:#D6334C"></i>richiesta della città</span></div><svg id="ch${t}" viewBox="0 0 260 100" preserveAspectRatio="none"></svg></div>
+    <div class="chartw"><div class="legend">${STACK.filter(k=>(!PL[k].rare || S.map.includes(PL[k].on[0])) && (!S.sc || S.sc.only.includes(k))).map(k=>`<span><i style="background:${PL[k].col}"></i>${LEG[k]}</span>`).join('')}<span><i style="background:#D6334C"></i>richiesta della città</span></div><svg id="ch${t}" viewBox="0 0 260 100" preserveAspectRatio="none"></svg></div>
     <div class="btns"><button class="ctl" id="gd${t}">? Guida</button><button class="ready" id="rd${t}">Fatto!</button></div>
     <div class="banner" id="x${t}"></div><div class="lock" id="lk${t}"></div>`;
   h.querySelector('#pal'+t).addEventListener('pointerdown', e=>{ const c = e.target.closest('.card'); if(!c) return; e.preventDefault(); const T = S.teams[t-1]; if(!canPlan(t)){ if(c.dataset.k!=='del') infoCard(t, c.dataset.k); return; } T.sel = c.dataset.k; drawPal(t); drawMap(t, null); infoCard(t, T.sel); beep([600], 0.03); tutCheck(); });
@@ -628,7 +883,8 @@ function start(){
   clearTimeout(S.next); cancelAnimationFrame(S.raf); clearInterval(S.tick);
   S.tut = null;
   P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
-  S.days = P.days; S.day = 0; S.map = genMap(); S.facts = shuffle(allFacts());
+  S.sc = P.modo==='sfida' ? (SCN.find(s=>s.id===P.sid) || SCN[0]) : null;
+  S.days = S.sc ? 1 : P.days; S.day = 0; S.map = S.sc ? mapOf(S.sc.map) : genMap(); S.facts = shuffle(allFacts());
   S.teams = ACT().map(newTeam);
   $('#game').classList.toggle('table', P.layout==='table' && P.screen==='touch');
   ACT().forEach(buildHalf);
@@ -643,12 +899,13 @@ function nextDay(){
   clearTimeout(S.next); clearInterval(S.tick);
   S.day++;
   if(S.day > S.days){ finish(); return; }
+  if(S.sc){ scIntro(); return; }
   const ev = S.days===1 ? pick(EVENTS.filter(e=>['sereno','nuvole','vento','caldo','calma'].includes(e.k))) : S.day===1 ? EVENTS[0] : pick(EVENTS.slice(1));
   S.dayData = {ev, D:demand(S.day, ev), W:windProfile(), map:S.map, tide:Math.random()*12};
   S.teams.forEach(T=>{ T.budget += S.day===1 ? BUDGET0 : BUDGETDAY; T.ready = false; });
   $('#day').innerHTML = `<small>Giorno</small>${S.day} di ${S.days}`;
   $('#ev').innerHTML = `<b>${ev.n}</b>${ev.t}`;
-  $('#next').classList.add('hide');
+  $('#next').classList.remove('hide'); $('#next').textContent = 'Inizia ▶';
   const fact = S.facts[(S.day-1) % S.facts.length];
   const lucky = [S.map.includes('geo') ? 'una <b>sorgente geotermica</b> ★' : '', S.map.includes('baia') ? 'una <b>baia con forti maree</b> ★' : ''].filter(Boolean).join(' e ');
   ACT().forEach(t=>{ refresh(t); $('#rd'+t).classList.remove('hide','done'); $('#rd'+t).textContent = 'Fatto!';
@@ -656,16 +913,30 @@ function nextDay(){
   S.ph = 'intro';
   S.next = setTimeout(()=>{ unbanner(); plan(); }, S.day===1 ? 12000 : 7500);
 }
+/* sfida a obiettivo: presentazione dello scenario, con obiettivo e soglie delle stelle */
+function scIntro(){
+  const sc = S.sc;
+  S.dayData = scDay(sc, S.map);
+  S.teams.forEach(T=>{ T.budget = sc.budget; T.ready = false; });
+  $('#day').innerHTML = `<small>Sfida · livello ${sc.lv}</small>${sc.n}`;
+  $('#ev').innerHTML = `<b>🎯 Obiettivo</b>${goalTxt(sc)}<span class="thr">${thrList(sc).join('<br>')}</span>`;
+  $('#next').classList.remove('hide'); $('#next').textContent = 'Inizia ▶';
+  ACT().forEach(t=>{ refresh(t); $('#s'+t).textContent = '☆'; $('#rd'+t).classList.remove('hide','done'); $('#rd'+t).textContent = '✓ Conferma';
+    banner(t, `🎯 ${sc.n}<small>${sc.story} ${S.dayData.ev.n}: ${S.dayData.ev.t} La città chiede fino a ${Math.max(...S.dayData.D)} MW.</small><small><b>Obiettivo</b>: ${goalTxt(sc)}<br>${thrList(sc).join(' · ')}</small><small>Centrali disponibili: ${sc.only.map(k=>SHORT[k]).join(', ')}. Non c'è tempo limite e demolire restituisce tutto il costo. Le previsioni sotto la mappa mostrano come andrà la giornata. Quando pensate di aver finito premete <b>✓ Conferma</b>.</small>`); });
+  S.ph = 'intro';
+  S.next = setTimeout(()=>{ unbanner(); plan(); }, 20000);
+}
 function refresh(t){ const T = S.teams[t-1]; drawMap(t, null); drawPal(t); forecast(t); infoCard(t, T.sel); $('#m'+t).textContent = `${T.budget} M€`; }
 function plan(){
   S.ph = 'plan';
   const turns = P.screen==='lim' && P.nteams===2 && !S.tut;
   if(turns){ S.turn = 1; lockFor(); } else { S.turn = 0; ACT().forEach(t=>lock(t, '')); }
+  $('#next').classList.add('hide');
   ACT().forEach(t=>drawMap(t, null));
-  startTimer(S.tut ? 0 : P.tplan, ()=>{ if(turns && S.turn===1){ S.turn = 2; lockFor(); startTimer(P.tplan, ()=>runDay()); } else runDay(); });
+  startTimer(tplan(), ()=>{ if(turns && S.turn===1){ S.turn = 2; lockFor(); startTimer(tplan(), ()=>runDay()); } else runDay(); });
 }
-function lockFor(){ ACT().forEach(t=>lock(t, S.turn===t ? '' : `Costruisce ${nm(S.turn)}…`)); }
-function lock(t, msg){ const h = $('#h'+t); h.classList.toggle('locked', !!msg); $('#lk'+t).textContent = msg; }
+function lockFor(){ ACT().forEach(t=>lock(t, S.turn===t ? '' : `Costruisce ${nm(S.turn)}…${S.sc ? ' (questa città resta nascosta, per non copiare)' : ''}`)); }
+function lock(t, msg){ const h = $('#h'+t); h.classList.toggle('locked', !!msg); h.classList.toggle('cover', !!msg && !!S.sc); $('#lk'+t).textContent = msg; }
 const canPlan = t => S.ph==='plan' && !S.teams[t-1].ready && (!(P.screen==='lim' && P.nteams===2 && !S.tut) || S.turn===t);
 function startTimer(sec, cb){
   cancelAnimationFrame(S.raf);
@@ -678,15 +949,15 @@ function startTimer(sec, cb){
 function ready(t){
   if(!canPlan(t)) return;
   if(S.tut && S.tut.i < TUT_FATTO) return;
-  S.teams[t-1].ready = true; $('#rd'+t).classList.add('done'); $('#rd'+t).textContent = 'Pronti ✓'; beep([520, 780], 0.08);
-  if(P.screen==='lim' && P.nteams===2 && !S.tut){ if(S.turn===1){ S.turn = 2; lockFor(); startTimer(P.tplan, ()=>runDay()); } else runDay(); return; }
+  S.teams[t-1].ready = true; $('#rd'+t).classList.add('done'); $('#rd'+t).textContent = S.sc ? 'Confermato ✓' : 'Pronti ✓'; beep([520, 780], 0.08);
+  if(P.screen==='lim' && P.nteams===2 && !S.tut){ if(S.turn===1){ S.turn = 2; lockFor(); startTimer(tplan(), ()=>runDay()); } else runDay(); return; }
   if(S.teams.every(T=>T.ready)) runDay();
 }
 function tapTile(t, i){
   const T = S.teams[t-1], info = $('#info'+t);
   if(!canPlan(t)){ if(T.map[i]) infoCard(t, T.map[i], i); return; }
   if(!T.sel){ if(T.map[i]) infoCard(t, T.map[i], i); else info.innerHTML = `<div class="ihint">Prima tocca una centrale nella tavolozza, poi il riquadro dove costruirla. Qui c'è: <b>${TER[S.map[i]]}</b>.</div>`; return; }
-  if(T.sel==='del'){ if(T.map[i]){ const k = T.map[i]; T.map[i] = null; const back = Math.floor(PL[k].cost/2); T.budget += back; beep([400], 0.05); refresh(t); info.innerHTML = `<div class="ihint">Demolita: ${PL[k].n}. Ti restituiscono ${back} M€ (metà del costo).</div>`; tutCheck(); } return; }
+  if(T.sel==='del'){ if(T.map[i]){ const k = T.map[i]; T.map[i] = null; const back = S.sc ? PL[k].cost : Math.floor(PL[k].cost/2); T.budget += back; beep([400], 0.05); refresh(t); info.innerHTML = `<div class="ihint">Demolita: ${PL[k].n}. Ti restituiscono ${back} M€ (${S.sc ? 'tutto il costo: nella sfida state ancora progettando' : 'metà del costo'}).</div>`; tutCheck(); } return; }
   if(T.map[i]){ infoCard(t, T.map[i], i); return; }
   const why = canBuild(T.sel, S.map, i);
   if(why){ info.innerHTML = `<div class="ihint warn">Qui non si può: ${why}.</div>`; flashBad(t, i); beep([220], 0.12); return; }
@@ -700,7 +971,7 @@ const effAt = (k, i) => PL[k].eff ? (PL[k].eff[S.map[i]] || 1) : 1;
 function infoCard(t, k, i){
   const info = $('#info'+t);
   if(!k){ info.innerHTML = '<div class="ihint">Tocca una centrale nella tavolozza: qui compare la sua scheda e sulla mappa vedi dove rende di più.</div>'; return; }
-  if(k==='del'){ info.innerHTML = '<div class="ihint"><b>Demolisci</b>: tocca una centrale sulla mappa per toglierla (ti restituiscono metà del costo).</div>'; return; }
+  if(k==='del'){ info.innerHTML = '<div class="ihint"><b>Demolisci</b>: tocca una centrale sulla mappa per toglierla (ti restituiscono ' + (S.sc ? 'tutto il costo' : 'metà del costo') + ').</div>'; return; }
   const p = PL[k], [kn, kc] = KIND[p.k];
   const here = i !== undefined ? ` · <b>qui rende il ${Math.round(effAt(k,i)*100)}%</b>` : '';
   info.innerHTML = `<div class="icard"><div class="iico">${cardSVG(k)}</div><div class="itxt"><div class="ititle"><b>${p.n}</b><span class="tag ${kc}">${kn}</span><span class="ival">${p.cost} M€ · ${p.store ? `${p.store} MWh` : `${p.cap} MW`} · ${CO2} ${Math.round(p.co2*1000)} g/kWh${here}</span></div>
@@ -745,7 +1016,12 @@ function dashPlan(t, r){
   const slots = [[3,'Notte','moon'],[12,'Mezzogiorno','sun'],[19,'Sera','dusk']].map(([h,n,ic])=>{ const x = r.hours[h], prod = Math.round(x.d - x.unmet), ok = x.unmet <= x.d*0.02;
     return ind(ok ? 'ok' : 'ko', ICO[ic], n, `ore ${h}`, prod/x.d*100, `<b>${prod}</b> / ${x.d} MW`, ok ? 'basta ✓' : `mancano ${Math.round(x.unmet)} MW`); }).join('');
   const c = Math.round(r.co2), ren = Math.round(r.ren*100);
-  $('#dash'+t).innerHTML = `<div class="dt">Previsioni per la giornata ${r.bo ? `<span class="koc">· ${r.bo} ore di blackout</span>` : '<span class="okc">· luci sempre accese</span>'}</div><div class="inds">${slots}${ind(co2cls(c), ICO.co2, CO2, 'oggi', c/12, `<b>${N(c)}</b> t`, c < 250 ? 'poca' : c < 600 ? 'media' : 'tanta!')}${ind(ren >= 50 ? 'ok' : ren >= 25 ? 'mid' : 'ko', ICO.leaf, 'Rinnovabili', '', ren, `<b>${ren}</b>%`, ren >= 50 ? 'bene' : 'poche')}</div>`;
+  $('#dash'+t).innerHTML = `<div class="dt">Previsioni per la giornata ${r.bo ? `<span class="koc">· ${r.bo} ore di blackout</span>` : '<span class="okc">· luci sempre accese</span>'}</div><div class="inds">${slots}${ind(co2cls(c), ICO.co2, CO2, 'oggi', c/12, `<b>${N(c)}</b> t`, c < 250 ? 'poca' : c < 600 ? 'media' : 'tanta!')}${ind(ren >= 50 ? 'ok' : ren >= 25 ? 'mid' : 'ko', ICO.leaf, 'Rinnovabili', '', ren, `<b>${ren}</b>%`, ren >= 50 ? 'bene' : 'poche')}</div>${S.sc ? scGoalLine(t, c) : ''}`;
+}
+/* sfida: i valori da confrontare con le soglie (le stelle si vedono solo dopo «✓ Conferma») */
+function scGoalLine(t, c){
+  const sc = S.sc, spent = sc.budget - S.teams[t-1].budget;
+  return `<div class="sgl">🎯 ${sc.co2max ? `${CO2} <b>${N(c)} t</b> (limite ${sc.co2max} t) · ` : ''}${sc.met==='co2' ? (sc.co2max ? '' : `${CO2} <b>${N(c)} t</b> · `) + `★★ fino a ${sc.s2} t · ★★★ fino a ${sc.s3} t` : `spesa <b>${spent} M€</b> · ★★ fino a ${sc.s2} M€ · ★★★ fino a ${sc.s3} M€`}</div>`;
 }
 function dashSim(t, r, h){
   const x = r.hours[h], prod = Math.round(x.d - x.unmet), ok = x.unmet <= x.d*0.02, c = Math.round(r.hours.slice(0, h+1).reduce((s,y)=>s + y.co2, 0));
@@ -775,6 +1051,15 @@ function runDay(){
 }
 function endDay(res){
   S.ph = 'res';
+  if(S.sc){
+    ACT().forEach(t=>{ const T = S.teams[t-1], r = res[t-1], e = evalSc(S.sc, r, S.sc.budget - T.budget);
+      T.ev = e; T.score = e.stars; T.res.push({r, e}); T.tot.dem += r.dem; T.tot.del += r.del; T.tot.co2 += r.co2; T.tot.bo += r.bo; ORDER.forEach(k=>T.tot.src[k] += r.src[k]);
+      $('#s'+t).textContent = e.stars ? '★'.repeat(e.stars) : '0';
+      banner(t, `${starsHTML(e.stars)} ${e.stars ? 'Obiettivo raggiunto!' : 'Obiettivo non raggiunto'}<small>${scChecks(S.sc, e).join('<br>')}</small><small>Spesa ${e.spent} M€ · ${CO2} ${N(e.co2)} t · rinnovabili ${Math.round(e.ren*100)}%</small>`); });
+    beep([523, 659, 784], 0.12);
+    $('#next').classList.remove('hide'); $('#next').textContent = 'Risultati e soluzione';
+    return;
+  }
   ACT().forEach(t=>{ const T = S.teams[t-1], r = res[t-1], sc = scoreOf(r, T.budget); T.score += sc.tot; T.res.push({r, sc}); T.tot.dem += r.dem; T.tot.del += r.del; T.tot.co2 += r.co2; T.tot.bo += r.bo; ORDER.forEach(k=>T.tot.src[k] += r.src[k]);
     $('#s'+t).textContent = T.score;
     banner(t, `${r.bo ? 'Ci sono stati blackout!' : 'Città sempre illuminata!'}<div class="pts">${sc.rows.map(([a,b])=>`<span>${a}</span><b class="${b < 0 ? 'neg' : 'pos'}">${b > 0 ? '+' : ''}${b}</b>`).join('')}<span>Punti del giorno</span><b>${sc.tot}</b></div>`); });
@@ -782,13 +1067,18 @@ function endDay(res){
   if(!S.tut) $('#next').classList.remove('hide'); $('#next').textContent = S.day >= S.days ? 'Risultati finali' : 'Giorno successivo';
   tutCheck();
 }
-$('#next').onclick = ()=>{ if(S.ph!=='res') return; unbanner(); nextDay(); };
+$('#next').onclick = ()=>{
+  if(S.ph==='intro'){ clearTimeout(S.next); unbanner(); plan(); return; }   /* salta la presentazione */
+  if(S.ph!=='res') return; unbanner(); nextDay(); };
 $('#stop').onclick = ()=>{ clearInterval(S.tick); cancelAnimationFrame(S.raf); clearTimeout(S.next); if(S.tut){ S.tut = null; renderSetup(); show('setup'); return; } finish(); };
 function banner(t, html){ const b = $('#x'+t); b.innerHTML = html; b.classList.add('show'); b.dataset.g = ''; }
 function unbanner(){ ACT().forEach(t=>$('#x'+t).classList.remove('show')); }
 function finish(){
-  S.ph = 'end'; clearInterval(S.tick); cancelAnimationFrame(S.raf);
-  const solo = P.nteams===1 || !!S.tut; S.tut = null;
+  S.ph = 'end'; clearInterval(S.tick); cancelAnimationFrame(S.raf); clearTimeout(S.next);
+  const tut = !!S.tut, solo = P.nteams===1 || tut; S.tut = null;
+  $('#again').textContent = S.sc ? 'Riprova la sfida' : 'Nuova partita'; $('#nextSc').classList.toggle('hide', !S.sc);
+  $('#scSol').innerHTML = ''; $('#regBox').innerHTML = ''; $('#regBox').className = '';
+  if(S.sc){ finishSfida(solo); return; }
   const [a,b] = S.teams.map(T=>T.score);
   const perDay = a / Math.max(1, S.teams[0].res.length);
   $('#res').textContent = solo ? (perDay >= 75 ? 'Città modello!' : perDay >= 55 ? 'Buona gestione dell\'energia!' : 'Si può fare meglio: riprova!') : a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
@@ -798,10 +1088,55 @@ function finish(){
       <div>Energia da fonti <b>rinnovabili</b>: <b>${Math.round(ren*100)}%</b> · da <b>combustibili fossili</b>: <b>${Math.round(fos*100)}%</b></div>
       <div>${CO2} emessa: <b>${N(Math.round(T.tot.co2))} t</b> · ore di blackout: <b>${T.tot.bo}</b> · energia fornita: <b>${Math.round(T.tot.del/(T.tot.dem || 1)*100)}%</b></div></div>`; }).join('');
   $('#facts').innerHTML = shuffle(allFacts()).slice(0, 4).map(f=>`<div class="fact">${f.t}<span class="src">Fonte: ${f.s}</span></div>`).join('');
+  if(!tut && S.teams[0].res.length) REG.report('#regBox', REG.save(regPartita()));
   if(solo || a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
 }
+/* registro di classe: la partita non ha domande, si registrano gli obiettivi raggiunti da ogni squadra */
+function regPartita(){
+  const n = S.teams[0].res.length, items = [];
+  S.teams.forEach((T,i)=>{ const who = nm(i+1), tot = T.tot.del || 1, cov = T.tot.del/(T.tot.dem || 1), co2d = T.tot.co2/n, perDay = T.score/n,
+      ren = (T.tot.src.sol + T.tot.src.eol + T.tot.src.idro + T.tot.src.geo + T.tot.src.mar)/tot;
+    items.push({t:'Fabbisogno coperto', ok:cov >= .98, q:`${who}: energia fornita ${Math.round(cov*100)}% (obiettivo: almeno 98%)`, a:'Più centrali: Notte, Mezzogiorno e Sera tutte verdi'});
+    items.push({t:'Affidabilità della rete', ok:T.tot.bo===0, q:`${who}: ${T.tot.bo} or${T.tot.bo===1 ? 'a' : 'e'} di blackout (obiettivo: nessuna)`, a:'Per la sera: idroelettrico, gas o batterie cariche'});
+    items.push({t:'Emissioni di CO₂', ok:co2d < 250 && cov >= .98, q:`${who}: ${N(Math.round(co2d))} t di CO₂ al giorno${cov < .98 ? ', ma l\'energia non bastava' : ''} (obiettivo: meno di 250 t, con tutta l'energia)`, a:'Più rinnovabili, meno carbone, petrolio e gas'});
+    items.push({t:'Rinnovabili', ok:ren >= .5, q:`${who}: rinnovabili al ${Math.round(ren*100)}% (obiettivo: almeno 50%)`, a:'Sole sulle colline, vento sulla costa, acqua sul fiume'});
+    items.push({t:'Bilancio dei punti', ok:perDay >= 55, q:`${who}: ${N(Math.round(perDay))} punti al giorno (obiettivo: almeno 55)`, a:'Niente energia sprecata, poca CO₂, nessun blackout'}); });
+  return {gioco:'energia', titolo:"Città dell'energia", modo: S.days===1 ? 'Partita rapida' : `Campagna di ${S.days} giorni`, livello:`${n} giorn${n===1 ? 'o' : 'i'} giocat${n===1 ? 'o' : 'i'}`,
+    squadre:S.teams.map((T,i)=>({nome:nm(i+1), punti:T.score})), items};
+}
+const goalPlain = sc => goalTxt(sc).split(CO2).join('CO₂').replace(/ Budget:.*$/, '');
+function regSfida(){
+  const sc = S.sc, l = sc.lv, items = [];
+  S.teams.forEach((T,i)=>{ const who = nm(i+1), e = T.ev;
+    items.push({t:'Fabbisogno coperto', l, ok:e.cov >= .98, q:`${who}: energia fornita ${Math.round(e.cov*100)}% in «${sc.n}» (serviva almeno il 98%)`, a:'Più centrali: Notte, Mezzogiorno e Sera tutte verdi'});
+    items.push({t:'Affidabilità della rete', l, ok:e.okBo, q:`${who}: ${e.bo} or${e.bo===1 ? 'a' : 'e'} di blackout in «${sc.n}» (obiettivo: nessuna)`, a:'Per la sera: idroelettrico, gas o batterie cariche'});
+    if(sc.co2max || sc.met==='co2'){ const lim = sc.co2max || sc.s2; items.push({t:'Emissioni di CO₂', l, ok:e.okBo && e.co2 <= lim, q:`${who}: ${N(e.co2)} t di CO₂ in «${sc.n}»${e.okBo ? '' : ', ma con blackout'} (${sc.co2max ? 'limite' : 'per ★★ al massimo'} ${lim} t)`, a:'Meno gas e carbone; più sole, vento, acqua, batterie'}); }
+    if(sc.met==='spesa') items.push({t:'Bilancio', l, ok:e.okBo && e.spent <= sc.s2, q:`${who}: spesi ${e.spent} M€ in «${sc.n}»${e.okBo ? '' : ', ma con blackout'} (per ★★ al massimo ${sc.s2} M€)`, a:'Togli le centrali che producono energia sprecata'});
+    items.push({t:'Sfida a obiettivo', l, ok:e.stars >= 1, q:`${who}, «${sc.n}» (livello ${l}): ${goalPlain(sc)}`, a:sc.hint}); });
+  return {gioco:'energia', titolo:"Città dell'energia", modo:`Sfida a obiettivo · ${sc.n}`, livello:`Livello ${l}`, squadre:S.teams.map((T,i)=>({nome:nm(i+1), punti:T.score})), items};
+}
+/* fine di una sfida: stelle di ogni squadra e una buona soluzione spiegata */
+function finishSfida(solo){
+  const sc = S.sc, done = S.teams.every(T=>T.ev), st = S.teams.map(T=>T.ev ? T.ev.stars : 0);
+  if(done) S.teams.forEach((T,i)=>{ SF.best[sc.id] = Math.max(SF.best[sc.id] || 0, st[i]); });
+  $('#res').textContent = !done ? `Sfida interrotta: ${sc.n}` : solo ? (st[0] ? `${'★'.repeat(st[0])} Sfida superata!` : 'Obiettivo non raggiunto: riprova!') : st[0]===st[1] ? (st[0] ? `Pareggio: ${'★'.repeat(st[0])} a testa` : 'Nessuna squadra ha raggiunto l\'obiettivo') : `Vince ${st[0] > st[1] ? P.n1 : P.n2}!`;
+  $('#finals').innerHTML = S.teams.map((T,i)=>{ const t = i+1, e = T.ev, tot = T.tot.del || 1;
+    if(!e) return `<div class="final t${t}"><h3>${nm(t)}</h3><div class="big">${starsHTML(0)}</div><div class="ssub">Sfida non completata</div></div>`;
+    return `<div class="final t${t}"><h3>${nm(t)}</h3><div class="big">${starsHTML(e.stars)}</div><div class="ssub">${e.stars ? 'Obiettivo raggiunto' : 'Obiettivo non raggiunto'}</div>
+      <div class="mixbar">${STACK.map(k=>T.tot.src[k] > 0 ? `<i style="width:${T.tot.src[k]/tot*100}%;background:${PL[k].col}" title="${PL[k].n}"></i>` : '').join('')}</div>
+      <div class="chk">${scChecks(sc, e).map(x=>`<span>${x}</span>`).join('')}</div>
+      <div>Spesa: <b>${e.spent} M€</b> · ${CO2}: <b>${N(e.co2)} t</b> · rinnovabili: <b>${Math.round(e.ren*100)}%</b>${T.res[0].r.nNuc ? ` · scorie: <b>${N(Math.round(T.res[0].r.wasteKg*10)/10)} kg</b>` : ''}</div></div>`; }).join('');
+  const ref = scRef(sc);
+  $('#scSol').innerHTML = `<h2>Una buona soluzione</h2><div class="ssol">${miniMap(ref.map, ref.team.map)}<div><div class="sst">${starsHTML(ref.e.stars)} Spesa ${ref.spent} M€ · ${CO2} ${N(ref.e.co2)} t · rinnovabili ${Math.round(ref.e.ren*100)}%</div>${sc.x}<span class="src">Fonti: ${CO2} nel ciclo di vita IPCC AR5 (2014); costi IRENA (2023) e IEA/NEA (2020); scorie World Nuclear Association${sc.src ? '; ' + sc.src : ''}. Non è l'unica soluzione: ce ne sono altre da ★★★.</span></div></div>`;
+  $('#facts').innerHTML = shuffle(allFacts()).slice(0, 4).map(f=>`<div class="fact">${f.t}<span class="src">Fonte: ${f.s}</span></div>`).join('');
+  if(done) REG.report('#regBox', REG.save(regSfida()));
+  if(done && st.some(Boolean)) beep([523, 659, 784, 1047], 0.13);
+  show('end');
+  try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
+}
+$('#nextSc').onclick = ()=>{ const i = SCN.findIndex(s=>s.id===P.sid), n = SCN[(i + 1) % SCN.length]; P.sid = n.id; P.slv = n.lv; save(); start(); };
 
 /* ===================== TUTORIAL GUIDATO ===================== */
 const TUT_MAP = ['montagna','prato','fiume','collina','prato','costa', 'prato','collina','fiume','citta','citta','costa', 'prato','prato','fiume','prato','collina','costa', 'collina','prato','fiume','prato','prato','costa'];
@@ -825,7 +1160,7 @@ const TUT = [
 const TUT_FATTO = 8;
 function startTutorial(){
   clearTimeout(S.next); cancelAnimationFrame(S.raf); clearInterval(S.tick);
-  S.tut = {i:0}; S.days = 1; S.day = 1; S.map = TUT_MAP.slice(); S.facts = shuffle(allFacts());
+  S.tut = {i:0}; S.sc = null; S.days = 1; S.day = 1; S.map = TUT_MAP.slice(); S.facts = shuffle(allFacts());
   S.teams = [newTeam()]; S.teams[0].budget = 300;   /* nel tutorial un po' di soldi in più, per arrivare a tutto verde */
   S.dayData = {ev:EVENTS[0], D:demand(1, EVENTS[0]), W:Array(24).fill(.6), map:S.map, tide:0};
   $('#game').classList.remove('table', 'solo');
@@ -1150,12 +1485,12 @@ const LABS = [
 /* ---------- le catene dell'energia ---------- */
 {k:'catena', n:'Le catene dell\'energia', sub:'Metti in ordine le trasformazioni', icon:'<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#EDE7FB"/><g fill="none" stroke="#6A4CD8" stroke-width="8"><rect x="8" y="38" width="36" height="24" rx="12"/><rect x="56" y="38" width="36" height="24" rx="12"/><path d="M34 50h32"/></g></svg>',
  intro:'Ogni centrale trasforma una forma di energia in un\'altra, fino all\'<b>energia elettrica</b>. Tocca le carte nell\'ordine giusto: attenzione, due carte non c\'entrano!',
- custom(s){ s.order = shuffle(ORDER).slice(0, 5); s.r = 0; s.err = 0; $('#lgoal').innerHTML = ''; catRound(s); }},
+ custom(s){ s.order = shuffle(ORDER).slice(0, 5); s.r = 0; s.err = 0; s.log = []; $('#lgoal').innerHTML = ''; catRound(s); }},
 
 /* ---------- tutto viene dal Sole? ---------- */
 {k:'sole', n:'Tutto viene dal Sole?', sub:'Da dove arriva, in fondo, l\'energia', icon:'<svg viewBox="0 0 100 100"><rect width="100" height="100" fill="#FFF3C4"/><circle cx="50" cy="50" r="18" fill="#F1C40F"/><g stroke="#F1C40F" stroke-width="6" stroke-linecap="round"><path d="M50 12v12M50 76v12M12 50h12M76 50h12M23 23l8 8M69 69l8 8M23 77l8-8M69 31l8-8"/></g></svg>',
  intro:'Quasi tutta l\'energia che usiamo viene, in fondo, dal <b>Sole</b>. Ma non proprio tutta! Tocca una centrale e poi il cesto giusto.',
- custom(s){ s.items = shuffle(Object.keys(ORIG)); s.sel = null; s.done = {}; s.err = 0; $('#lgoal').innerHTML = ''; solDraw(s, ''); }}
+ custom(s){ s.items = shuffle(Object.keys(ORIG)); s.sel = null; s.done = {}; s.err = 0; s.miss = {}; s.rec = null; $('#lgoal').innerHTML = ''; solDraw(s, ''); }}
 ];
 
 const L = {lab:null, s:null, raf:0, last:0, acc:0, gi:0, hold:0, stars:{}, stage:-1, ck:''};
@@ -1215,7 +1550,7 @@ function labLoop(now){
 }
 /* catene: le carte si toccano nell'ordine giusto */
 function catRound(s){
-  const k = s.order[s.r]; s.k = k; s.steps = chainOf(k); s.pos = 0; s.used = [];
+  const k = s.order[s.r]; s.k = k; s.steps = chainOf(k); s.pos = 0; s.used = []; s.e0 = s.err;
   const bases = s.steps.map(x=>x.split(' ').slice(0, 2).join(' '));
   s.cards = shuffle(s.steps.concat(shuffle(POOL.filter(p=>!bases.includes(p))).slice(0, 2)));
   $('#lscene').innerHTML = `<div class="lbig">${cardSVG(k)}<b>${PL[k].n}</b><small>Centrale ${s.r + 1} di ${s.order.length}</small></div>`;
@@ -1232,15 +1567,18 @@ function catDraw(s, msg){
 function catTap(s, i, el){
   if(s.pos >= s.steps.length || s.used.includes(i)) return;
   const x = s.cards[i];
-  if(x === s.steps[s.pos]){ s.used.push(i); s.pos++; beep([660, 880], .05); catDraw(s, s.pos >= s.steps.length ? `<span style="color:var(--ok)">Giusto! ${PL[s.k].n}: ${PL[s.k].ch}.</span>` : 'Giusto! E poi?'); return; }
+  if(x === s.steps[s.pos]){ s.used.push(i); s.pos++; beep([660, 880], .05); if(s.pos >= s.steps.length) s.log.push({k:s.k, ok:s.err===s.e0}); catDraw(s, s.pos >= s.steps.length ? `<span style="color:var(--ok)">Giusto! ${PL[s.k].n}: ${PL[s.k].ch}.</span>` : 'Giusto! E poi?'); return; }
   s.err++; beep([220], .12); el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
   $('#lnote').innerHTML = `<span style="color:var(--bad)">${s.steps.includes(x) ? (s.pos===0 ? 'C\'è, ma non è la prima: da quale energia si parte?' : 'C\'è, ma non adesso: che cosa viene subito dopo?') : 'Questa forma di energia non c\'entra con questa centrale.'}</span>`;
 }
 function catEnd(s){
   L.stars.catena = true; beep([523, 659, 784, 1047], .1);
   $('#lscene').innerHTML = `<div class="lbig"><div class="bigstar">★</div><b>Catene completate!</b><small>${s.order.length} centrali · ${s.err} error${s.err===1 ? 'e' : 'i'}</small></div>`;
-  $('#lctrls').innerHTML = '<p class="lintro">Ricorda: in quasi tutte le centrali c\'è una <b>turbina</b> che trasforma il movimento in <b>energia meccanica</b> e un <b>alternatore</b> che la trasforma in <b>energia elettrica</b>. Tra le centrali, solo i pannelli fotovoltaici trasformano la luce direttamente in energia elettrica.</p><button class="start" id="cagain">Gioca ancora</button>';
+  $('#lctrls').innerHTML = '<p class="lintro">Ricorda: in quasi tutte le centrali c\'è una <b>turbina</b> che trasforma il movimento in <b>energia meccanica</b> e un <b>alternatore</b> che la trasforma in <b>energia elettrica</b>. Tra le centrali, solo i pannelli fotovoltaici trasformano la luce direttamente in energia elettrica.</p><button class="start" id="cagain">Gioca ancora</button><div id="labReg"></div>';
   $('#lnote').innerHTML = '';
+  /* registro di classe: una voce per catena (giusta se completata senza errori) */
+  REG.report('#labReg', REG.save({gioco:'energia', titolo:"Città dell'energia", modo:"Laboratorio · Le catene dell'energia", livello:'—', squadre:[],
+    items:s.log.map(x=>({t:"Catene dell'energia", ok:x.ok, q:`Catena dell'energia: ${PL[x.k].n}`, a:chainOf(x.k).map(c=>c.replace(/^energia /, '').split(' ')[0]).join(' → ')}))}));
   $('#cagain').onclick = ()=>labOpen(LABS.findIndex(x=>x.k==='catena'));
 }
 /* tutto viene dal Sole? si tocca una centrale e poi un cesto */
@@ -1248,14 +1586,18 @@ function solDraw(s, msg){
   const left = s.items.filter(k=>!(k in s.done));
   $('#lscene').innerHTML = `<div class="baskets">${[[1,'☀ Viene dall\'energia del Sole','sun'],[0,'Ha un\'altra origine','oth']].map(([b,t,c])=>`<div class="basket ${c}${s.sel ? ' armed' : ''}" data-b="${b}"><h3>${t}</h3><div class="bin">${s.items.filter(k=>s.done[k]===b).map(k=>`<div class="mini">${cardSVG(k)}<span>${LEG[k]}</span></div>`).join('')}</div></div>`).join('')}</div>`;
   $('#lctrls').innerHTML = left.length ? `<div class="lct">Tocca una centrale, poi il cesto giusto</div><div class="cards2">${left.map(k=>`<button class="ecard pc${s.sel===k ? ' sel' : ''}" data-k="${k}">${cardSVG(k)}<span>${PL[k].n}</span></button>`).join('')}</div>`
-    : `<div class="lg win">★ Tutto al posto giusto! (errori: ${s.err})</div><p class="lintro">Quasi tutta l'energia viene dal Sole: direttamente (la luce), attraverso il vento e il ciclo dell'acqua, oppure attraverso la fotosintesi di milioni di anni fa (i combustibili fossili). Fanno eccezione il nucleare, la geotermia e le maree.</p><button class="start" id="sagain">Gioca ancora</button>`;
+    : `<div class="lg win">★ Tutto al posto giusto! (errori: ${s.err})</div><p class="lintro">Quasi tutta l'energia viene dal Sole: direttamente (la luce), attraverso il vento e il ciclo dell'acqua, oppure attraverso la fotosintesi di milioni di anni fa (i combustibili fossili). Fanno eccezione il nucleare, la geotermia e le maree.</p><button class="start" id="sagain">Gioca ancora</button><div id="labReg"></div>`;
   $('#lnote').innerHTML = msg;
+  if(!left.length && s.rec) REG.report('#labReg', s.rec);
   $('#lctrls').querySelectorAll('.ecard').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault(); s.sel = b.dataset.k; beep([600], .03); solDraw(s, `Hai scelto: <b>${PL[s.sel].n}</b>. Ora tocca il cesto.`); }));
   $('#lscene').querySelectorAll('.basket').forEach(b=>b.addEventListener('pointerdown', e=>{ e.preventDefault();
     if(!s.sel){ $('#lnote').innerHTML = 'Prima tocca una centrale.'; return; }
     const [ok, why] = ORIG[s.sel], k = s.sel;
-    if(+b.dataset.b === ok){ s.done[k] = ok; s.sel = null; beep([660, 880], .05); if(Object.keys(s.done).length===s.items.length){ L.stars.sole = true; beep([523, 659, 784, 1047], .1); } solDraw(s, `<span style="color:var(--ok)">Giusto! ${PL[k].n}: ${why}</span>`); }
-    else { s.err++; beep([220], .12); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); $('#lnote').innerHTML = `<span style="color:var(--bad)">Non è il cesto giusto: pensaci ancora. ${ok ? 'Segui l\'energia all\'indietro: da dove arriva?' : 'Davvero c\'entra la luce del Sole?'}</span>`; }
+    if(+b.dataset.b === ok){ s.done[k] = ok; s.sel = null; beep([660, 880], .05); if(Object.keys(s.done).length===s.items.length){ L.stars.sole = true; beep([523, 659, 784, 1047], .1);
+      /* registro di classe: una voce per centrale (giusta se messa nel cesto giusto al primo tentativo) */
+      s.rec = REG.save({gioco:'energia', titolo:"Città dell'energia", modo:'Laboratorio · Tutto viene dal Sole?', livello:'—', squadre:[],
+        items:s.items.map(c=>({t:'Origine dell\'energia', ok:!s.miss[c], q:`${PL[c].n}: la sua energia viene, in fondo, dal Sole?`, a:ORIG[c][0] ? 'Sì, viene dal Sole' : 'No, ha un\'altra origine'}))}); } solDraw(s, `<span style="color:var(--ok)">Giusto! ${PL[k].n}: ${why}</span>`); }
+    else { s.err++; s.miss[k] = true; beep([220], .12); b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); $('#lnote').innerHTML = `<span style="color:var(--bad)">Non è il cesto giusto: pensaci ancora. ${ok ? 'Segui l\'energia all\'indietro: da dove arriva?' : 'Davvero c\'entra la luce del Sole?'}</span>`; }
   }));
   const a = $('#sagain'); if(a) a.onclick = ()=>labOpen(LABS.findIndex(x=>x.k==='sole'));
 }
@@ -1264,7 +1606,7 @@ $('#labHome').onclick = ()=>{ cancelAnimationFrame(L.raf); renderSetup(); show('
 $('#labB').onclick = openLab;
 $('#labE').onclick = openLab;
 
-window.__enTest = {simulate, scoreOf, genMap, canBuild, demand, EVENTS, windProfile, PL, S, P, LABS, L, labOpen, startTutorial, TUT, tutCheck};   // solo per le verifiche automatiche
+window.__enTest = {simulate, scoreOf, genMap, canBuild, demand, EVENTS, windProfile, PL, S, P, LABS, L, labOpen, startTutorial, TUT, tutCheck, SCN, evalSc, scRef, checkSfide};   // solo per le verifiche automatiche
 })();
 </script>
 </body>

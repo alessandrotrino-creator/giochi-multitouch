@@ -168,6 +168,94 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
 .home{align-self:flex-start;color:var(--accent);font-weight:800;text-decoration:none;padding:4px 0}.home:hover{text-decoration:underline}
+
+/* ---------- le mie domande ---------- */
+#mine{overflow:auto;justify-content:center;align-items:flex-start;padding:24px 16px}
+.chip .cnt{display:inline-block;min-width:1.7em;margin-left:6px;padding:0 7px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--muted);font-size:.8rem;font-weight:800;text-align:center}
+.chip[aria-pressed="true"] .cnt{background:rgba(255,255,255,.22);border-color:transparent;color:#fff}
+.mybtn{margin-left:auto;padding:8px 16px;font-size:1rem;min-height:44px}
+.myinfo:empty{display:none}
+.myinfo b{color:var(--accent)}
+.mhead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.mhead h1{font-size:2rem}
+.mtools{display:flex;flex-wrap:wrap;gap:10px}
+.mtools .btn2{font-size:1rem}
+.mmsg{margin:0;font-weight:800;color:var(--ok);min-height:1.2em}
+.mmsg.bad{color:var(--bad)}
+.mhelp{border:2px dashed var(--line);border-radius:18px;padding:16px 20px;background:var(--surface-2);line-height:1.5}
+.mhelp h3{font-size:1.3rem;margin-bottom:6px}
+.mhelp ol{margin:6px 0;padding-left:1.3em;font-weight:700}
+.mhelp li{margin:4px 0}
+.mrow{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+.mrow .field{flex:1 1 280px}
+.btn2.mdel{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.mlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.mlist li{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:14px;padding:10px 12px;background:var(--surface-2)}
+.mlist li.on{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent)}
+.mlist li.mempty{color:var(--muted);font-weight:700;border-style:dashed}
+.mlist .mn{font-family:var(--font-title);font-size:1.2rem;color:var(--muted);min-width:1.6em;text-align:right}
+.mlist .mq{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.mlist .mt{font-weight:800;font-size:1.05rem;line-height:1.35}
+.mlist .mact{display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:flex-end;max-width:15em}
+.mlist .mact .lv{margin:0 4px 0 0}
+.mini.mdanger{color:var(--bad)}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:800;font-size:.92rem;border:1px solid var(--line);background:var(--surface)}
+.pill.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.pill.ko{color:var(--muted)}
+.mform{border:2px solid var(--accent);border-radius:20px;padding:16px 18px;display:flex;flex-direction:column;gap:14px;background:color-mix(in srgb,var(--accent) 5%,var(--surface))}
+.mform h3{font-size:1.4rem}
+.field textarea{font:inherit;font-size:1.15rem;font-weight:800;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);resize:vertical;min-height:3.2em;-webkit-user-select:text;user-select:text}
+.mans{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.field input.okf{border-color:var(--ok)}
+.field input.kof{border-color:color-mix(in srgb,var(--bad) 55%,var(--line))}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-weight:700;color:var(--muted);font-size:.95rem}
+.legend b{color:var(--ink)}
+.legend code,.mpaste code{font-family:ui-monospace,Consolas,monospace;font-weight:700;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;padding:1px 6px;color:var(--ink)}
+.legend .lg{display:inline-flex;align-items:center;gap:6px;color:var(--ink)}
+.mprev{display:flex;flex-direction:column;gap:10px;border:1px dashed var(--line);border-radius:18px;padding:12px;background:var(--bg)}
+.mprev .qbox{min-height:0}
+.mprev .qtext{font-size:1.6rem}
+.mprev .qtext.long{font-size:1.3rem} .mprev .qtext.xlong{font-size:1.1rem}
+.mprev .opts{flex:none}
+.mprev .opt{font-size:1.3rem;min-height:56px;text-align:center}
+.mprev .ph{color:var(--muted);opacity:.7;font-family:var(--font-body);font-weight:700;font-size:.85em;font-style:italic}
+.mprev .note{font-size:.88rem}
+.mpaste textarea{width:100%;min-height:9em;font-family:ui-monospace,Consolas,monospace;font-size:.95rem;font-weight:600}
+.mpaste .field{margin-top:10px}
+.pinfo{font-weight:800;color:var(--muted);margin:0}
+.prep{display:flex;flex-direction:column;gap:6px}
+.prep:empty{display:none}
+.prep p{margin:0;font-weight:800}
+.prep ol{margin:0;padding-left:1.2em;font-size:.92rem}
+.prep li{margin:3px 0}
+.prep .why{color:var(--bad);font-weight:800}
+.prep .ln{color:var(--muted);font-family:ui-monospace,Consolas,monospace;font-size:.88rem;word-break:break-word}
+
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -183,6 +271,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <div class="row">
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+      <div class="field"><span>Classe</span><div id="regField"></div></div>
     </div>
     <div class="field"><span>Argomenti</span><div class="cgroups" id="cats"></div></div>
     <div class="row">
@@ -268,9 +357,133 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le domande e le risposte</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
+
+<!-- ============ LE MIE DOMANDE ============ -->
+<section class="screen" id="mine" aria-label="Le mie domande">
+  <div class="card">
+    <div class="mhead">
+      <div><h1>Le mie domande</h1><p class="note">Scrivi domande a scelta multipla e usale nel duello, da sole o mescolate agli argomenti automatici.</p></div>
+      <button class="btn2" id="myBack">← Torna alle impostazioni</button>
+    </div>
+    <div class="field"><span>Raccolte</span>
+      <div class="chips" id="mySets"></div>
+      <div class="mtools"><button class="btn2" id="myNew">+ Nuova raccolta</button><button class="btn2" id="myExp">Esporta tutte (file .json)</button><button class="btn2" id="myImpB">Importa da file .json</button><input type="file" id="myImp" accept=".json,application/json" hidden></div>
+      <p class="note">Le domande restano in questo browser. Per portarle su un altro computer (per esempio dal PC di casa allo schermo della scuola) usa «Esporta» e poi, sull'altro computer, «Importa»: le raccolte vengono unite a quelle già presenti.</p>
+      <p class="mmsg" id="myMsg" role="status"></p>
+    </div>
+    <div class="mhelp" id="myEmpty">
+      <h3>Non hai ancora nessuna raccolta</h3>
+      <ol>
+        <li>Tocca «+ Nuova raccolta» e dalle un nome (per esempio «Frazioni 2B»).</li>
+        <li>Scrivi le domande una alla volta, oppure incollale tutte insieme da Excel, Word o Blocco note con «Incolla da testo»: una riga per domanda.</li>
+        <li>Torna alle impostazioni: la raccolta compare fra gli argomenti, nel gruppo «Le mie domande». Sceglila da sola o insieme agli argomenti automatici.</li>
+      </ol>
+      <p class="note">Hai già un file di domande esportato da un altro computer? Usa «Importa da file .json».</p>
+    </div>
+    <div id="myEd" class="hide">
+      <div class="mrow">
+        <label class="field"><span>Nome della raccolta</span><input type="text" id="myName" maxlength="40"></label>
+        <button class="btn2 mdel" id="myDel">Elimina la raccolta</button>
+      </div>
+      <div class="field"><span id="myCount">Domande della raccolta</span><ol class="mlist" id="myList"></ol></div>
+      <div class="mform" id="myForm">
+        <h3 id="fTitle">Nuova domanda</h3>
+        <label class="field"><span>Domanda</span><textarea id="fQ" rows="2" maxlength="300" placeholder="es. Quanto vale [3/4] di 20?"></textarea></label>
+        <div class="row mans">
+          <label class="field"><span>Risposta giusta</span><input type="text" id="fA" class="okf" maxlength="120"></label>
+          <label class="field"><span>Sbagliata 1</span><input type="text" id="fW1" class="kof" maxlength="120"></label>
+          <label class="field"><span>Sbagliata 2</span><input type="text" id="fW2" class="kof" maxlength="120"></label>
+          <label class="field"><span>Sbagliata 3</span><input type="text" id="fW3" class="kof" maxlength="120"></label>
+        </div>
+        <div class="row">
+          <label class="field"><span>Spiegazione (facoltativa)</span><input type="text" id="fX" maxlength="300" placeholder="compare dopo la risposta"></label>
+          <div class="field"><span>Livello (facoltativo)</span><div class="seg" id="fL"></div></div>
+        </div>
+        <div class="legend" id="fLeg"></div>
+        <div class="field"><span>Anteprima</span><div class="mprev" id="fPrev"></div></div>
+        <p class="mmsg" id="fMsg" role="status"></p>
+        <div class="actions"><button class="start" id="fSave">Aggiungi la domanda</button><button class="btn2 hide" id="fCancel">Annulla la modifica</button></div>
+      </div>
+      <details class="mpaste" id="myPaste">
+        <summary>Incolla da testo: tante domande insieme (da Excel, Word o Blocco note)</summary>
+        <p class="note">Una domanda per riga, con i campi separati da <b>;</b> (punto e virgola) oppure da tabulazione, come succede copiando le colonne di Excel o una tabella di Word:<br>
+        <code>domanda ; giusta ; sbagliata ; sbagliata ; sbagliata ; spiegazione (facoltativa) ; livello 1-5 (facoltativo)</code><br>
+        Esempio: <code>Quanto fa 2^3 ? ; 8 ; 6 ; 9 ; 5 ; 2 * 2 * 2 = 8</code></p>
+        <label class="field"><span>Testo da incollare</span><textarea id="pTxt" spellcheck="false" placeholder="Quanto fa 2^3 ? ; 8 ; 6 ; 9 ; 5 ; 2 * 2 * 2 = 8"></textarea></label>
+        <p class="pinfo" id="pInfo"></p>
+        <div class="actions"><button class="btn2" id="pAdd">Aggiungi le righe alla raccolta</button></div>
+        <div class="prep" id="pRep"></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 
 <script>
 (function(){
@@ -889,6 +1102,100 @@ function genQ(c, l){
   return null;
 }
 
+/* ---------- le mie domande: raccolte scritte dal docente (localStorage 'duello-mie') ----------
+   raccolta: {id, nome, qs:[{q, a, w:[3 sbagliate], x, l}]}; i testi restano come li ha scritti il docente
+   (scrittura semplice) e diventano HTML solo con fmt(), che prima fa l'escape. */
+const MY_KEY = 'duello-mie';
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+/* scrittura semplice: [3/4] frazione in colonna, 2^3 e 10^-2 potenze, a^(n+1) esponente lungo, * per «·», -3 con il segno meno tipografico */
+function fmt(s){
+  let h = esc(String(s == null ? '' : s).replace(/\s+/g, ' ').trim());
+  h = h.replace(/\[([^\[\]\/]+)\/([^\[\]\/]+)\]/g, (m, n, d) => frac(n.trim(), d.trim()));
+  h = h.replace(/\^\(([^()]+)\)|\^([\-−]?[0-9A-Za-zÀ-ÿ]+(?:[,.][0-9]+)?)/g, (m, g1, g2) => `<sup>${(g1 || g2).replace(/-/g, '−')}</sup>`);
+  h = h.replace(/\s*\*\s*/g, ' · ');
+  h = h.replace(/(^|[\s(>=])-(?=\d)/g, '$1−');
+  return h;
+}
+const myStr = v => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+function myClean(it){
+  it = it || {};
+  const l = +it.l;
+  return {q:myStr(it.q).slice(0, 300), a:myStr(it.a).slice(0, 120), w:(Array.isArray(it.w) ? it.w : []).slice(0, 3).map(w=>myStr(w).slice(0, 120)), x:myStr(it.x).slice(0, 300), l:[1,2,3,4,5].includes(l) ? l : 0};
+}
+/* restituisce '' se la domanda va bene, altrimenti il motivo (in italiano) */
+function myCheck(it){
+  if(!it.q) return 'manca il testo della domanda';
+  if(!it.a) return 'manca la risposta giusta';
+  if(it.w.length < 3 || it.w.some(w=>!w)) return 'servono 3 risposte sbagliate';
+  const all = [it.a, ...it.w].map(v=>fmt(v).toLowerCase());
+  if(new Set(all).size < 4) return 'due risposte sono uguali';
+  return '';
+}
+const sameQ = (a, b) => a.q.toLowerCase() === b.q.toLowerCase();
+const MY = {sets:[]};
+function myNewId(){ let id; do{ id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }while(MY.sets.some(s=>s.id===id)); return id; }
+/* da dati qualsiasi (localStorage o file importato) a raccolte pulite; stats.bad conta le domande scartate */
+function myNormSets(arr, stats){
+  const out = [];
+  (Array.isArray(arr) ? arr : []).forEach(r=>{
+    if(!r || typeof r !== 'object') return;
+    let id = /^[a-z0-9]{4,24}$/.test(r.id) ? r.id : myNewId();
+    while(out.some(s=>s.id===id)) id = myNewId();
+    const qs = [];
+    (Array.isArray(r.qs) ? r.qs : []).forEach(raw=>{ const it = myClean(raw); if(myCheck(it) || qs.some(o=>sameQ(o, it))){ if(stats) stats.bad++; } else qs.push(it); });
+    out.push({id, nome:myStr(r.nome).slice(0, 40) || 'Raccolta senza nome', qs});
+  });
+  return out;
+}
+function myLoad(){ try{ const s = JSON.parse(localStorage.getItem(MY_KEY) || 'null'); MY.sets = myNormSets(s && s.raccolte); }catch(e){ MY.sets = []; } }
+function mySave(){ try{ localStorage.setItem(MY_KEY, JSON.stringify({v:1, raccolte:MY.sets})); return true; }catch(e){ return false; } }
+myLoad();
+const mySet = k => typeof k === 'string' && k.slice(0, 3) === 'my:' ? MY.sets.find(s=>'my:' + s.id === k) || null : null;
+/* unisce le raccolte di un file importato: stessa raccolta (id) o stesso nome → si aggiungono le domande nuove */
+function myMerge(d){
+  const stats = {bad:0}, inc = myNormSets(Array.isArray(d) ? d : d && d.raccolte, stats);
+  const res = {n:inc.length, nNew:0, nAdd:0, nDup:0, nBad:stats.bad};
+  inc.forEach(r=>{
+    let s = MY.sets.find(x=>x.id===r.id) || MY.sets.find(x=>x.nome.toLowerCase()===r.nome.toLowerCase());
+    if(!s){ s = {id:r.id, nome:r.nome, qs:[]}; MY.sets.push(s); res.nNew++; }
+    r.qs.forEach(it=>{ if(s.qs.some(o=>sameQ(o, it))) res.nDup++; else { s.qs.push(it); res.nAdd++; } });
+  });
+  return res;
+}
+/* «Incolla da testo»: una domanda per riga, campi separati da ; oppure da tabulazione (Excel, Word).
+   domanda ; giusta ; sbagliata ; sbagliata ; sbagliata ; spiegazione (facoltativa) ; livello 1-5 (facoltativo) */
+function parseLines(txt){
+  const res = {read:0, ok:[], bad:[]};
+  String(txt == null ? '' : txt).split(/\r\n|\r|\n/).forEach((line, i)=>{
+    if(!line.trim()) return;
+    res.read++;
+    const n = i + 1, tab = line.indexOf('\t') >= 0, f = line.split(tab ? '\t' : ';').map(myStr);
+    while(f.length && !f[f.length-1]) f.pop();
+    if(/^domand[ae]$/i.test(f[0] || '') && /giust|corrett|rispost/i.test(f[1] || '')){ res.bad.push({n, line, why:'è la riga di intestazione, non una domanda'}); return; }
+    if(f.length < 5){ res.bad.push({n, line, why:`ci sono ${f.length} ${f.length===1 ? 'campo' : 'campi'}: servono domanda, risposta giusta e 3 sbagliate`}); return; }
+    const rest = f.slice(5);
+    let l = 0;
+    if(rest.length >= 2 && /^[1-5]$/.test(rest[rest.length-1])) l = +rest.pop();
+    const it = myClean({q:f[0], a:f[1], w:f.slice(2, 5), x:rest.filter(Boolean).join(tab ? ' ' : '; '), l});
+    const why = myCheck(it);
+    if(why) res.bad.push({n, line, why}); else res.ok.push({n, line, it});
+  });
+  return res;
+}
+/* domanda da una raccolta: preferisce il livello richiesto, poi quelle senza livello, poi le più vicine;
+   niente ripetizioni finché ce ne sono di nuove (seen = testi già usati; null = si possono riusare) */
+function myQ(set, l, seen){
+  const cand = set.qs.map(it=>({it, q:fmt(it.q)})).filter(o=>!seen || !seen.has(o.q));
+  if(!cand.length) return null;
+  const dist = it => it.l ? Math.abs(it.l - l) : 0.5, best = Math.min(...cand.map(o=>dist(o.it)));
+  const o = pick(cand.filter(c=>dist(c.it)===best)), it = o.it, a = fmt(it.a), opts = [a, ...it.w.map(fmt)];
+  if(new Set(opts).size !== 4) return null;
+  if(seen) seen.add(o.q);
+  const q = {q:o.q, a, opts, cat:set.nome, ck:'my:' + set.id, lvl:it.l || l, pts:1, mine:true};
+  if(it.x) q.x = fmt(it.x);
+  return q;
+}
+
 /* ---------- impostazioni ---------- */
 const SCI = CATS.filter(c=>c.g==='sci').map(c=>c.k);
 const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, cdT:60, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
@@ -897,7 +1204,10 @@ try{
   if(Array.isArray(s.cats) && s.cats.includes('scienze')) s.cats = s.cats.filter(k=>k!=='scienze').concat(SCI);   // vecchio argomento unico "Scienze"
   Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; });
 }catch(e){}
-P.cats = (Array.isArray(P.cats) ? P.cats : []).filter(k=>CATS.some(c=>c.k===k));
+const isAuto = k => CATS.some(c=>c.k===k);
+P.cats = (Array.isArray(P.cats) ? P.cats : []).filter(k=>isAuto(k) || !!mySet(k));
+/* argomenti davvero utilizzabili: quelli automatici scelti + le raccolte scelte che hanno almeno una domanda */
+const activeCats = () => P.cats.filter(k=>isAuto(k) || (mySet(k) && mySet(k).qs.length > 0));
 if(Array.isArray(P.mix) && P.mix.length===3) P.mix = P.mix.concat([0,0]);
 if(!Array.isArray(P.mix) || P.mix.length!==5 || P.mix.some(v=>!Number.isInteger(v) || v < 0 || v > 12)) P.mix = [4,6,3,0,0];
 if(![1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
@@ -935,6 +1245,23 @@ const DIFFS = [['fissa','Fissa'],['cresc','Crescente'],['mix','Su misura']];
 function renderMix(){
   $('#mix').innerHTML = ['Base','Medio','Avanzato','Esperto','Campione'].map((n,i)=>`<div class="step"><b>${n}</b><button data-i="${i}" data-d="-1" aria-label="Una domanda di livello ${n} in meno">−</button><output>${P.mix[i]}</output><button data-i="${i}" data-d="1" aria-label="Una domanda di livello ${n} in più">+</button></div>`).join('') + `<span class="tot">Totale: ${mixTot()}${P.bonus ? ' + bonus' : ''}</span>`;
   $('#mix').querySelectorAll('button').forEach(b=>b.onclick = ()=>{ const i = +b.dataset.i; P.mix[i] = Math.max(0, Math.min(12, P.mix[i] + (+b.dataset.d))); save(); renderMix(); });
+  myInfo();
+}
+/* nel setup: quante domande del docente sono state scelte e se bastano per la partita */
+function myInfo(){
+  const box = $('#myInfo'); if(!box) return;
+  const sel = MY.sets.filter(s=>P.cats.includes('my:' + s.id));
+  if(!sel.length){ box.innerHTML = ''; return; }
+  const n = sel.reduce((t, s)=>t + s.qs.length, 0), onlyMine = !P.cats.some(isAuto);
+  let h = `Domande scelte dalle tue raccolte: <b>${n}</b>.`;
+  if(!n) h += ' Le raccolte scelte sono vuote: aggiungi qualche domanda con «Gestisci le mie domande».';
+  else if(isRaf() || isSv()) h += onlyMine ? ' Se finiscono prima della fine della sfida, vengono riproposte.' : ' Si alternano alle domande automatiche degli argomenti scelti.';
+  else {
+    const need = levelPlan().length + (P.bonus ? 1 : 0);
+    if(onlyMine){ if(need) h += n < need ? ` <b>Non bastano per una partita da ${need}</b>: alcune verranno ripetute.` : ` Bastano per una partita da ${need} senza ripetizioni.`; }
+    else h += ' Si mescolano alle domande automatiche degli argomenti scelti.';
+  }
+  box.innerHTML = h;
 }
 function syncSetup(){
   const lim = P.screen==='lim', raf = isRaf(), sv = isSv();
@@ -956,7 +1283,7 @@ function syncSetup(){
     $('#rules').innerHTML = [P.sfida==='count' && !P.cdT ? RULES.countZero : RULES[P.sfida], lim ? RULES.svLim : RULES.svTouch,
       P.diff==='scala' ? 'In scala: la difficoltà sale ogni 2 domande (base, base, medio, medio … campione, campione) e poi ricomincia.' : '',
       'Ogni 10 domande (la 10ª, la 20ª…) arriva una <b>domanda ★ di livello campione che vale 3 punti</b>.',
-      'Tutto resta su questo schermo: nessun dato viene salvato o inviato.'].filter(Boolean).join(' ');
+      'Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.'].filter(Boolean).join(' ');
     return;
   }
   const parts = [raf ? RULES.raffica : (lim ? RULES[P.limMode] : RULES.touch)];
@@ -964,7 +1291,7 @@ function syncSetup(){
   if(DIFF_NOTE[P.diff]) parts.push(raf && P.diff==='cresc' ? 'Difficoltà crescente: ogni 4 risposte giuste la squadra passa al livello successivo.' : DIFF_NOTE[P.diff]);
   if(P.bonus && !raf) parts.push('Alla fine arriva una <b>domanda bonus</b> di livello campione, che vale 3 punti (con il tempo raddoppiato).');
   if(!raf) parts.push('Se il tempo finisce senza risposte giuste nessuno prende il punto.');
-  parts.push('Tutto resta su questo schermo: nessun dato viene salvato o inviato.');
+  parts.push('Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.');
   $('#rules').innerHTML = parts.join(' ');
 }
 function renderSetup(){
@@ -972,10 +1299,19 @@ function renderSetup(){
     const list = CATS.filter(c=>c.g===g);
     return `<div class="cgroup"><div class="ghead"><h3>${title}</h3><button class="mini" data-all="${g}">tutti</button><button class="mini" data-none="${g}">nessuno</button></div><div class="chips">${list.map(c=>`<button class="chip" data-k="${c.k}" aria-pressed="${P.cats.includes(c.k)}">${c.n}</button>`).join('')}</div></div>`;
   };
-  $('#cats').innerHTML = grp('mat','Matematica') + grp('sci','Scienze');
+  const myGrp = () => `<div class="cgroup"><div class="ghead"><h3>Le mie domande</h3>` +
+    (MY.sets.length ? `<button class="mini" data-all="my">tutte</button><button class="mini" data-none="my">nessuna</button>` : '') +
+    `<button class="btn2 mybtn" id="myOpen">Gestisci le mie domande</button></div>` +
+    (MY.sets.length ? `<div class="chips">${MY.sets.map(s=>`<button class="chip" data-k="my:${s.id}" aria-pressed="${P.cats.includes('my:' + s.id)}">${esc(s.nome)}<span class="cnt" title="domande nella raccolta">${s.qs.length}</span></button>`).join('')}</div>`
+      : `<p class="note">Qui compariranno le raccolte di domande scritte da te: le scrivi una alla volta oppure le incolli da Excel o da Word.</p>`) +
+    `<p class="note myinfo" id="myInfo"></p></div>`;
+  $('#cats').innerHTML = grp('mat','Matematica') + grp('sci','Scienze') + myGrp();
+  const keysOf = g => g==='my' ? MY.sets.map(s=>'my:' + s.id) : CATS.filter(c=>c.g===g).map(c=>c.k);
   $('#cats').querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ const k = b.dataset.k; P.cats = P.cats.includes(k) ? P.cats.filter(x=>x!==k) : [...P.cats, k]; save(); renderSetup(); });
-  $('#cats').querySelectorAll('[data-all]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.all).map(c=>c.k); P.cats = [...new Set([...P.cats, ...ks])]; save(); renderSetup(); });
-  $('#cats').querySelectorAll('[data-none]').forEach(b=>b.onclick = ()=>{ const ks = CATS.filter(c=>c.g===b.dataset.none).map(c=>c.k); P.cats = P.cats.filter(k=>!ks.includes(k)); save(); renderSetup(); });
+  $('#cats').querySelectorAll('[data-all]').forEach(b=>b.onclick = ()=>{ const ks = keysOf(b.dataset.all); P.cats = [...new Set([...P.cats, ...ks])]; save(); renderSetup(); });
+  $('#cats').querySelectorAll('[data-none]').forEach(b=>b.onclick = ()=>{ const ks = keysOf(b.dataset.none); P.cats = P.cats.filter(k=>!ks.includes(k)); save(); renderSetup(); });
+  $('#myOpen').onclick = mineOpen;
+  if(window.REG) REG.field('#regField');
   seg('#sfida', 'sfida', [['classica','Classica'],['veloce','Velocità'],['ragion','Ragionamento'],['count','Countdown'],['high','Highlander']]);
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione']]);
   seg('#num', 'num', [[10,'10'],[15,'15'],[20,'20']]);
@@ -993,6 +1329,169 @@ function renderSetup(){
 }
 $('#n1').oninput = e=>{ P.n1 = e.target.value; save(); };
 $('#n2').oninput = e=>{ P.n2 = e.target.value; save(); };
+
+/* ---------- schermata «Le mie domande»: raccolte, elenco, modulo, incolla da testo, esporta / importa ---------- */
+const MS = {cur:null, edit:-1, lvl:0};   // raccolta aperta, domanda in modifica (-1 = nuova), livello scelto nel modulo
+const curSet = () => MY.sets.find(s=>s.id===MS.cur) || null;
+const F_IDS = ['fQ', 'fA', 'fW1', 'fW2', 'fW3', 'fX'];
+const lvName = l => l ? `${LV[l]} (${l})` : 'qualsiasi livello';
+function mineMsg(h, bad){ const m = $('#myMsg'); m.innerHTML = h || ''; m.classList.toggle('bad', !!bad); }
+function fMsg(h, bad){ const m = $('#fMsg'); m.innerHTML = h || ''; m.classList.toggle('bad', !!bad); }
+function myStore(){ const ok = mySave(); if(!ok) mineMsg('Attenzione: non sono riuscito a salvare (memoria del browser piena o bloccata).', true); return ok; }
+function mineOpen(){
+  if(!curSet()) MS.cur = MY.sets.length ? MY.sets[0].id : null;
+  formReset(); mineMsg(''); $('#pRep').innerHTML = '';
+  renderMine(); show('mine'); $('#mine').scrollTop = 0;
+}
+function renderMineSets(){
+  const box = $('#mySets');
+  box.innerHTML = MY.sets.map(s=>`<button class="chip" data-s="${s.id}" aria-pressed="${s.id===MS.cur}">${esc(s.nome)}<span class="cnt">${s.qs.length}</span></button>`).join('');
+  box.querySelectorAll('.chip').forEach(b=>b.onclick = ()=>{ if(MS.cur===b.dataset.s) return; MS.cur = b.dataset.s; formReset(); mineMsg(''); $('#pRep').innerHTML = ''; renderMine(); });
+}
+function renderMine(){
+  renderMineSets();
+  const s = curSet();
+  $('#myEmpty').classList.toggle('hide', MY.sets.length > 0);
+  $('#myEd').classList.toggle('hide', !s);
+  if(!s) return;
+  $('#myName').value = s.nome;
+  renderMineList(); formPreview(); pasteInfo();
+}
+function renderMineList(){
+  const s = curSet(); if(!s) return;
+  $('#myCount').textContent = s.qs.length ? `Domande della raccolta (${s.qs.length})` : 'Domande della raccolta';
+  $('#myList').innerHTML = s.qs.length ? s.qs.map((it, i)=>`<li class="${i===MS.edit ? 'on' : ''}"><b class="mn">${i+1}</b><div class="mq"><div class="mt">${fmt(it.q)}</div><div class="pills"><span class="pill ok" title="risposta giusta">✓ ${fmt(it.a)}</span>${it.w.map(w=>`<span class="pill ko" title="risposta sbagliata">${fmt(w)}</span>`).join('')}</div>${it.x ? `<span class="xpl">${fmt(it.x)}</span>` : ''}</div><div class="mact"><span class="lv">${lvName(it.l)}</span><button class="mini" data-e="${i}">Modifica</button><button class="mini mdanger" data-d="${i}">Elimina</button></div></li>`).join('')
+    : '<li class="mempty">La raccolta è vuota: scrivi la prima domanda qui sotto, oppure apri «Incolla da testo» per inserirne tante insieme.</li>';
+  $('#myList').querySelectorAll('[data-e]').forEach(b=>b.onclick = ()=>formEdit(+b.dataset.e));
+  $('#myList').querySelectorAll('[data-d]').forEach(b=>b.onclick = ()=>{
+    const i = +b.dataset.d, it = s.qs[i]; if(!it) return;
+    if(!confirm(`Eliminare la domanda n. ${i+1}?\n\n«${it.q}»`)) return;
+    s.qs.splice(i, 1);
+    if(MS.edit===i) formReset(); else if(MS.edit > i) MS.edit--;
+    if(myStore()) mineMsg('Domanda eliminata.');
+    renderMineList(); renderMineSets(); formPreview();
+  });
+}
+/* modulo per scrivere o modificare una domanda */
+function formItem(){ return myClean({q:$('#fQ').value, a:$('#fA').value, w:[$('#fW1').value, $('#fW2').value, $('#fW3').value], x:$('#fX').value, l:MS.lvl}); }
+function formLvl(){
+  const box = $('#fL');
+  box.innerHTML = [[0,'Qualsiasi'],[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione']].map(([v,t])=>`<button data-v="${v}" aria-pressed="${MS.lvl===v}">${t}</button>`).join('');
+  box.querySelectorAll('button').forEach(b=>b.onclick = ()=>{ MS.lvl = +b.dataset.v; formLvl(); formPreview(); });
+}
+function formReset(){
+  F_IDS.forEach(id=>{ $('#' + id).value = ''; });
+  MS.edit = -1; MS.lvl = 0; formLvl(); fMsg('');
+  $('#fTitle').textContent = 'Nuova domanda'; $('#fSave').textContent = 'Aggiungi la domanda'; $('#fCancel').classList.add('hide');
+  formPreview();
+}
+function formEdit(i){
+  const s = curSet(), it = s && s.qs[i]; if(!it) return;
+  MS.edit = i; MS.lvl = it.l || 0;
+  $('#fQ').value = it.q; $('#fA').value = it.a; $('#fW1').value = it.w[0]; $('#fW2').value = it.w[1]; $('#fW3').value = it.w[2]; $('#fX').value = it.x;
+  formLvl(); fMsg('');
+  $('#fTitle').textContent = `Modifica la domanda n. ${i+1}`; $('#fSave').textContent = 'Salva le modifiche'; $('#fCancel').classList.remove('hide');
+  renderMineList(); formPreview();
+  $('#myForm').scrollIntoView({behavior:'smooth', block:'start'});
+}
+function formPreview(){
+  const it = formItem(), s = curSet();
+  const ph = (v, t) => v ? fmt(v) : `<span class="ph">${t}</span>`;
+  const opts = [[it.a, ' right', 'risposta giusta'], [it.w[0], '', 'sbagliata 1'], [it.w[1], '', 'sbagliata 2'], [it.w[2], '', 'sbagliata 3']];
+  const L = Math.max(...opts.map(o=>(o[0] || '').length));
+  $('#fPrev').innerHTML = `<div class="qbox"><div class="cat">${esc(s ? s.nome : '')} · ${lvName(it.l)}</div><div class="qtext" id="fPq"></div></div>` +
+    `<div class="opts${L > 14 ? ' wordy' : ''}${L > 38 ? ' vwordy' : ''}">${opts.map(([v, c, t])=>`<div class="opt${c}">${ph(v, t)}</div>`).join('')}</div>` +
+    (it.x ? `<span class="xpl">Spiegazione: ${fmt(it.x)}</span>` : '') +
+    '<p class="note">In partita le risposte compaiono mescolate; qui la risposta giusta è in verde.</p>';
+  putQ($('#fPq'), it.q ? fmt(it.q) : '<span class="ph">testo della domanda</span>');
+}
+F_IDS.forEach(id=>$('#' + id).addEventListener('input', ()=>{ formPreview(); fMsg(''); }));
+$('#fLeg').innerHTML = '<b>Scrittura semplice:</b>' + [['[3/4]', 'frazione'], ['2^3', 'potenza'], ['10^-2', ''], ['a^(n+1)', 'esponente lungo'], ['5 * 3', 'per']].map(([s, t])=>`<span class="lg"><code>${esc(s)}</code> → ${fmt(s)}${t ? ` <small>(${t})</small>` : ''}</span>`).join('');
+$('#fSave').onclick = ()=>{
+  const s = curSet(); if(!s) return;
+  const it = formItem(), why = myCheck(it);
+  if(why){ fMsg(`Non posso salvare: ${why}.`, true); return; }
+  if(s.qs.some((o, i)=>i!==MS.edit && sameQ(o, it))){ fMsg('Questa domanda c\'è già nella raccolta.', true); return; }
+  const wasEdit = MS.edit >= 0;
+  if(wasEdit) s.qs[MS.edit] = it; else s.qs.push(it);
+  const ok = myStore();
+  formReset(); renderMineList(); renderMineSets();
+  if(ok) fMsg(wasEdit ? 'Modifiche salvate.' : `Domanda aggiunta: ora la raccolta ne ha ${s.qs.length}.`);
+  else fMsg('Non sono riuscito a salvare (memoria del browser piena o bloccata).', true);
+  if(!wasEdit) $('#fQ').focus();
+};
+$('#fCancel').onclick = ()=>{ formReset(); renderMineList(); };
+/* raccolte: nuova, rinomina, elimina */
+$('#myNew').onclick = ()=>{
+  let n = MY.sets.length + 1, nome = 'Nuova raccolta';
+  while(MY.sets.some(s=>s.nome.toLowerCase()===nome.toLowerCase())) nome = `Nuova raccolta ${n++}`;
+  const s = {id:myNewId(), nome, qs:[]};
+  MY.sets.push(s); MS.cur = s.id;
+  if(myStore()) mineMsg(`Raccolta «${esc(nome)}» creata: cambiale nome qui sotto e scrivi le domande.`);
+  formReset(); $('#pRep').innerHTML = ''; renderMine();
+  const inp = $('#myName'); inp.focus(); inp.select();
+};
+$('#myName').addEventListener('input', ()=>{ const s = curSet(); if(!s) return; s.nome = myStr($('#myName').value).slice(0, 40) || 'Raccolta senza nome'; mySave(); renderMineSets(); formPreview(); });
+$('#myName').addEventListener('change', ()=>{ const s = curSet(); if(s) $('#myName').value = s.nome; myStore(); });
+$('#myDel').onclick = ()=>{
+  const s = curSet(); if(!s) return;
+  if(!confirm(`Eliminare la raccolta «${s.nome}»${s.qs.length ? ` e le sue ${s.qs.length} domande` : ''}?\n\nL'operazione non si può annullare: se vuoi conservarla, prima usa «Esporta».`)) return;
+  MY.sets = MY.sets.filter(x=>x!==s);
+  P.cats = P.cats.filter(k=>k!=='my:' + s.id); save();
+  MS.cur = MY.sets.length ? MY.sets[0].id : null;
+  if(myStore()) mineMsg(`Raccolta «${esc(s.nome)}» eliminata.`);
+  formReset(); $('#pRep').innerHTML = ''; renderMine();
+};
+/* incolla da testo */
+function pasteInfo(){
+  const r = parseLines($('#pTxt').value);
+  $('#pInfo').textContent = r.read ? `Righe lette: ${r.read} · pronte: ${r.ok.length} · da correggere: ${r.bad.length}` : '';
+}
+$('#pTxt').addEventListener('input', pasteInfo);
+$('#pAdd').onclick = ()=>{
+  const s = curSet(); if(!s) return;
+  const r = parseLines($('#pTxt').value);
+  if(!r.read){ $('#pRep').innerHTML = '<p class="why">La casella è vuota: incolla prima le righe con le domande.</p>'; return; }
+  let added = 0;
+  r.ok.forEach(o=>{ if(s.qs.some(x=>sameQ(x, o.it))) r.bad.push({n:o.n, line:o.line, why:'questa domanda c\'è già nella raccolta'}); else { s.qs.push(o.it); added++; } });
+  r.bad.sort((x, y)=>x.n - y.n);
+  const ok = added ? myStore() : true;
+  $('#pRep').innerHTML = `<p>Righe lette: ${r.read}. Domande aggiunte: <span class="rok">${added}</span>${r.bad.length ? `. Righe scartate: <span class="rbad">${r.bad.length}</span> (sono rimaste nella casella, così puoi correggerle e riprovare)` : ''}.</p>` +
+    (ok ? '' : '<p class="why">Attenzione: non sono riuscito a salvare (memoria del browser piena o bloccata).</p>') +
+    (r.bad.length ? `<ol>${r.bad.map(b=>`<li>Riga ${b.n}: <span class="why">${esc(b.why)}</span><br><span class="ln">${esc(b.line.length > 110 ? b.line.slice(0, 110) + '…' : b.line)}</span></li>`).join('')}</ol>` : '');
+  $('#pTxt').value = r.bad.map(b=>b.line).join('\n');
+  pasteInfo(); renderMineList(); renderMineSets(); formPreview();
+};
+/* esporta / importa (file .json) */
+$('#myExp').onclick = ()=>{
+  if(!MY.sets.length){ mineMsg('Non ci sono ancora raccolte da esportare.', true); return; }
+  const day = new Date().toISOString().slice(0, 10);
+  const blob = new Blob([JSON.stringify({tipo:'duello-mie', v:1, data:day, raccolte:MY.sets}, null, 1)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `domande-duello-${day}.json`;
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  const n = MY.sets.reduce((t, s)=>t + s.qs.length, 0);
+  mineMsg(`Esportate ${MY.sets.length} ${MY.sets.length===1 ? 'raccolta' : 'raccolte'} (${n} domande) nel file «${a.download}», nella cartella dei download.`);
+};
+$('#myImpB').onclick = ()=>$('#myImp').click();
+$('#myImp').onchange = e=>{
+  const inp = e.target, f = inp.files && inp.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    inp.value = '';
+    let d = null; try{ d = JSON.parse(rd.result); }catch(err){ d = null; }
+    if(!d || !(Array.isArray(d) || Array.isArray(d.raccolte))){ mineMsg('Questo file non contiene domande del Duello (serve un file .json creato con «Esporta»).', true); return; }
+    const r = myMerge(d);
+    if(!r.n){ mineMsg('Nel file non ci sono raccolte di domande.', true); return; }
+    const ok = myStore();
+    if(!curSet()) MS.cur = MY.sets.length ? MY.sets[0].id : null;
+    formReset(); renderMine();
+    if(ok) mineMsg(`Importazione completata: ${r.n} ${r.n===1 ? 'raccolta letta' : 'raccolte lette'}, ${r.nNew} ${r.nNew===1 ? 'nuova' : 'nuove'}; ${r.nAdd} domande aggiunte` + (r.nDup ? `, ${r.nDup} già presenti` : '') + (r.nBad ? `, ${r.nBad} scartate perché incomplete` : '') + '.');
+  };
+  rd.onerror = ()=>{ inp.value = ''; mineMsg('Non sono riuscito a leggere il file.', true); };
+  rd.readAsText(f);
+};
+$('#myBack').onclick = ()=>{ renderSetup(); show('setup'); };
 
 /* ---------- suoni ---------- */
 let AC = null;
@@ -1012,13 +1511,18 @@ function levelPlan(){
   return Array(P.num).fill(P.lvl);
 }
 function drawQ(l, seen){
+  const ks = activeCats(); if(!ks.length) return null;
   for(let g=0; g<60; g++){
-    const c = CATS.find(x=>x.k===pick(P.cats)); if(!c) continue;
+    const k = pick(ks), ms = mySet(k);
+    if(ms){ const q = myQ(ms, l, seen); if(q) return q; continue; }   // raccolta finita: si prova un altro argomento
+    const c = CATS.find(x=>x.k===k); if(!c) continue;
     const q = genQ(c, l);
     if(!q || seen.has(q.q)) continue;
-    seen.add(q.q); q.cat = c.n; q.lvl = l; q.pts = 1; return q;
+    seen.add(q.q); q.cat = c.n; q.ck = c.k; q.lvl = l; q.pts = 1; return q;
   }
-  return null;
+  /* le domande del docente non bastano: si riusano */
+  const mk = ks.filter(k=>mySet(k));
+  return mk.length ? myQ(mySet(pick(mk)), l, null) : null;
 }
 function makeQuestions(){
   const out = [], seen = new Set();
@@ -1054,7 +1558,7 @@ function setBar(f){
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
 function stopAll(){ clearTimeout(G.nextTimer); cancelAnimationFrame(G.timerRaf); cancelAnimationFrame(LG.raf); LG.onEnd = null; R.on = false; R.tos.forEach(clearTimeout); R.tos = []; SV.on = false; SV.tos.forEach(clearTimeout); SV.tos = []; }
 function start(){
-  if(!P.cats.length){ $('#warn').textContent = 'Scegli almeno un argomento.'; return; }
+  if(!activeCats().length){ $('#warn').textContent = P.cats.length ? 'Le raccolte scelte sono vuote: aggiungi qualche domanda o scegli anche un argomento.' : 'Scegli almeno un argomento.'; return; }
   const raf = isRaf(), sv = isSv(), live = raf || sv;
   if(!live && P.diff==='mix' && !mixTot() && !P.bonus){ $('#warn').textContent = 'Metti almeno una domanda in «Domande per livello».'; return; }
   $('#warn').textContent = '';
@@ -1153,10 +1657,10 @@ $('#pause').onclick = ()=>{
 $('#stop').onclick = ()=>{ stopAll(); finish(); };
 
 /* ---------- velocità multitouch: raffica, ogni squadra con le sue domande ---------- */
-const R = {on:false, q:[null,null], seen:[null,null], busy:[false,false], t0:0, dur:0, pauseAt:0, tos:[]};
+const R = {on:false, q:[null,null], seen:[null,null], busy:[false,false], wrong:[false,false], t0:0, dur:0, pauseAt:0, tos:[]};   // wrong: errore sulla domanda in corso (per il registro)
 function rafLevel(t){ return P.diff==='fissa' ? P.lvl : Math.min(5, 1 + Math.floor(G.score[t-1]/4)); }
 function rafStart(){
-  Object.assign(R, {on:true, q:[null,null], seen:[new Set(), new Set()], busy:[false,false], dur:P.rafT*1000, tos:[]});
+  Object.assign(R, {on:true, q:[null,null], seen:[new Set(), new Set()], busy:[false,false], wrong:[false,false], dur:P.rafT*1000, tos:[]});
   G.done = false; G.lock = [0,0];
   [1,2].forEach(rafNext);
   R.t0 = performance.now(); rafClock();
@@ -1166,20 +1670,20 @@ function rafNext(t){
   let q = drawQ(rafLevel(t), R.seen[t-1]);
   if(!q){ R.seen[t-1].clear(); q = drawQ(rafLevel(t), R.seen[t-1]); }
   if(!q) return;
-  R.q[t-1] = q; R.busy[t-1] = false;
+  R.q[t-1] = q; R.busy[t-1] = false; R.wrong[t-1] = false;
   renderHalf(t, q, rafAnswer);
 }
 function rafAnswer(t, btn){
   if(!R.on || G.paused || R.busy[t-1] || G.lock[t-1] || btn.disabled) return;
   const q = R.q[t-1];
   if(btn.dataset.ok === 'true'){
-    R.busy[t-1] = true; G.score[t-1]++; $('#s'+t).textContent = G.score[t-1];
+    R.busy[t-1] = true; R.wrong[t-1] = false; G.score[t-1]++; $('#s'+t).textContent = G.score[t-1];
     btn.classList.add('right'); beep([700, 940], 0.07);
     $('#b'+t).textContent = '+1'; $('#b'+t).classList.add('show');
     G.log.push({q, who:t});
     R.tos.push(setTimeout(()=>rafNext(t), 450));
   } else {
-    btn.classList.add('wrong'); btn.disabled = true; beep([220], 0.15);
+    btn.classList.add('wrong'); btn.disabled = true; beep([220], 0.15); R.wrong[t-1] = true;
     G.lock[t-1] = 1; $('#h'+t).classList.add('locked');
     R.tos.push(setTimeout(()=>{ G.lock[t-1] = 0; if(!G.paused) $('#h'+t).classList.remove('locked'); }, 1500));
   }
@@ -1203,8 +1707,11 @@ function rafClock(){
 const SCALA = [1,1,2,2,3,3,4,4,5,5], HIGH_T = 10;
 const SV = {on:false, phase:'', cur:0, qs:[[],[]], seen:new Set(), st:[], t0:0, pauseAt:0, tos:[]};
 function svDraw(l, ck){
+  const ks = activeCats(); if(!ks.length) return null;
   for(let g=0; g<60; g++){
-    const c = CATS.find(x=>x.k===(ck || pick(P.cats))); if(!c) return null;
+    const k = ck || pick(ks), ms = mySet(k);
+    if(ms){ const q = myQ(ms, l, SV.seen); if(q) return q; if(ck) return null; continue; }   // gemella: stessa raccolta
+    const c = CATS.find(x=>x.k===k); if(!c) return null;
     const q = genQ(c, l); if(!q || SV.seen.has(q.q)) continue;
     SV.seen.add(q.q); q.cat = c.n; q.ck = c.k; q.lvl = l; q.pts = 1; return q;
   }
@@ -1344,6 +1851,17 @@ function finish(){
   $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
   const lvTag = q => `<span class="lv${q.bonus ? ' b4' : ''}">${q.bonus ? 'Bonus' : LV[q.lvl]}</span>`;
   $('#recap').innerHTML = `<tr><th>#</th><th>Domanda</th><th>Risposta</th><th>${raf || sv ? 'Squadra' : 'Punto'}</th></tr>` + G.log.map((r,i)=>`<tr><td>${i+1}</td><td>${r.q.q}${lvTag(r.q)}</td><td><b>${r.q.a}</b>${r.q.x ? `<span class="xpl">${r.q.x}</span>` : ''}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${r.who===1 ? P.n1 : P.n2}${r.q.pts > 1 ? ` (+${r.q.pts})` : ''}` : r.miss ? `<span class="dot" style="background:var(--t${r.miss})"></span>${r.miss===1 ? P.n1 : P.n2}: ✗ ${r.why.toLowerCase()}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per domanda giocata; nella raffica, nel Countdown e nell'Highlander una per squadra (G.log ha già questa forma) */
+  const txt = h => { const e = document.createElement('textarea'); e.innerHTML = window.REG ? REG.plain(h) : h; return e.value; };   // testo semplice, con &amp; &#39;… decodificati
+  const items = G.log.map(r=>{ const it = {t:r.q.cat, l:r.q.lvl, ok:r.who > 0}; if(!it.ok){ it.q = txt(r.q.q); it.a = txt(r.q.a); } return it; });
+  if(raf) [0,1].forEach(i=>{ const q = R.q[i]; if(q && R.wrong[i]) items.push({t:q.cat, l:q.lvl, ok:false, q:txt(q.q), a:txt(q.a)}); });   // domanda lasciata a metà dopo un errore
+  if(window.REG){
+    const SF = {classica:'Classica', veloce: raf ? 'Velocità (raffica)' : 'Velocità', ragion:'Ragionamento', count:'Countdown', high:'Highlander'};
+    const modo = `${SF[P.sfida] || P.sfida} · ${P.screen!=='lim' ? 'multitouch' : sv ? 'LIM' : P.limMode==='pren' ? 'LIM con prenotazione' : 'LIM a turni'}`;
+    const livello = P.diff==='fissa' ? LV[P.lvl] : ({cresc:'Crescente', mix:'Su misura', scala:'In scala'})[P.diff] || P.diff;
+    if(items.length) REG.report('#regBox', REG.save({gioco:'duello', titolo:'Duello a squadre', modo, livello, squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}));
+    else REG.report('#regBox', {items:[]});   // partita interrotta subito: niente da registrare
+  }
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -1474,7 +1992,8 @@ $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('on')) e.preventDefault(); });
 renderSetup();
-window.__duelloTest = {CATS, genQ, P, G, SV, svQ};   // solo per le verifiche automatiche delle domande
+window.__duelloTest = {CATS, genQ, P, G, SV, svQ, svDraw, drawQ, makeQuestions, activeCats,   // solo per le verifiche automatiche delle domande
+  MY, fmt, esc, parseLines, myClean, myCheck, myQ, myMerge, myNormSets, mySave, myLoad};          // le mie domande: scrittura semplice, testo incollato, generazione
 })();
 </script>
 </body>

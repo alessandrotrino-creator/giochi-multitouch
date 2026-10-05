@@ -204,6 +204,53 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ---------- sfide a obiettivo: stelle, contatori, conferma ---------- */
+.stars{height:1.3em;width:auto;vertical-align:-.28em;overflow:visible}
+.stars path{stroke-width:1.6;stroke-linejoin:round}
+.stars .on{fill:#F7C21B;stroke:#B9860A}
+.stars .off{fill:rgba(140,150,170,.16);stroke:#9AA3B5}
+.banner .stars{height:1.1em}
+.banner small .stars{height:2.1em}
+.final .fst{display:block;font-size:1.05rem;margin-top:6px}
+.final .fst .stars .on{stroke:#fff}
+.gbar{display:flex;align-items:center;justify-content:center;gap:clamp(6px,1vw,12px);flex-wrap:wrap}
+.gbar:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:800;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:3px 12px;font-size:clamp(.85rem,1.9vh,1.1rem);font-variant-numeric:tabular-nums;line-height:1.3}
+.chip b{font-family:var(--font-title);font-size:1.3em;color:var(--accent);line-height:1}
+.chip.goal{border-style:dashed;color:var(--muted)}
+.chip.warn{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.chip.done{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.confirm{min-height:50px;padding:6px 22px;border-radius:16px;border:0;background:var(--tc,var(--accent));color:#fff;font-family:var(--font-title);font-weight:800;font-size:clamp(1.05rem,2.6vh,1.5rem);touch-action:none;box-shadow:0 4px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.confirm:disabled{opacity:.35;box-shadow:none}
+.confirm:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.solpic svg{display:block;width:min(300px,100%);height:auto;margin:8px auto 0}
+.recpic svg{display:block;width:150px;height:auto;margin-bottom:4px}
+
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -219,7 +266,9 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <div class="row">
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+      <div class="field"><span>Classe</span><div id="regField"></div></div>
     </div>
+    <div class="field"><span>Tipo di sfide</span><div class="seg" id="mode"></div></div>
     <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
     <div class="row">
       <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
@@ -294,10 +343,73 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le sfide e le soluzioni</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
 
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 <script>
 (function(){
 "use strict";
@@ -308,6 +420,12 @@ const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ c
 const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
 const N = x => NF.format(x);
 const frac = (n,d) => `<span class="frac"><span>${n}</span><span>${d}</span></span>`;
+const NF3 = new Intl.NumberFormat('it-IT', {maximumFractionDigits:3});
+/* stelle disegnate in SVG (piene = guadagnate) */
+const STAR_D = 'M13 1L15.94 8.95L24.41 9.29L17.76 14.55L20.05 22.71L13 18L5.95 22.71L8.24 14.55L1.59 9.29L10.06 8.95Z';
+const starsSVG = n => `<svg class="stars" viewBox="0 0 78 26" role="img" aria-label="${n} ${n===1 ? 'stella' : 'stelle'} su 3">${[0,1,2].map(i=>`<path class="${i < n ? 'on' : 'off'}" transform="translate(${i*26} 0)" d="${STAR_D}"/>`).join('')}</svg>`;
+const STAR1 = `<svg class="stars" viewBox="0 0 26 26" aria-hidden="true"><path class="on" d="${STAR_D}"/></svg>`;
+const GOAL_LEFT = 45;   /* secondi che restano all'altra squadra quando una ha finito l'obiettivo */
 
 /* ---------- componenti ---------- */
 const VBAT = 4.5, RINT = 0.1;
@@ -400,12 +518,16 @@ function elSVG(e, k, st){
 }
 function circuitSVG(els, st){
   const nodes = new Map(); els.forEach(e=>[e.a, e.b].forEach(p=>nodes.set(nk(p), p)));
-  let h = `<rect class="pcb" x="4" y="4" width="${W-8}" height="${H-8}" rx="22"/>`;
+  /* la tavoletta si adatta alla zona usata del reticolo (tutto il reticolo = 560 × 405) */
+  let c0 = 4, c1 = 0, r0 = 3, r1 = 0; nodes.forEach(p=>{ c0 = Math.min(c0, p[0]); c1 = Math.max(c1, p[0]); r0 = Math.min(r0, p[1]); r1 = Math.max(r1, p[1]); });
+  if(c1 < c0){ c0 = 0; c1 = 4; r0 = 0; r1 = 3; }
+  const vx = X(c0) - 50, vy = Y(r0) - 45, vw = X(c1) - X(c0) + 100, vh = Y(r1) - Y(r0) + 90;
+  let h = `<rect class="pcb" x="${vx+4}" y="${vy+4}" width="${vw-8}" height="${vh-8}" rx="22"/>`;
   /* prima i fili, poi i componenti (così stanno sopra) */
   const order = els.map((e,k)=>[e,k]).sort((p,q)=>(p[0].t==='wire' ? 0 : 1) - (q[0].t==='wire' ? 0 : 1));
   order.forEach(([e,k])=>{ h += elSVG(e, k, st); });
   nodes.forEach(p=>{ h += `<circle class="node" cx="${X(p[0])}" cy="${Y(p[1])}" r="6"/>`; });
-  return `<svg class="circ${P.draw==='sym' ? ' paper' : ''}" viewBox="0 0 ${W} ${H}">${h}</svg>`;
+  return `<svg class="circ${P.draw==='sym' ? ' paper' : ''}" viewBox="${vx} ${vy} ${vw} ${vh}">${h}</svg>`;
 }
 
 /* ---------- schemi di base ---------- */
@@ -424,9 +546,10 @@ function parEls(br, mainSw){
 /* nota: in parEls la pila ha a = (0,1) in alto: il + è in alto */
 
 /* ---------- impostazioni ---------- */
-const P = {lvl:1, num:8, aid:true, draw:'real', screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {lvl:1, num:8, aid:true, draw:'real', screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, mode:'classic', n1:'Squadra blu', n2:'Squadra arancione'};
 try{ const s = JSON.parse(localStorage.getItem('circuiti-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
 if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+if(!['classic','goal'].includes(P.mode)) P.mode = 'classic';
 const save = ()=>{ try{ localStorage.setItem('circuiti-prefs', JSON.stringify(P)); }catch(e){} };
 const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
 const LVD = {
@@ -437,6 +560,14 @@ const LVD = {
   4:'Esperto: due interruttori in serie (la lampadina si accende solo se sono chiusi tutti e due); due interruttori in parallelo (basta uno dei due); lampadina sempre accesa e motore comandato; che cosa succede con tre lampadine?',
   5:'Campione: legge di Ohm (intensità di corrente con pila e resistore); resistori in serie; quale lampadina brilla di più?; un interruttore generale e uno per ogni lampadina.'
 };
+const GLD = {
+  0:'Crescente: gli obiettivi diventano più difficili uno dopo l\'altro, dal circuito più corto fino all\'interruttore generale.',
+  1:'Obiettivi base: accendere una lampadina, far suonare un cicalino o girare un motore con il minor numero di fili; un interruttore che accende e spegne; chiudere il circuito solo con gli oggetti che conducono.',
+  2:'Obiettivi medi: accendere A ma non B; due lampadine in serie; un motore con il suo interruttore; tre buchi da riempire con i conduttori; due lampadine accese come volete.',
+  3:'Obiettivi avanzati: svitando una lampadina l\'altra resta accesa; due lampadine alla luce piena; una lampadina sempre accesa e una comandata; tre lampadine in serie; tre lampadine con due pile.',
+  4:'Obiettivi esperti: due interruttori già montati da collegare in serie o in parallelo; lampadina sempre accesa e motore comandato; tre lampadine in parallelo; una corrente data con il minor numero di resistori.',
+  5:'Obiettivi campione: interruttore generale e uno per lampadina; resistori per una corrente data; accendere due lampadine su tre; A che brilla più di B e C; tre lampadine con due pile.'
+};
 function seg(id, key, items){
   const box = $(id);
   box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
@@ -446,14 +577,21 @@ function syncSetup(){
   const lim = P.screen==='lim';
   $('#layoutF').classList.toggle('hide', lim);
   $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
-  $('#lvdesc').textContent = LVD[P.lvl];
-  $('#rules').innerHTML = (lim
+  const goal = P.mode==='goal';
+  $('#lvdesc').textContent = (goal ? GLD : LVD)[P.lvl];
+  const stelle = `Le stelle diventano punti: ${starsSVG(3)} con il minimo possibile (pezzi, fili, resistori o tentativi: lo calcola il gioco provando tutte le combinazioni), ${starsSVG(2)} se ci andate vicino, ${starsSVG(1)} se l\'obiettivo è raggiunto ma con più pezzi.`;
+  $('#rules').innerHTML = (goal ? (lim
+    ? `Sfide a obiettivo alla LIM: una squadra alla volta monta il circuito e, quando è pronta, preme <b>«✓ Conferma»</b> (il gioco non controlla da solo). ${stelle} Una conferma sbagliata, il tempo scaduto o «Passa» danno all\'altra squadra la possibilità di <b>rubare</b> i punti, ripartendo da capo. Basta un tocco alla volta: tocca un pezzo del vassoio e poi il buco.`
+    : `Sfide a obiettivo in multitouch: le due squadre hanno lo stesso obiettivo e giocano insieme, ognuna sul suo circuito. Quando pensate di aver finito premete <b>«✓ Conferma»</b>: una conferma sbagliata blocca la squadra per 2 secondi. ${stelle} Se risolvono tutte e due le squadre, <b>chi finisce prima prende 1 punto in più</b>; quando una squadra ha finito, l\'altra ha ancora al massimo ${GOAL_LEFT} secondi. Alla fine si vede la soluzione migliore.`)
+    : lim
     ? 'LIM a turni: una squadra alla volta; se finisce il tempo, se preme «Passa» o se sbaglia una risposta, l\'altra squadra può <b>rubare il punto</b> partendo dal circuito com\'è. Basta un tocco alla volta: tocca un pezzo del vassoio e poi il buco.'
     : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sul suo circuito, e giocano insieme. Si trascina un pezzo dal vassoio nel buco tratteggiato (oppure si tocca il pezzo e poi il buco); un pezzo messo si toglie toccandolo; gli interruttori si aprono e chiudono con un tocco. Vince il punto chi risolve per primo.')
-    + ' Con l\'aiuto attivo si vede la corrente che scorre nei fili. Nessun dato viene salvato o inviato.';
+    + ' Un interruttore messo da voi si toglie trascinandolo fuori dal suo posto. Con l\'aiuto attivo si vede la corrente che scorre nei fili. Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
 }
 function renderSetup(){
+  seg('#mode', 'mode', [['classic','Classiche (vince chi finisce prima)'],['goal','A obiettivo, con le stelle ★']]);
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  REG.field('#regField');
   seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
   seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
   seg('#draw', 'draw', [['real','Realistico'],['sym','Schema elettrico (simboli)']]);
@@ -497,71 +635,222 @@ function makeChallenge(l){
     const v = rnd(0, l===1 ? 2 : 3);
     if(l===1){
       const free = [0,2,3,4,5,6,7,8,9,10,11,13], gap = pick(free.filter(i=>i!==1));
-      if(v===0){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}, {t:'obj', o:pick(INS), n:1}], task:'Il circuito è aperto: <b>chiudilo</b> per accendere la lampadina.', test:els=>needLit(els, ['A']), sol:'un filo di rame nel buco'}; }
-      if(v===1){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; const c = pick(COND), ins = shuffle(INS).slice(0,3); return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'obj', o:c, n:1}, ...ins.map(o=>({t:'obj', o, n:1}))]), task:'Metti nel buco <b>l\'oggetto che fa passare la corrente</b>.', test:els=>needLit(els, ['A']) ? 'questo oggetto è un isolante: la corrente non passa' : '', sol:`${OBJ[c].n}: è di metallo, quindi conduce`}; }
+      if(v===0){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}, {t:'obj', o:pick(INS), n:1}], tp:'Circuito chiuso', task:'Il circuito è aperto: <b>chiudilo</b> per accendere la lampadina.', test:els=>needLit(els, ['A']), sol:'un filo di rame nel buco'}; }
+      if(v===1){ const spec = {1:{t:'lamp', id:'A'}}; spec[gap] = {t:'slot'}; const c = pick(COND), ins = shuffle(INS).slice(0,3); return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'obj', o:c, n:1}, ...ins.map(o=>({t:'obj', o, n:1}))]), tp:'Conduttori e isolanti', task:'Metti nel buco <b>l\'oggetto che fa passare la corrente</b>.', test:els=>needLit(els, ['A']) ? 'questo oggetto è un isolante: la corrente non passa' : '', sol:`${OBJ[c].n}: è di metallo, quindi conduce`}; }
       const swi = pick(free.filter(i=>i!==1 && i!==gap)); const spec = {1:{t:'buzz', id:'C'}}; spec[gap] = {t:'slot'}; spec[swi] = sw('S', false);
-      return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], task:'Fai <b>suonare il cicalino</b>.', test:els=>{ const st = sim(els); return st.lit.C ? '' : 'il cicalino non suona: il circuito deve essere chiuso dappertutto'; }, sol:'un filo nel buco e l\'interruttore S chiuso'};
+      return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], tp:'Circuito chiuso', task:'Fai <b>suonare il cicalino</b>.', test:els=>{ const st = sim(els); return st.lit.C ? '' : 'il cicalino non suona: il circuito deve essere chiuso dappertutto'; }, sol:'un filo nel buco e l\'interruttore S chiuso'};
     }
     if(l===2){
       if(v===0){ const free = [0,2,3,4,6,7,8,9,10,11,13], gap = pick(free); const spec = {1:{t:'lamp', id:'A'}, 5:{t:'lamp', id:'B'}}; spec[gap] = {t:'slot'};
-        return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], task:'Le lampadine A e B sono <b>in serie</b>: accendile tutte e due.', test:els=>needLit(els, ['A','B']), sol:'un filo nel buco: in serie la corrente passa da tutte e due'}; }
+        return {l, kind:'build', els:loopEls(spec), tray:[{t:'wire', n:9}, {t:'obj', o:pick(INS), n:1}], tp:'Circuito in serie', task:'Le lampadine A e B sono <b>in serie</b>: accendile tutte e due.', test:els=>needLit(els, ['A','B']), sol:'un filo nel buco: in serie la corrente passa da tutte e due'}; }
       if(v===1){ const main = Math.random() < 0.5; const els = parEls([{x:2, top:sw('S1', Math.random() < 0.5), mid:{t:'lamp', id:'A'}}, {x:4, top:sw('S2', Math.random() < 0.5), mid:{t:'lamp', id:'B'}}], main ? sw('S', Math.random() < 0.5) : null);
         const want = pick([['A'],['B'],['A','B']]); if(!needLit(els, want)) continue;
-        return {l, kind:'build', els, tray:[], task:`Accendi ${want.length===2 ? '<b>tutte e due</b> le lampadine' : `<b>solo la lampadina ${want[0]}</b>`} usando gli interruttori.`, test:x=>needLit(x, want), sol:`${main ? 'S chiuso, ' : ''}${want.includes('A') ? 'S1 chiuso' : 'S1 aperto'}, ${want.includes('B') ? 'S2 chiuso' : 'S2 aperto'}`}; }
+        return {l, kind:'build', els, tray:[], tp:'Interruttori', task:`Accendi ${want.length===2 ? '<b>tutte e due</b> le lampadine' : `<b>solo la lampadina ${want[0]}</b>`} usando gli interruttori.`, test:x=>needLit(x, want), sol:`${main ? 'S chiuso, ' : ''}${want.includes('A') ? 'S1 chiuso' : 'S1 aperto'}, ${want.includes('B') ? 'S2 chiuso' : 'S2 aperto'}`}; }
       if(v===2){ const els = parEls([{x:2, top:sw('S1', true), mid:{t:'lamp', id:'A'}}, {x:4, top:sw('S2', true), mid:{t:'lamp', id:'B'}}], sw('S', true));
         const s = pick(switchesOf(els)), st = sim(els, new Map([[s, {on:false}]])), off = ['A','B'].filter(id=>!st.lit[id]);
         const ans = off.length===2 ? 'si spengono tutte e due' : off.length ? `si spegne solo ${off[0]}` : 'non cambia niente';
         const all = ['si spengono tutte e due', 'si spegne solo A', 'si spegne solo B', 'non cambia niente'].filter(x=>x!==ans);
-        return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'la pila si ricarica'), task:`Le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}: ${s.id==='S' ? 'S è sulla strada comune a tutte e due' : `${s.id} interrompe solo il suo ramo`}`}; }
+        return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'la pila si ricarica'), tp:'Interruttori', task:`Le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}: ${s.id==='S' ? 'S è sulla strada comune a tutte e due' : `${s.id} interrompe solo il suo ramo`}`}; }
       const free = [0,2,3,4,6,7,8,9,10,11,13], gap = pick(free); const spec = {1:{t:'lamp', id:'A'}, 5:{t:'motor', id:'M'}}; spec[gap] = {t:'slot'};
-      return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'wire', n:9}, {t:'obj', o:pick(COND), n:1}, {t:'obj', o:pick(INS), n:1}]), task:'Fai <b>girare il motore</b> e accendi la lampadina.', test:els=>{ const st = sim(els); return st.short ? 'cortocircuito!' : st.lit.M && st.lit.A ? '' : 'il circuito è ancora aperto'; }, sol:'nel buco un filo o un oggetto di metallo'};
+      return {l, kind:'build', els:loopEls(spec), tray:shuffle([{t:'wire', n:9}, {t:'obj', o:pick(COND), n:1}, {t:'obj', o:pick(INS), n:1}]), tp:'Circuito in serie', task:'Fai <b>girare il motore</b> e accendi la lampadina.', test:els=>{ const st = sim(els); return st.short ? 'cortocircuito!' : st.lit.M && st.lit.A ? '' : 'il circuito è ancora aperto'; }, sol:'nel buco un filo o un oggetto di metallo'};
     }
     if(l===3){
       if(v===0){ const els = parEls([{x:2, mid:{t:'slot'}}, {x:4, mid:{t:'slot'}}]); const k = els.findIndex(e=>e.a[0]===1 && e.a[1]===0 && e.b[0]===2); els[k] = E([1,0],[2,0],'slot');
-        return {l, kind:'build', els, tray:[{t:'lamp', n:2}, {t:'wire', n:4}], task:'Monta <b>due lampadine</b> in modo che brillino tutte e due <b>al massimo</b> (come se ognuna avesse la pila tutta per sé).', test:x=>{ const ls = x.filter(e=>e.t==='lamp'); if(ls.length < 2) return 'servono due lampadine'; const st = sim(x); if(st.short) return 'cortocircuito: una lampadina è stata saltata da un filo'; return ls.every(e=>st.P[e.id] > 0.8*PSINGLE) ? '' : 'sono accese ma deboli: così sono in serie'; }, sol:'una lampadina in ogni ramo (in parallelo) e un filo sulla strada comune'}; }
+        return {l, kind:'build', els, tray:[{t:'lamp', n:2}, {t:'wire', n:4}], tp:'Parallelo', task:'Monta <b>due lampadine</b> in modo che brillino tutte e due <b>al massimo</b> (come se ognuna avesse la pila tutta per sé).', test:x=>{ const ls = x.filter(e=>e.t==='lamp'); if(ls.length < 2) return 'servono due lampadine'; const st = sim(x); if(st.short) return 'cortocircuito: una lampadina è stata saltata da un filo'; return ls.every(e=>st.P[e.id] > 0.8*PSINGLE) ? '' : 'sono accese ma deboli: così sono in serie'; }, sol:'una lampadina in ogni ramo (in parallelo) e un filo sulla strada comune'}; }
       if(v===1){ const els = parEls([{x:2, top:sw('S1', Math.random() < 0.5), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', Math.random() < 0.5), mid:{t:'lamp', id:'B'}}, {x:4, top:sw('S3', Math.random() < 0.5), mid:{t:'lamp', id:'C'}}], sw('S', false));
         const want = pick([['A','B'],['A','C'],['B','C'],['B'],['A','B','C']]); if(!needLit(els, want)) continue;
-        return {l, kind:'build', els, tray:[], task:`Accendi <b>${want.join(' e ')}</b>${want.length < 3 ? ` ma non ${['A','B','C'].filter(x=>!want.includes(x)).join(' né ')}` : ''}.`, test:x=>needLit(x, want), sol:`S chiuso (è l'interruttore generale) e chiusi solo gli interruttori di ${want.join(', ')}`}; }
+        return {l, kind:'build', els, tray:[], tp:'Interruttori', task:`Accendi <b>${want.join(' e ')}</b>${want.length < 3 ? ` ma non ${['A','B','C'].filter(x=>!want.includes(x)).join(' né ')}` : ''}.`, test:x=>needLit(x, want), sol:`S chiuso (è l'interruttore generale) e chiusi solo gli interruttori di ${want.join(', ')}`}; }
       if(v===2){ const spec = {1:{t:'lamp', id:'A'}}; const els = loopEls(spec); els.push(E([1,0],[1,1],'wire', {placed:true, fromSlot:true}), E([1,1],[2,1],'wire', {placed:true, fromSlot:true}), E([2,1],[2,0],'wire', {placed:true, fromSlot:true}));
-        return {l, kind:'build', els, tray:[], task:'C\'è un <b>cortocircuito</b>: la corrente salta la lampadina. Togli un pezzo di filo (toccalo) per accenderla.', test:x=>needLit(x, ['A']), sol:'togliere uno dei tre fili che fanno il giro intorno alla lampadina'}; }
+        return {l, kind:'build', els, tray:[], tp:'Cortocircuito', task:'C\'è un <b>cortocircuito</b>: la corrente salta la lampadina. Togli un pezzo di filo (toccalo) per accenderla.', test:x=>needLit(x, ['A']), sol:'togliere uno dei tre fili che fanno il giro intorno alla lampadina'}; }
       const els = parEls([{x:2, top:sw('S1', Math.random() < 0.6), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', Math.random() < 0.6), mid:{t:'lamp', id:'B'}}, {x:4, top:sw('S3', Math.random() < 0.6), mid:{t:'lamp', id:'C'}}], sw('S', Math.random() < 0.75));
       const st = sim(els), n = Object.values(st.lit).filter(Boolean).length;
-      return {l, kind:'choice', els, ro:true, opts:numCh(n, [n+1, n-1, 3-n].filter(x=>x >= 0 && x <= 3 && x!==n), 9, ''), task:'<b>Quante lampadine</b> sono accese con gli interruttori come sono adesso?', sol:`${n}: ${litTxt(st)}`};
+      return {l, kind:'choice', els, ro:true, opts:numCh(n, [n+1, n-1, 3-n].filter(x=>x >= 0 && x <= 3 && x!==n), 9, ''), tp:'Interruttori', task:'<b>Quante lampadine</b> sono accese con gli interruttori come sono adesso?', sol:`${n}: ${litTxt(st)}`};
     }
     if(l===4){
       const logicEls = () => { const els = [E([0,0],[0,1],'wire'), E([0,1],[0,2],'bat'), E([0,2],[0,3],'wire'), E([0,0],[1,0],'wire'), E([1,0],[2,0],'slot'), E([2,0],[3,0],'slot'), E([3,0],[4,0],'wire'), E([1,0],[1,1],'wire'), E([1,1],[2,1],'slot'), E([2,1],[3,1],'slot'), E([3,1],[3,0],'wire'), E([4,0],[4,1],'wire'), E([4,1],[4,2],'lamp', {id:'A'}), E([4,2],[4,3],'wire')]; for(let c=0; c<4; c++) els.push(E([c,3],[c+1,3],'wire')); return els; };
-      if(v===0) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], task:'Interruttori <b>in serie</b>: la lampadina deve accendersi <b>solo se tutti e due</b> gli interruttori sono chiusi.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] && on[1]) ? (st.lit.A ? 'si accende anche con un solo interruttore chiuso' : 'non si accende con tutti e due chiusi') : ''); }, sol:'i due interruttori uno dopo l\'altro (in serie), sulla stessa strada'};
-      if(v===1) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], task:'Interruttori <b>in parallelo</b>: la lampadina deve accendersi <b>se almeno uno</b> dei due interruttori è chiuso.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] || on[1]) ? (st.lit.A ? 'si accende anche con tutti e due aperti' : 'con un solo interruttore chiuso non si accende') : ''); }, sol:'un interruttore su ogni strada (in parallelo), con un filo accanto a ciascuno'};
+      if(v===0) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], tp:'Interruttori in serie', task:'Interruttori <b>in serie</b>: la lampadina deve accendersi <b>solo se tutti e due</b> gli interruttori sono chiusi.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] && on[1]) ? (st.lit.A ? 'si accende anche con un solo interruttore chiuso' : 'non si accende con tutti e due chiusi') : ''); }, sol:'i due interruttori uno dopo l\'altro (in serie), sulla stessa strada'};
+      if(v===1) return {l, kind:'build', els:logicEls(), tray:[{t:'sw', n:2}, {t:'wire', n:4}], tp:'Interruttori in parallelo', task:'Interruttori <b>in parallelo</b>: la lampadina deve accendersi <b>se almeno uno</b> dei due interruttori è chiuso.', test:x=>{ const s = switchesOf(x); if(s.length!==2) return 'usa tutti e due gli interruttori'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit.A !== (on[0] || on[1]) ? (st.lit.A ? 'si accende anche con tutti e due aperti' : 'con un solo interruttore chiuso non si accende') : ''); }, sol:'un interruttore su ogni strada (in parallelo), con un filo accanto a ciascuno'};
       if(v===2){ const els = parEls([{x:2, top:{t:'slot'}, mid:{t:'lamp', id:'A'}}, {x:4, top:{t:'slot'}, mid:{t:'motor', id:'M'}}]); const k = els.findIndex(e=>e.a[0]===0 && e.a[1]===0 && e.b[0]===1); els[k] = E([0,0],[1,0],'slot');
-        return {l, kind:'build', els, tray:[{t:'sw', n:1}, {t:'wire', n:3}], task:'La lampadina A deve restare <b>sempre accesa</b>; l\'interruttore deve <b>accendere e spegnere solo il motore</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==1) return 'usa l\'interruttore'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !st.lit.A ? 'la lampadina si spegne' : !!st.lit.M !== on[0] ? 'il motore non è comandato dall\'interruttore' : ''); }, sol:'l\'interruttore nel ramo del motore, fili negli altri buchi'}; }
+        return {l, kind:'build', els, tray:[{t:'sw', n:1}, {t:'wire', n:3}], tp:'Parallelo', task:'La lampadina A deve restare <b>sempre accesa</b>; l\'interruttore deve <b>accendere e spegnere solo il motore</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==1) return 'usa l\'interruttore'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !st.lit.A ? 'la lampadina si spegne' : !!st.lit.M !== on[0] ? 'il motore non è comandato dall\'interruttore' : ''); }, sol:'l\'interruttore nel ramo del motore, fili negli altri buchi'}; }
       const els = parEls([{x:2, top:sw('S1', true), mid:{t:'lamp', id:'A'}}, {x:3, top:sw('S2', true), mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}], sw('S', true));
       const s = pick(switchesOf(els)), st = sim(els, new Map([[s, {on:false}]])), off = ['A','B','C'].filter(id=>!st.lit[id]);
       const ans = off.length===3 ? 'si spengono tutte' : off.length ? `si spegne solo ${off[0]}` : 'non cambia niente';
       const all = ['si spengono tutte', 'si spegne solo A', 'si spegne solo B', 'si spegne solo C', 'non cambia niente'].filter(x=>x!==ans);
-      return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'si accendono più forte tutte'), task:`Tutte le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}`};
+      return {l, kind:'choice', els, ro:true, opts:choices(ans, shuffle(all), 'si accendono più forte tutte'), tp:'Interruttori', task:`Tutte le lampadine sono accese. Che cosa succede se <b>apri ${s.id}</b>?`, sol:`${ans}`};
     }
     /* livello 5 */
     if(v===0){ const [V, Rr] = pick([[6,3],[9,3],[12,4],[12,6],[4.5,1.5],[9,4.5],[6,2],[12,3]]), I = V/Rr; const spec = {1:{t:'res', r:Rr}}; const els = loopEls(spec); els[BATI].v = V;
-      return {l, kind:'choice', els, ro:true, opts:numCh(I, [V*Rr, Math.round(Rr/V*100)/100, I+1], V+Rr*10, 'A'), task:`La pila è da <b>${N(V)} V</b> e il resistore da <b>${N(Rr)} Ω</b>. Quale <b>intensità di corrente</b> attraversa il circuito? (legge di Ohm: I = ${frac('V','R')})`, sol:`I = ${frac('V','R')} = ${frac(N(V) + ' V', N(Rr) + ' Ω')} = ${N(I)} A`}; }
+      return {l, kind:'choice', els, ro:true, opts:numCh(I, [V*Rr, Math.round(Rr/V*100)/100, I+1], V+Rr*10, 'A'), tp:'Legge di Ohm', task:`La pila è da <b>${N(V)} V</b> e il resistore da <b>${N(Rr)} Ω</b>. Quale <b>intensità di corrente</b> attraversa il circuito? (legge di Ohm: I = ${frac('V','R')})`, sol:`I = ${frac('V','R')} = ${frac(N(V) + ' V', N(Rr) + ' Ω')} = ${N(I)} A`}; }
     if(v===1){ const [V, R1, R2] = pick([[12,2,4],[9,1,2],[6,1,2],[12,1,3],[12,4,2],[9,2,1]]), I = V/(R1+R2); const els = loopEls({1:{t:'res', r:R1}, 5:{t:'res', r:R2}}); els[BATI].v = V;
-      return {l, kind:'choice', els, ro:true, opts:numCh(I, [Math.round((V/R1 + V/R2)*100)/100, Math.round(V/R1*100)/100], V*(R1+R2), 'A'), task:`Due resistori da <b>${R1} Ω</b> e <b>${R2} Ω</b> in serie, pila da <b>${V} V</b>: quale intensità di corrente attraversa il circuito?`, sol:`in serie le resistenze si sommano: R = ${R1} Ω + ${R2} Ω = ${R1+R2} Ω; I = ${frac('V','R')} = ${frac(V + ' V', (R1+R2) + ' Ω')} = ${N(I)} A`}; }
+      return {l, kind:'choice', els, ro:true, opts:numCh(I, [Math.round((V/R1 + V/R2)*100)/100, Math.round(V/R1*100)/100], V*(R1+R2), 'A'), tp:'Resistori in serie', task:`Due resistori da <b>${R1} Ω</b> e <b>${R2} Ω</b> in serie, pila da <b>${V} V</b>: quale intensità di corrente attraversa il circuito?`, sol:`in serie le resistenze si sommano: R = ${R1} Ω + ${R2} Ω = ${R1+R2} Ω; I = ${frac('V','R')} = ${frac(V + ' V', (R1+R2) + ' Ω')} = ${N(I)} A`}; }
     if(v===2){ let els, best;
       if(Math.random() < 0.5){ els = parEls([{x:2, mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}]); const k = els.findIndex(e=>e.a[0]===1 && e.a[1]===0 && e.b[0]===2); els[k] = E([1,0],[2,0],'lamp', {id:'A'}); }
       else { els = parEls([{x:2, top:{t:'lamp', id:'A'}, mid:{t:'lamp', id:'B'}}, {x:4, mid:{t:'lamp', id:'C'}}]); }
       const st = sim(els), ids = ['A','B','C'], mx = Math.max(...ids.map(i=>st.P[i])); best = ids.filter(i=>Math.abs(st.P[i]-mx) < 1e-6); if(best.length!==1) continue;
-      return {l, kind:'choice', els, ro:true, opts:shuffle(ids.map(i=>({h:`la lampadina ${i}`, ok:i===best[0]})).concat([{h:'nessuna: sono tutte spente'}])), task:'Le tre lampadine sono uguali. <b>Quale brilla di più?</b>', sol:`la lampadina ${best[0]}: ${best[0]==='A' && st.P.B < mx ? 'tutta la corrente passa da A, poi si divide tra B e C' : 'è da sola nel suo ramo, mentre le altre due sono in serie e si dividono la tensione'}`}; }
+      return {l, kind:'choice', els, ro:true, opts:shuffle(ids.map(i=>({h:`la lampadina ${i}`, ok:i===best[0]})).concat([{h:'nessuna: sono tutte spente'}])), tp:'Serie e parallelo', task:'Le tre lampadine sono uguali. <b>Quale brilla di più?</b>', sol:`la lampadina ${best[0]}: ${best[0]==='A' && st.P.B < mx ? 'tutta la corrente passa da A, poi si divide tra B e C' : 'è da sola nel suo ramo, mentre le altre due sono in serie e si dividono la tensione'}`}; }
     const els = parEls([{x:2, top:{t:'slot'}, mid:{t:'lamp', id:'A'}}, {x:3, top:{t:'slot'}, mid:{t:'lamp', id:'B'}}, {x:4, top:{t:'slot'}, mid:{t:'lamp', id:'C'}}]); const k = els.findIndex(e=>e.a[0]===0 && e.a[1]===0 && e.b[0]===1); els[k] = E([0,0],[1,0],'slot');
-    return {l, kind:'build', els, tray:[{t:'sw', n:4}], task:'Monta <b>un interruttore generale</b> che spegne tutto e <b>un interruttore per ogni lampadina</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==4) return 'servono 4 interruttori'; const allOn = new Map(s.map(q=>[q, {on:true}])); const st0 = sim(x, allOn); if(st0.short || !['A','B','C'].every(i=>st0.lit[i])) return 'con tutti gli interruttori chiusi le lampadine devono essere accese'; let gen = 0; const own = new Set(); for(const q of s){ const m = new Map(allOn); m.set(q, {on:false}); const st = sim(x, m); const off = ['A','B','C'].filter(i=>!st.lit[i]); if(off.length===3) gen++; else if(off.length===1) own.add(off[0]); else return 'un interruttore spegne due lampadine'; } return gen===1 && own.size===3 ? '' : 'manca l\'interruttore generale o quello di una lampadina'; }, sol:'un interruttore sulla strada comune (generale) e uno in cima a ogni ramo'};
+    return {l, kind:'build', els, tray:[{t:'sw', n:4}], tp:'Interruttori', task:'Monta <b>un interruttore generale</b> che spegne tutto e <b>un interruttore per ogni lampadina</b>.', test:x=>{ const s = switchesOf(x); if(s.length!==4) return 'servono 4 interruttori'; const allOn = new Map(s.map(q=>[q, {on:true}])); const st0 = sim(x, allOn); if(st0.short || !['A','B','C'].every(i=>st0.lit[i])) return 'con tutti gli interruttori chiusi le lampadine devono essere accese'; let gen = 0; const own = new Set(); for(const q of s){ const m = new Map(allOn); m.set(q, {on:false}); const st = sim(x, m); const off = ['A','B','C'].filter(i=>!st.lit[i]); if(off.length===3) gen++; else if(off.length===1) own.add(off[0]); else return 'un interruttore spegne due lampadine'; } return gen===1 && own.size===3 ? '' : 'manca l\'interruttore generale o quello di una lampadina'; }, sol:'un interruttore sulla strada comune (generale) e uno in cima a ogni ramo'};
   }
   return makeChallenge(Math.max(1, l-1));
 }
+
+/* ---------- sfide a obiettivo, con le stelle ----------
+   Ogni obiettivo prepara una zona del reticolo con alcuni pezzi fissi e tanti buchi. optSearch prova tutte le combinazioni
+   di pezzi del vassoio nei buchi, dalla più piccola alla più grande, e trova il minimo (3 stelle).
+   Un obiettivo si usa solo se ha almeno una soluzione e se non è già risolto con i buchi vuoti. */
+const same = (p, q) => p[0]===q[0] && p[1]===q[1];
+const RB = [1,3,0,2], RA = [1,3,0,3];      /* zone del reticolo: colonne 1..3, righe 0..2 (12 lati) oppure 0..3 (17 lati) */
+function region(c0, c1, r0, r1){ const els = []; for(let r=r0; r<=r1; r++) for(let c=c0; c<c1; c++) els.push(E([c,r],[c+1,r],'slot')); for(let c=c0; c<=c1; c++) for(let r=r0; r<r1; r++) els.push(E([c,r],[c,r+1],'slot')); return els; }
+/* mette i pezzi fissi su lati scelti a caso (filt limita i lati possibili); la pila sta sulla colonna di sinistra, con il + in alto */
+function layout(reg, fixed){ const els = region(...reg); for(const f of fixed){ const c = els.filter(e=>e.t==='slot' && (!f.filt || f.filt(e))); if(!c.length) return null; const e = pick(c); els[els.indexOf(e)] = E(e.a, e.b, f.t, f.o); } return els; }
+function setAt(els, a, b, t, o){ const k = els.findIndex(e=>e.t==='slot' && ((same(e.a,a) && same(e.b,b)) || (same(e.a,b) && same(e.b,a)))); if(k >= 0) els[k] = E(a, b, t, o); }
+const VL = e => e.a[0]===1 && e.b[0]===1;
+const RING = [[[1,0],[2,0]],[[2,0],[3,0]],[[3,0],[3,1]],[[3,1],[3,2]],[[3,2],[2,2]],[[2,2],[1,2]],[[1,2],[1,1]],[[1,1],[1,0]]];   /* anello della zona piccola; l'ultimo lato ospita la pila */
+const placedN = els => els.filter(e=>e.placed).length;
+const openEl = (els, id) => els.map(e=>e.id===id && e.t==='lamp' ? {a:e.a, b:e.b, t:'slot'} : e);     /* lampadina svitata */
+function devOff(els, id){ const e = els.find(x=>x.id===id); return e && e.t==='motor' ? `il motore ${id} è fermo` : e && e.t==='buzz' ? `il cicalino ${id} non suona` : `la lampadina ${id} è spenta`; }
+function needOn(els, on, off){ const st = sim(els); if(st.short) return 'cortocircuito!'; for(const id of on) if(!st.lit[id]) return devOff(els, id); for(const id of (off || [])) if(st.lit[id]) return `la lampadina ${id} deve restare spenta`; return ''; }
+const serTest = ids => x=>{ const m = needOn(x, ids); if(m) return m; for(const id of ids){ const st = sim(openEl(x, id)), still = ids.filter(o=>o!==id && st.lit[o]); if(still.length) return `svitando ${id} resta accesa ${still[0]}: non sono tutte in serie`; } return ''; };
+const parTest = ids => x=>{ const m = needOn(x, ids); if(m) return m; for(const id of ids){ const st = sim(openEl(x, id)), off = ids.filter(o=>o!==id && !st.lit[o]); if(off.length) return `svitando ${id} si spegne anche ${off[0]}`; } return ''; };
+const swTest = dev => x=>{ const s = switchesOf(x); if(s.length!==1) return 'manca l\'interruttore'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !!st.lit[dev]===on[0] ? '' : st.lit[dev] ? `${dev==='M' ? 'il motore gira' : 'la lampadina è accesa'} anche con l'interruttore aperto` : `con l'interruttore chiuso ${devOff(x, dev)}`); };
+const alwaysSw = (al, dev) => x=>{ const s = switchesOf(x); if(s.length!==1) return 'manca l\'interruttore'; return truth(x, s, (st, on)=>st.short ? 'cortocircuito!' : !st.lit[al] ? `la lampadina ${al} si spegne: deve restare sempre accesa` : !!st.lit[dev]!==on[0] ? (dev==='M' ? 'il motore non è comandato dall\'interruttore' : `la lampadina ${dev} non è comandata dall'interruttore`) : ''); };
+const swDesc = on => on[0] && on[1] ? 'tutti e due gli interruttori chiusi' : !on[0] && !on[1] ? 'tutti e due gli interruttori aperti' : 'un solo interruttore chiuso';
+const logicTest = and => x=>{ const s = switchesOf(x); if(s.length!==2) return 'servono i due interruttori'; return truth(x, s, (st, on)=>{ const want = and ? on[0] && on[1] : on[0] || on[1]; return st.short ? 'cortocircuito!' : !!st.lit.A===want ? '' : `${st.lit.A ? 'si accende' : 'non si accende'} con ${swDesc(on)}`; }); };
+const genTest = ids => x=>{
+  const s = switchesOf(x), allOn = new Map(s.map(q=>[q, {on:true}])), st0 = sim(x, allOn);
+  if(st0.short) return 'cortocircuito!';
+  if(!ids.every(i=>st0.lit[i])) return 'con tutti gli interruttori chiusi le lampadine devono essere accese';
+  let gen = 0; const own = new Set();
+  for(const q of s){ const m = new Map(allOn); m.set(q, {on:false}); const st = sim(x, m); if(st.short) return 'cortocircuito!'; const off = ids.filter(i=>!st.lit[i]);
+    if(off.length===ids.length) gen++; else if(off.length===1) own.add(off[0]); else if(!off.length) return `${q.id} non spegne niente`; else return `${q.id} spegne più lampadine, ma non tutte`; }
+  return gen===1 && own.size===ids.length ? '' : 'manca l\'interruttore generale o quello di una lampadina';
+};
+const TRAYN = {wire:'filo', lamp:'lampadina', sw:'interruttore', motor:'motore', buzz:'cicalino', bat:'pila'};
+const PLUR = {filo:'fili', interruttore:'interruttori', lampadina:'lampadine', motore:'motori', cicalino:'cicalini'};
+function piecesTxt(els){ const c = new Map(); els.filter(e=>e.placed).forEach(e=>{ const k = e.t==='res' ? `resistore da ${N(e.r)} Ω` : e.t==='obj' ? OBJ[e.o].n : TRAYN[e.t] || e.t; c.set(k, (c.get(k) || 0) + 1); }); return [...c].map(([k,n])=>n===1 ? `1 ${k}` : `${n} ${PLUR[k] || k.replace('resistore', 'resistori')}`).join(' e ') || 'nessun pezzo'; }
+/* un pezzo del vassoio messo in un buco (stessa logica di placeInto) */
+function pieceFrom(e, t, els){ const ne = {a:e.a, b:e.b, t:t.t, placed:true, fromSlot:true}; if(t.t==='obj') ne.o = t.o; if(t.t==='res') ne.r = t.r; if(t.t==='sw'){ ne.on = false; ne.id = 'S' + (switchesOf(els).length + 1); } if(t.t==='lamp'){ const used = new Set(els.filter(x=>x.t==='lamp').map(x=>x.id)); ne.id = ['A','B','C','D'].find(x=>!used.has(x)); } return ne; }
+/* ricerca esaustiva: tutte le combinazioni con k pezzi (k = 0, 1, 2…); si ferma al primo k che funziona,
+   oppure (fullSearch) le prova tutte e tiene la misura più piccola. budget = numero massimo di prove */
+function optSearch(C, maxK, budget){
+  const base = C.els, slots = [], cnt = C.tray.map(t=>t.n), metric = C.metricFn || placedN, chosen = [];
+  base.forEach((e,i)=>{ if(e.t==='slot') slots.push(i); });
+  let calls = 0, best = null, over = false;
+  const rec = (si, left)=>{
+    if(over || (best && !C.fullSearch)) return;
+    if(left===0){
+      const els = base.slice(); chosen.forEach(([s, ti])=>{ els[s] = pieceFrom(base[s], C.tray[ti], els); });
+      if(++calls > budget){ over = true; return; }
+      if(!C.test(els)){ const m = metric(els); if(!best || m < best.m) best = {m, k:chosen.length, els}; }
+      return;
+    }
+    if(slots.length - si < left) return;
+    for(let ti=0; ti<C.tray.length; ti++){ if(cnt[ti] <= 0) continue; cnt[ti]--; chosen.push([slots[si], ti]); rec(si+1, left-1); chosen.pop(); cnt[ti]++; }
+    rec(si+1, left);
+  };
+  for(let k=0; k<=Math.min(maxK, slots.length) && !over; k++){ rec(0, k); if(best && !C.fullSearch) break; }
+  return over ? null : best;
+}
+const W9 = {t:'wire', n:9}, W12 = {t:'wire', n:12}, SW1 = {t:'sw', n:1};
+const FILI = {unit:['filo','fili'], ulab:'Fili usati'}, PEZZI = {unit:['pezzo','pezzi'], ulab:'Pezzi usati'};
+const lamp = id => ({t:'lamp', o:{id}}), bat = {t:'bat', filt:VL};
+/* gli obiettivi: ognuno restituisce {els, tray, task, test, tp, exp, …} */
+const GC = {
+  fili1:()=>({...FILI, els:layout(RB, [bat, lamp('A')]), tray:[W9], tp:'Circuito chiuso', task:'Accendete la lampadina usando <b>il minor numero di fili</b>.', test:x=>needOn(x, ['A']),
+    exp:'Basta un solo anello chiuso che passi dalla pila e dalla lampadina: ogni filo in più è sprecato.'}),
+  buzz1:()=>({...FILI, els:layout(RB, [bat, {t:'buzz', o:{id:'C'}}]), tray:[W9], tp:'Circuito chiuso', task:'Fate suonare il cicalino usando <b>il minor numero di fili</b>.', test:x=>needOn(x, ['C']),
+    exp:'Il cicalino suona solo se la corrente può fare un giro completo: dalla pila, attraverso il cicalino, e di nuovo alla pila.'}),
+  motlamp:()=>({...FILI, els:layout(RB, [bat, lamp('A'), {t:'motor', o:{id:'M'}}]), tray:[W9], tp:'Circuito chiuso', task:'Fate girare il motore e accendete la lampadina, con <b>il minor numero di fili</b>.', test:x=>needOn(x, ['A','M']),
+    exp:'La soluzione più corta di solito è un unico anello, con la lampadina e il motore in serie; anche in parallelo funzionano, ma servono più fili.'}),
+  sw1:()=>({...PEZZI, els:layout(RB, [bat, lamp('A')]), tray:[W9, SW1], tp:'Interruttori', task:'Accendete la lampadina con <b>un interruttore che la accende e la spegne</b>, usando il minor numero di pezzi.', test:swTest('A'),
+    exp:'L\'interruttore va sull\'unica strada della corrente: aperto interrompe il circuito, chiuso lo completa.'}),
+  cond:l=>{ const n = l===1 ? 2 : 3, li = rnd(0,6), holes = shuffle([0,1,2,3,4,5,6].filter(i=>i!==li)).slice(0, n);
+    const els = RING.map(([a,b],i)=>i===7 ? E([1,0],[1,1],'bat') : i===li ? E(a, b, 'lamp', {id:'A'}) : holes.includes(i) ? E(a, b, 'slot') : E(a, b, 'wire'));
+    const cs = shuffle(COND).slice(0, n), is = shuffle(INS).slice(0, 3);
+    return {els, tray:shuffle([...cs, ...is].map(o=>({t:'obj', o, n:1}))), metric:'moves', unit:['pezzo messo','pezzi messi'], ulab:'Pezzi messi', tp:'Conduttori e isolanti',
+      task:'Chiudete il circuito mettendo nei buchi <b>solo oggetti che conducono</b> la corrente. Ogni pezzo messo conta: pensateci prima di provare!',
+      test:x=>{ if(x.some(e=>e.t==='slot')) return 'ci sono ancora buchi vuoti'; if(sim(x).lit.A) return ''; const bad = x.filter(e=>e.t==='obj' && !OBJ[e.o].c).map(e=>OBJ[e.o].n); return bad.length ? `${bad.join(' e ')}: ${bad.length===1 ? 'è un isolante' : 'sono isolanti'}` : 'il circuito è ancora aperto'; },
+      solFn:r=>`${r.els.filter(e=>e.t==='obj').map(e=>OBJ[e.o].n).join(' e ')}: sono di metallo, quindi conducono`,
+      exp:'I metalli (chiave, moneta, graffetta, forchetta) sono conduttori; gomma, plastica, legno, vetro e carta sono isolanti.'}; },
+  AnonB:()=>({...FILI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9], tp:'Serie e parallelo', task:'Accendete la lampadina <b>A</b> ma <b>non la B</b>, con il minor numero di fili.', test:x=>needOn(x, ['A'], ['B']),
+    exp:'La corrente passa solo lungo un anello chiuso: B resta spenta se non è sull\'anello, oppure se un filo le passa accanto e la scavalca.'}),
+  serie2:()=>({...FILI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9], tp:'Circuito in serie', task:'Accendete A e B <b>in serie</b> (svitandone una si spegne anche l\'altra), con il minor numero di fili.', test:serTest(['A','B']),
+    exp:'In serie c\'è una sola strada: la corrente attraversa una lampadina dopo l\'altra, e se se ne svita una si spegne tutto.'}),
+  motsw:()=>({...PEZZI, els:layout(RB, [bat, {t:'motor', o:{id:'M'}}]), tray:[W9, SW1], tp:'Interruttori', task:'Accendete il motore con <b>un interruttore che lo spegne</b>, usando il minor numero di pezzi.', test:swTest('M'),
+    exp:'Come per una lampadina: l\'interruttore va sulla strada della corrente che passa dal motore.'}),
+  fili2:()=>({...FILI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9], tp:'Serie e parallelo', task:'Accendete <b>tutte e due</b> le lampadine con il minor numero di fili (in serie o in parallelo, scegliete voi).', test:x=>needOn(x, ['A','B']),
+    exp:'Va bene sia in serie sia in parallelo: in parallelo le lampadine brillano di più, ma spesso servono più fili.'}),
+  svita2:()=>({...FILI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9], tp:'Parallelo', task:'Collegate le lampadine in modo che, <b>svitandone una, l\'altra resti accesa</b>. Usate il minor numero di fili.', test:parTest(['A','B']),
+    exp:'In parallelo ogni lampadina ha la sua strada verso la pila: se se ne svita una, l\'altra resta accesa.'}),
+  piena2:()=>({...FILI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9], tp:'Parallelo', task:'Accendete A e B <b>alla luce piena</b> (come se ognuna avesse la pila tutta per sé), con il minor numero di fili.',
+    test:x=>{ const m = needOn(x, ['A','B']); if(m) return m; const st = sim(x); return ['A','B'].every(i=>st.P[i] > 0.8*PSINGLE) ? '' : 'sono accese ma deboli: così si dividono la tensione della pila'; },
+    exp:'In parallelo ogni lampadina riceve tutta la tensione della pila (4,5 V) e brilla al massimo; in serie se la dividono e brillano meno.'}),
+  AonlyS:()=>({...PEZZI, els:layout(RB, [bat, lamp('A'), lamp('B')]), tray:[W9, SW1], tp:'Interruttori', task:'La lampadina A deve restare <b>sempre accesa</b>; l\'interruttore deve accendere e spegnere <b>solo la B</b>. Usate il minor numero di pezzi.', test:alwaysSw('A','B'),
+    exp:'A e B vanno in parallelo, e l\'interruttore va nel ramo di B: così interrompe solo la sua strada.'}),
+  serie3:()=>({...FILI, els:layout(RA, [bat, lamp('A'), lamp('B'), lamp('C')]), tray:[W12], maxK:11, tp:'Circuito in serie', task:'Accendete le tre lampadine <b>in serie</b>, con il minor numero di fili.', test:serTest(['A','B','C']),
+    exp:'In serie c\'è una sola strada che passa da tutte le lampadine: se se ne svita una, si spengono tutte.'}),
+  pile2:()=>{ const els = region(...RB); setAt(els, [1,0], [1,1], 'bat'); setAt(els, [1,1], [1,2], 'bat');
+    for(const id of ['A','B','C']){ const c = els.filter(e=>e.t==='slot'), e = pick(c); els[els.indexOf(e)] = E(e.a, e.b, 'lamp', {id}); }
+    return {...FILI, els, tray:[W9], tp:'Serie e parallelo', task:'Con <b>2 pile</b> accendete <b>3 lampadine</b>: devono brillare bene, ma senza bruciarsi (sono lampadine da 4,5 V). Usate il minor numero di fili.',
+      test:x=>{ const st = sim(x); if(st.short) return 'cortocircuito!'; for(const id of ['A','B','C']){ const p = st.P[id] || 0; if(!st.lit[id]) return `la lampadina ${id} è spenta`; if(p < 0.4*PSINGLE) return `la lampadina ${id} è accesa ma debole`; if(p > 1.3*PSINGLE) return `la lampadina ${id} riceve troppa corrente: si brucerebbe`; } return ''; },
+      exp:'Due pile in serie danno 9 V. Una lampadina da 4,5 V collegata da sola ai 9 V si brucerebbe; tre lampadine in serie si dividono la tensione e brillano bene. Si può anche usare una pila sola (4,5 V) per una lampadina.'}; },
+  swserie:()=>({...FILI, els:layout(RB, [bat, lamp('A'), {t:'sw', o:{id:'S1', on:false}}, {t:'sw', o:{id:'S2', on:false}}]), tray:[W9], tp:'Interruttori in serie',
+    task:'I due interruttori sono già montati: collegateli <b>in serie</b> (la lampadina si accende solo se sono chiusi tutti e due). Usate il minor numero di fili.', test:logicTest(true),
+    exp:'In serie gli interruttori stanno sulla stessa strada, uno dopo l\'altro: basta aprirne uno per spegnere.'}),
+  swpar:()=>({...FILI, els:layout(RB, [bat, lamp('A'), {t:'sw', o:{id:'S1', on:false}}, {t:'sw', o:{id:'S2', on:false}}]), tray:[W9], tp:'Interruttori in parallelo',
+    task:'I due interruttori sono già montati: collegateli <b>in parallelo</b> (la lampadina si accende se almeno uno dei due è chiuso). Usate il minor numero di fili.', test:logicTest(false),
+    exp:'In parallelo ogni interruttore apre una strada diversa: ne basta uno chiuso perché la corrente passi.'}),
+  lampmot:()=>({...FILI, els:layout(RB, [bat, lamp('A'), {t:'motor', o:{id:'M'}}, {t:'sw', o:{id:'S', on:false}}]), tray:[W9], tp:'Parallelo',
+    task:'La lampadina A deve restare <b>sempre accesa</b> e l\'interruttore S deve comandare <b>solo il motore</b>. Usate il minor numero di fili.', test:alwaysSw('A','M'),
+    exp:'Lampadina e motore vanno in parallelo, con l\'interruttore nel ramo del motore.'}),
+  svita3:()=>({...FILI, els:layout(RA, [bat, lamp('A'), lamp('B'), lamp('C')]), tray:[W12], maxK:11, tp:'Parallelo', task:'Collegate le tre lampadine in modo che, <b>svitandone una qualsiasi, le altre restino accese</b>. Usate il minor numero di fili.', test:parTest(['A','B','C']),
+    exp:'In parallelo ogni lampadina ha la sua strada verso la pila: è il collegamento degli impianti di casa.'}),
+  ohm:l=>{ const holes = shuffle([0,1,2,3,4,5,6]).slice(0, 3);
+    const els = RING.map(([a,b],i)=>i===7 ? E([1,0],[1,1],'bat') : holes.includes(i) ? E(a, b, 'slot') : E(a, b, 'wire'));
+    const tray = l <= 4 ? [{t:'wire', n:3}, {t:'res', r:5, n:1}, {t:'res', r:10, n:2}, {t:'res', r:20, n:1}] : [{t:'wire', n:3}, {t:'res', r:5, n:2}, {t:'res', r:10, n:2}, {t:'res', r:20, n:2}];
+    const Rt = pick(l <= 4 ? [15,20,25,30] : [30,45,50]), It = VBAT/Rt;
+    return {els, tray, fullSearch:true, metricFn:x=>x.filter(e=>e.t==='res' && e.placed).length, s2fn:m=>m+1, unit:['resistore','resistori'], ulab:'Resistori usati', tp:'Legge di Ohm', It,
+      task:`Fate passare nel circuito una corrente di <b>${NF3.format(It)} A</b> usando <b>il minor numero di resistori</b> (pila da 4,5 V; legge di Ohm: I = ${frac('V','R')}).`,
+      test:x=>{ if(x.some(e=>e.t==='slot')) return 'il circuito è ancora aperto: riempite tutti i buchi'; const st = sim(x); if(st.short) return 'cortocircuito: senza resistori la corrente è troppo intensa'; return Math.abs(st.batI - It)/It <= 0.03 ? '' : `l'intensità di corrente è ${NF3.format(st.batI)} A, ne servono ${NF3.format(It)}`; },
+      solFn:r=>{ const rs = r.els.filter(e=>e.t==='res').map(e=>e.r); return `${rs.map(v=>v + ' Ω').join(' + ')}${rs.length > 1 ? ` = ${Rt} Ω` : ''}; I = ${frac('V','R')} = ${frac('4,5 V', Rt + ' Ω')} = ${NF3.format(It)} A`; },
+      exp:`Serve una resistenza R = ${frac('V','I')} = ${Rt} Ω. In serie le resistenze si sommano: un resistore grande vale come più resistori piccoli.`}; },
+  gen2:()=>{ const els = region(...RA), v = rnd(0,2), ids = shuffle(['S1','S2','S3']);
+    setAt(els, [1,1], [1,2], 'bat'); setAt(els, [2,1], [2,2], 'lamp', {id:'A'}); setAt(els, [3,1], [3,2], 'lamp', {id:'B'});
+    if(v===2) setAt(els, [1,2], [2,2], 'sw', {id:ids[0], on:false}); else setAt(els, [1,0], [2,0], 'sw', {id:ids[0], on:false});
+    if(v===1){ setAt(els, [2,2], [2,3], 'sw', {id:ids[1], on:false}); setAt(els, [3,2], [3,3], 'sw', {id:ids[2], on:false}); }
+    else { setAt(els, [2,0], [2,1], 'sw', {id:ids[1], on:false}); setAt(els, [3,0], [3,1], 'sw', {id:ids[2], on:false}); }
+    return {...FILI, els, tray:[W12], maxK:11, tp:'Interruttori', task:'I tre interruttori sono già montati: collegateli in modo che uno sia <b>generale</b> (spegne tutto) e gli altri due comandino <b>una lampadina ciascuno</b>. Usate il minor numero di fili.', test:genTest(['A','B']),
+      exp:'L\'interruttore generale sta sulla strada comune a tutte e due le lampadine; gli altri stanno ciascuno nel ramo della sua lampadina.'}; },
+  AnonB3:()=>{ const off = pick(['A','B','C']), on = ['A','B','C'].filter(x=>x!==off);
+    return {...FILI, els:layout(RA, [bat, lamp('A'), lamp('B'), lamp('C')]), tray:[W12], maxK:11, tp:'Serie e parallelo', task:`Accendete <b>${on.join(' e ')}</b> ma <b>non la ${off}</b>, con il minor numero di fili.`, test:x=>needOn(x, on, [off]),
+      exp:`La corrente passa solo dove c'è un anello chiuso con la pila: ${off} deve restare fuori dall'anello (o essere scavalcata da un filo).`}; },
+  mista:()=>({...FILI, els:layout(RA, [bat, lamp('A'), lamp('B'), lamp('C')]), tray:[W12], maxK:11, tp:'Serie e parallelo', task:'Fate in modo che <b>A brilli più di B e C</b>, e che B e C brillino allo stesso modo. Usate il minor numero di fili.',
+    test:x=>{ const m = needOn(x, ['A','B','C']); if(m) return m; const st = sim(x), pa = st.P.A, pb = st.P.B, pc = st.P.C; if(Math.abs(pb - pc) > 0.1*Math.max(pb, pc)) return 'B e C non brillano allo stesso modo'; return pa > 1.5*Math.max(pb, pc) ? '' : 'A non brilla più di B e C'; },
+    exp:'A brilla di più se ci passa più corrente: per esempio A sulla strada comune e B e C in parallelo dopo di lei (la corrente si divide tra B e C), oppure A da sola in un ramo e B e C in serie nell\'altro.'})
+};
+const GL = {1:['fili1','buzz1','motlamp','sw1','cond'], 2:['AnonB','serie2','motsw','cond','fili2'], 3:['svita2','piena2','AonlyS','serie3','pile2'], 4:['swserie','swpar','lampmot','svita3','ohm'], 5:['gen2','ohm','AnonB3','mista','pile2']};
+function makeGoal(l){
+  const keys = GL[l] || GL[1];
+  for(let g=0; g<60; g++){
+    const key = g < 50 ? pick(keys.filter(k=>k!==S.lastGoal)) : 'fili1';
+    const C = GC[key](l); if(!C || !C.els) continue;
+    const r = optSearch(C, C.maxK || 9, 30000);
+    if(!r || r.k===0) continue;           /* nessuna soluzione (o troppo lunga da cercare), oppure già risolto con i buchi vuoti */
+    S.lastGoal = key;
+    return {...PEZZI, ...C, l, goal:true, kind:'build', key, opt:r.m, s2:C.s2fn ? C.s2fn(r.m) : r.m + 2, optEls:r.els, sol:C.solFn ? C.solFn(r) : piecesTxt(r.els)};
+  }
+  return makeChallenge(l);
+}
+function goalTxt(C, v){ return `${v} ${v===1 ? C.unit[0] : C.unit[1]}`; }
+const optShow = C => C.optEls.map(e=>e.t==='sw' ? {...e, on:true} : e);       /* nel disegno della soluzione gli interruttori sono chiusi */
+const optPic = C => circuitSVG(optShow(C), sim(optShow(C)));
 
 /* ---------- tabellone ---------- */
 const BD = {};
 let SW = 0;
 function mkBoard(id){
   const host = $('#bd'+id);
-  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"></div><div class="short">Cortocircuito! La pila si scalda</div><div class="aid" id="a${id}"></div><div class="tray" id="tr${id}"></div><div class="opts" id="o${id}"></div>`;
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"></div><div class="short">Cortocircuito! La pila si scalda</div><div class="aid" id="a${id}"></div><div class="gbar" id="gb${id}"></div><div class="tray" id="tr${id}"></div><div class="opts" id="o${id}"></div>`;
   BD[id] = {id, host, els:[], tray:[], sel:null, phase:'build', lock:false};
   bindBoard(id);
 }
@@ -569,6 +858,8 @@ const teamOf = id => id==='L' ? S.turn : id;
 function setupBoard(id){
   const C = S.ch, b = BD[id];
   b.els = C.els.map(e=>({...e})); b.tray = (C.tray || []).map(t=>({...t})); b.sel = null; b.phase = 'build'; b.lock = false; b.swn = switchesOf(b.els).length;
+  Object.assign(b, {moves:0, err:'', note:'', stars:0});
+  $('#gb'+id).innerHTML = '';
   $('#k'+id).innerHTML = C.task;
   const ob = $('#o'+id);
   ob.innerHTML = C.kind==='choice' ? C.opts.map((o,i)=>`<button class="opt" data-k="${i}">${o.h}</button>`).join('') : '';
@@ -581,14 +872,89 @@ function draw(id){
   b.host.classList.toggle('isshort', st.short);
   b.host.classList.toggle('armed', !!b.sel);
   const tr = $('#tr'+id);
-  tr.innerHTML = C.kind==='build' && b.tray.length ? `<span class="lab0">Pezzi:</span>` + b.tray.map((t,i)=>`<div class="titem${b.sel===i ? ' sel' : ''}${t.n <= 0 ? ' empty' : ''}" data-i="${i}">${miniPart(t.t, t)}<span>${t.t==='obj' ? OBJ[t.o].n : {wire:'filo', lamp:'lampadina', sw:'interruttore'}[t.t]}${t.n < 9 ? ` (${t.n})` : ''}</span></div>`).join('') : '';
+  tr.innerHTML = C.kind==='build' && b.tray.length ? `<span class="lab0">Pezzi:</span>` + b.tray.map((t,i)=>`<div class="titem${b.sel===i ? ' sel' : ''}${t.n <= 0 ? ' empty' : ''}" data-i="${i}">${miniPart(t.t, t)}<span>${t.t==='obj' ? OBJ[t.o].n : t.t==='res' ? `resistore ${N(t.r)} Ω` : TRAYN[t.t]}${t.n < 9 ? ` (${t.n})` : ''}</span></div>`).join('') : '';
   sizeBoard(id);
-  if(C.kind==='build'){ const msg = C.test(b.els); $('#a'+id).innerHTML = P.aid ? (msg ? `<span>${litTxt(st)}${st.short ? '' : ''}</span>` : '') : ''; if(!msg && b.phase==='build' && S.playing && !S.paused) win(id); }
+  if(C.kind==='build' && C.goal){ $('#a'+id).innerHTML = P.aid && !C.It ? `<span>${litTxt(st)}</span>` : ''; goalBar(id, st); }   /* obiettivi: si controlla solo con «Conferma» */
+  else if(C.kind==='build'){ const msg = C.test(b.els); $('#a'+id).innerHTML = P.aid ? (msg ? `<span>${litTxt(st)}${st.short ? '' : ''}</span>` : '') : ''; if(!msg && b.phase==='build' && S.playing && !S.paused) win(id); }
   else $('#a'+id).innerHTML = '';
+}
+/* ---------- obiettivi: contatori, «Conferma», stelle ---------- */
+function metricOf(id){ const C = S.ch, b = BD[id]; return C.metric==='moves' ? b.moves : (C.metricFn || placedN)(b.els); }
+const starsFor = (C, m) => m <= C.opt ? 3 : m <= C.s2 ? 2 : 1;
+function goalBar(id, st){
+  const C = S.ch, b = BD[id], m = metricOf(id);
+  let h = `<span class="chip">${C.ulab}: <b>${m}</b></span>`;
+  if(C.It) h += `<span class="chip">Intensità di corrente: <b>${NF3.format(Math.round((st ? st.batI : 0)*1000)/1000)} A</b></span>`;
+  if(P.aid) h += `<span class="chip goal">${starsSVG(3)} con ${goalTxt(C, C.opt)}</span>`;
+  if(b.err) h += `<span class="chip warn">${b.err}</span>`;
+  if(b.note) h += `<span class="chip warn">${b.note}</span>`;
+  if(b.phase==='done') h += `<span class="chip done">Fatto! ${starsSVG(b.stars)}</span>`;
+  else h += `<button class="confirm" data-act="ok"${placedN(b.els) ? '' : ' disabled'}>✓ Conferma</button>`;
+  $('#gb'+id).innerHTML = h;
+}
+function penalize(id){
+  const b = BD[id];
+  b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
+  setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+function confirmGoal(id){
+  const C = S.ch, b = BD[id]; if(!C.goal || !canPlay(id) || !placedN(b.els)) return;
+  const why = C.test(b.els);
+  if(!why){ goalDone(id); return; }
+  beep([220], 0.15);
+  if(id==='L'){ limFail(`Non ancora: ${why}.`); return; }
+  b.err = `Non ancora: ${why}`; penalize(id); draw(id);
+}
+/* alla LIM, a fine obiettivo, sul tabellone compare la soluzione migliore */
+function showOpt(id){
+  const C = S.ch; if(!C.goal || !C.optEls) return;
+  $('#st'+id).innerHTML = optPic(C); sizeBoard(id);
+  $('#tr'+id).innerHTML = ''; $('#bdL').classList.remove('dim');
+  $('#a'+id).innerHTML = C.exp;
+  $('#gb'+id).innerHTML = `<span class="chip done">Soluzione migliore: ${goalTxt(C, C.opt)}</span>`;
+}
+function goalDone(id){
+  const C = S.ch, b = BD[id], team = teamOf(id), r = S.log[S.i];
+  if(b.phase==='done') return;
+  const m = metricOf(id), st = starsFor(C, m);
+  b.phase = 'done'; b.stars = st; b.err = ''; b.sel = null; r.st[team-1] = st; r.m[team-1] = m;
+  beep(st===3 ? [660, 880, 1100, 1320] : [660, 880, 1100], 0.1);
+  if(id==='L'){
+    S.playing = false; cancelAnimationFrame(S.raf); r.end = true; r.who = team;
+    S.score[team-1] += st; $('#ls'+team).textContent = S.score[team-1];
+    S.turn = 0; limSides(); showOpt('L');
+    $('#lmsg').innerHTML = `${starsSVG(st)} <b>${nm(team)}</b>: +${st} (${goalTxt(C, m)}). Soluzione migliore: ${C.sol}`;
+    S.next = setTimeout(nextChallenge, 8000); return;
+  }
+  draw(id);
+  if(!r.first){
+    r.first = team;
+    banner(team, `Fatto! ${starsSVG(st)}<small>${goalTxt(C, m)} · aspettate l'altra squadra</small>`, true);
+    const ob = BD[3-team];
+    if(ob.phase==='build'){
+      ob.note = `${nm(team)} ha finito: avete ancora al massimo ${GOAL_LEFT} secondi!`; draw(3-team);
+      const now = performance.now(), rem = S.dur ? S.dur - (now - S.t0) : Infinity;
+      if(rem > GOAL_LEFT*1000){ S.t0 = now; S.dur = GOAL_LEFT*1000; runClock(); }
+      return;
+    }
+  }
+  endGoal();
+}
+/* fine di un obiettivo in multitouch: stelle = punti, +1 a chi ha finito prima se hanno risolto tutte e due */
+function endGoal(){
+  S.playing = false; cancelAnimationFrame(S.raf);
+  const C = S.ch, r = S.log[S.i]; r.end = true;
+  r.bonus = r.st[0] && r.st[1] ? r.first : 0; r.who = r.first;
+  const pts = [1,2].map(t=>r.st[t-1] + (r.bonus===t ? 1 : 0));
+  [1,2].forEach(t=>{ S.score[t-1] += pts[t-1]; $('#s'+t).textContent = S.score[t-1]; });
+  const line = t => `${nm(t)}: ${r.st[t-1] ? `${starsSVG(r.st[t-1])} ${goalTxt(C, r.m[t-1])}${r.bonus===t ? ' · +1 più veloce' : ''}` : 'non risolto'}`;
+  [1,2].forEach(t=>banner(t, `${pts[t-1] ? `+${pts[t-1]} ${pts[t-1]===1 ? 'punto' : 'punti'}` : 'Nessun punto'}<small>${line(1)}<br>${line(2)}<br>Soluzione migliore: ${C.sol}<span class="solpic">${optPic(C)}</span></small>`, pts[t-1] > 0));
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 9000);
 }
 function sizeBoard(id){
   const stg = $('#st'+id), r = stg.getBoundingClientRect(), svg = stg.querySelector('svg'); if(!svg) return;
-  let w = r.width - 4, h = w * H / W; if(h > r.height - 4){ h = r.height - 4; w = h * W / H; }
+  const vb = svg.viewBox && svg.viewBox.baseVal, ar = vb && vb.width ? vb.width / vb.height : W / H;
+  let w = r.width - 4, h = w / ar; if(h > r.height - 4){ h = r.height - 4; w = h * ar; }
   svg.setAttribute('width', Math.max(120, w)); svg.setAttribute('height', Math.max(90, h));
 }
 window.addEventListener('resize', ()=>Object.keys(BD).forEach(id=>{ if(S.ch) sizeBoard(id); }));
@@ -606,6 +972,8 @@ function placeInto(id, k, ti){
   t.n--;
   const ne = {a:e.a, b:e.b, t:t.t, placed:true, fromSlot:true, ti};
   if(t.t==='obj') ne.o = t.o;
+  if(t.t==='res') ne.r = t.r;
+  b.moves = (b.moves || 0) + 1; b.err = '';          /* negli obiettivi «pezzi messi» conta ogni tentativo */
   if(t.t==='sw'){ ne.on = false; ne.id = 'S' + (++b.swn); }
   if(t.t==='lamp'){ const used = new Set(b.els.filter(x=>x.t==='lamp').map(x=>x.id)); ne.id = ['A','B','C','D'].find(x=>!used.has(x)); }
   b.els[k] = ne; beep([640], 0.04); return true;
@@ -613,7 +981,7 @@ function placeInto(id, k, ti){
 function removeAt(id, k){
   const b = BD[id], e = b.els[k]; if(!e || !e.placed) return;
   if(e.ti !== undefined && b.tray[e.ti]) b.tray[e.ti].n++;
-  b.els[k] = {a:e.a, b:e.b, t:'slot'};
+  b.els[k] = {a:e.a, b:e.b, t:'slot'}; b.err = '';
   if(e.t==='sw'){ /* rinumera gli interruttori messi */ let n = switchesOf(b.els).filter(x=>!x.placed).length; b.els.forEach(x=>{ if(x.t==='sw' && x.placed) x.id = 'S' + (++n); }); b.swn = n; }
   beep([420], 0.04);
 }
@@ -623,6 +991,8 @@ function bindBoard(id){
   const host = $('#bd'+id);
   const elAt = (x, y) => { for(const el of document.elementsFromPoint(x, y)){ const g = el.closest && el.closest('.el'); if(g && host.contains(g)) return g; } return null; };
   host.addEventListener('pointerdown', e=>{
+    const act = e.target.closest && e.target.closest('[data-act]');
+    if(act){ e.preventDefault(); if(!act.disabled && act.dataset.act==='ok') confirmGoal(id); return; }
     if(!canPlay(id) || S.ch.kind!=='build') return;
     const b = BD[id];
     const ti = e.target.closest && e.target.closest('.titem');
@@ -633,19 +1003,28 @@ function bindBoard(id){
     const g = e.target.closest && e.target.closest('.el'); if(!g || S.ch.ro) return;
     e.preventDefault();
     const k = +g.dataset.k, el = b.els[k];
-    if(el.t==='sw'){ el.on = !el.on; beep([el.on ? 700 : 500], 0.04); draw(id); return; }
+    /* interruttore messo dal vassoio: tocco = apri/chiudi, trascinato fuori = tolto (si decide quando si alza il dito) */
+    if(el.t==='sw' && el.placed){ try{ host.setPointerCapture(e.pointerId); }catch(err){} drags.set(e.pointerId, {id, swk:k, x0:e.clientX, y0:e.clientY, moved:false}); return; }
+    if(el.t==='sw'){ el.on = !el.on; b.err = ''; beep([el.on ? 700 : 500], 0.04); draw(id); return; }
     if(el.t==='slot' && b.sel !== null){ if(placeInto(id, k, b.sel)){ if(b.tray[b.sel].n <= 0) b.sel = null; draw(id); } return; }
     if(el.placed){ removeAt(id, k); draw(id); }
   });
   host.addEventListener('pointermove', e=>{
     const d = drags.get(e.pointerId); if(!d) return;
+    if(d.swk !== undefined){ if(Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 30) d.moved = true; return; }
     if(Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 8) d.moved = true;
     d.gh.style.left = e.clientX + 'px'; d.gh.style.top = e.clientY + 'px';
     const g = elAt(e.clientX, e.clientY), ok = g && BD[id].els[+g.dataset.k].t==='slot' ? g : null;
     if(ok !== d.over){ if(d.over) d.over.classList.remove('over'); if(ok) ok.classList.add('over'); d.over = ok; }
   });
   const up = e=>{
-    const d = drags.get(e.pointerId); if(!d) return; drags.delete(e.pointerId); d.gh.remove(); if(d.over) d.over.classList.remove('over');
+    const d = drags.get(e.pointerId); if(!d) return; drags.delete(e.pointerId);
+    if(d.swk !== undefined){
+      const b = BD[id], el = b.els[d.swk]; if(!canPlay(id) || e.type==='pointercancel'){ draw(id); return; }
+      if(el && el.t==='sw'){ if(d.moved) removeAt(id, d.swk); else { el.on = !el.on; b.err = ''; beep([el.on ? 700 : 500], 0.04); } }
+      draw(id); return;
+    }
+    d.gh.remove(); if(d.over) d.over.classList.remove('over');
     const b = BD[id]; if(!canPlay(id) || e.type==='pointercancel'){ draw(id); return; }
     if(!d.moved){ b.sel = b.sel===d.ti ? null : d.ti; draw(id); return; }       /* tocco: seleziona il pezzo, poi si tocca il buco */
     const g = elAt(e.clientX, e.clientY); if(g){ const k = +g.dataset.k; if(b.els[k].t==='slot') placeInto(id, k, d.ti); }
@@ -655,10 +1034,10 @@ function bindBoard(id){
 }
 
 /* ---------- partita ---------- */
-const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false, lastGoal:''};
 const nm = t => t===1 ? P.n1 : P.n2;
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
-function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>d.gh.remove()); drags.clear(); }
+function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>{ if(d.gh) d.gh.remove(); }); drags.clear(); }
 function start(){
   stopAll();
   P.n1 = ($('#n1').value || 'Squadra 1').trim(); P.n2 = ($('#n2').value || 'Squadra 2').trim(); save();
@@ -680,16 +1059,26 @@ function nextChallenge(){
   clearTimeout(S.next);
   S.i++;
   if(S.i >= S.list.length){ finish(); return; }
-  S.ch = makeChallenge(S.list[S.i]);
-  S.log.push({ch:S.ch, who:0});
+  S.ch = P.mode==='goal' ? makeGoal(S.list[S.i]) : makeChallenge(S.list[S.i]);
+  /* st = stelle per squadra, m = misura (pezzi, fili, resistori…), first = chi ha finito prima, end = sfida conclusa */
+  S.log.push({ch:S.ch, who:0, st:[0,0], m:[0,0], first:0, bonus:0, end:false});
   if(P.screen==='lim') limChallenge(); else touchChallenge();
 }
 function finish(){
   stopAll();
-  const [a,b] = S.score;
+  const [a,b] = S.score, goal = P.mode==='goal';
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
-  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
-  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  const stars = t => S.log.reduce((s,r)=>s + r.st[t-1], 0);
+  $('#finals').innerHTML = [1,2].map(t=>`<div class="final t${t}"><b>${S.score[t-1]}</b><span>${nm(t)}</span>${goal ? `<span class="fst">${STAR1} ${stars(t)} ${stars(t)===1 ? 'stella' : 'stelle'}</span>` : ''}</div>`).join('');
+  if(goal){
+    const cell = (r, t) => !r.ch.goal ? (r.who===t ? '+1' : '—') : r.st[t-1] ? `${starsSVG(r.st[t-1])}<br><small>${goalTxt(r.ch, r.m[t-1])}${r.bonus===t ? ' · +1 più veloce' : ''}</small>` : '—';
+    $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Obiettivo</th><th>Soluzione migliore</th><th>${P.n1}</th><th>${P.n2}</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.goal ? `<div class="recpic">${optPic(r.ch)}</div>` : ''}${r.ch.sol}${r.ch.exp ? `<br><small>${r.ch.exp}</small>` : ''}</td><td>${cell(r, 1)}</td><td>${cell(r, 2)}</td></tr>`).join('');
+  } else $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Sfida</th><th>Soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per sfida conclusa (quella interrotta con «Fine» non conta); l'editor libero non registra */
+  const items = S.log.filter(r=>r.end).map(r=>({t:r.ch.goal ? 'Obiettivo: ' + (r.ch.tp || 'circuiti').toLowerCase() : (r.ch.tp || 'Circuiti'), l:r.ch.l, ok:r.ch.goal ? !!(r.st[0] || r.st[1]) : !!r.who, q:r.ch.task, a:r.ch.sol}));
+  if(items.length) REG.report('#regBox', REG.save({gioco:'circuiti', titolo:'Circuiti elettrici', modo:`${P.screen==='lim' ? 'LIM a turni' : 'Multitouch'} · ${goal ? 'sfide a obiettivo' : 'sfide classiche'}`, livello:LVN[P.lvl],
+    squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}));
+  else $('#regBox').innerHTML = '';
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -699,7 +1088,7 @@ function win(id){
   if(BD[id].phase==='done') return;
   S.playing = false; cancelAnimationFrame(S.raf);
   BD[id].phase = 'done';
-  S.score[team-1]++; S.log[S.i].who = team;
+  S.score[team-1]++; S.log[S.i].who = team; S.log[S.i].end = true;
   beep([660, 880, 1100], 0.1);
   if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Giusto! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3600); return; }
   $('#s'+team).textContent = S.score[team-1];
@@ -714,8 +1103,8 @@ function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
 function touchChallenge(){
   $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
   S.playing = false;
-  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
-  setBar(1);
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `${S.ch.goal ? 'Obiettivo' : 'Sfida'} ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1); S.dur = P.timeC*1000;
   S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(draw); }, 2200);
 }
 function setBar(f){
@@ -726,12 +1115,17 @@ function setBar(f){
 }
 function runClock(){
   cancelAnimationFrame(S.raf);
-  if(!P.timeC){ setBar(1); return; }
-  const dur = P.timeC*1000;
+  const dur = S.dur;      /* P.timeC in secondi, oppure il tempo che resta dopo che una squadra ha finito l'obiettivo */
+  if(!dur){ setBar(1); return; }
   const tick = now=>{
     if(!S.playing || S.paused) return;
     const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
-    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4500); return; }
+    if(f <= 0){
+      beep([330, 262], 0.16);
+      if(S.ch.goal && S.log[S.i].first){ endGoal(); return; }
+      S.playing = false; S.log[S.i].end = true;
+      [1,2].forEach(t=>banner(t, S.ch.goal ? `Tempo scaduto!<small>Soluzione migliore: ${S.ch.sol}<span class="solpic">${optPic(S.ch)}</span></small>` : `Tempo scaduto!<small>Soluzione: ${S.ch.sol}</small>`));
+      S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, S.ch.goal ? 7000 : 4500); return; }
     S.raf = requestAnimationFrame(tick);
   };
   S.raf = requestAnimationFrame(tick);
@@ -774,15 +1168,17 @@ function limFail(why){
   if(!S.playing) return;
   beep([330, 262], 0.14);
   if(!S.stolen){
-    S.stolen = true; S.turn = 3 - S.turn; BD.L.phase = 'build';
-    limSides(); draw('L');
-    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    S.stolen = true; S.turn = 3 - S.turn; limSides();
+    if(S.ch.goal) setupBoard('L');            /* negli obiettivi chi ruba riparte da capo (le stelle misurano il suo lavoro) */
+    else { BD.L.phase = 'build'; draw('L'); }
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>${S.ch.goal ? ' (si riparte da capo)' : ''}`;
     limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
     return;
   }
-  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
-  $('#lmsg').innerHTML = `${why} Nessun punto. Soluzione: ${S.ch.sol}`;
-  S.next = setTimeout(nextChallenge, 5000);
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); S.log[S.i].end = true;
+  if(S.ch.goal) showOpt('L');
+  $('#lmsg').innerHTML = `${why} Nessun punto. ${S.ch.goal ? 'Soluzione migliore' : 'Soluzione'}: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, S.ch.goal ? 8000 : 5000);
 }
 $('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
 $('#lpause').onclick = ()=>{
@@ -858,7 +1254,7 @@ $('#go').onclick = start;
 $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 renderSetup();
-window.__circTest = {makeChallenge, sim, solve, switchesOf, OBJ, P, S, BD, placeInto, removeAt, draw};   // solo per le verifiche automatiche
+window.__circTest = {makeChallenge, makeGoal, GC, GL, optSearch, sim, solve, switchesOf, OBJ, P, S, BD, placeInto, removeAt, draw};   // solo per le verifiche automatiche
 })();
 </script>
 </body>

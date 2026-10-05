@@ -177,6 +177,63 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:middle}
 @media (max-width:700px){ #game{flex-direction:column} #game .mid{width:auto;flex-direction:row;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 14px} #game .timer{width:30vw;height:14px} #game .timer i{top:0;bottom:0;right:auto;width:100%;height:auto} }
 @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+
+/* ---------- sfide a obiettivo: stelle, contatori, conferma ---------- */
+.stars{height:1.3em;width:auto;vertical-align:-.28em;overflow:visible}
+.stars path{stroke-width:1.6;stroke-linejoin:round}
+.stars .on{fill:#F7C21B;stroke:#B9860A}
+.stars .off{fill:rgba(140,150,170,.16);stroke:#9AA3B5}
+.banner .stars{height:1.1em}
+.banner small .stars{height:2.1em}
+.final .fst{display:block;font-size:1.05rem;margin-top:6px}
+.final .fst .stars .on{stroke:#fff}
+.gbar{display:flex;align-items:center;justify-content:center;gap:clamp(6px,1vw,12px);flex-wrap:wrap}
+.gbar:empty{display:none}
+.chip{display:inline-flex;align-items:center;gap:6px;font-weight:800;background:var(--surface);border:2px solid var(--line);border-radius:999px;padding:3px 12px;font-size:clamp(.85rem,1.9vh,1.1rem);font-variant-numeric:tabular-nums;line-height:1.3}
+.chip b{font-family:var(--font-title);font-size:1.3em;color:var(--accent);line-height:1}
+.chip.goal{border-style:dashed;color:var(--muted)}
+.chip.warn{border-color:var(--bad);color:var(--bad);background:var(--bad-soft)}
+.chip.done{border-color:var(--ok);color:var(--ok);background:var(--ok-soft)}
+.t1{--tc:var(--t1)} .t2{--tc:var(--t2)}
+#lim.turn1{--tc:var(--t1)} #lim.turn2{--tc:var(--t2)}
+.confirm,.wbtn{min-height:50px;padding:6px 22px;border-radius:16px;font-family:var(--font-title);font-weight:800;font-size:clamp(1.05rem,2.6vh,1.5rem);touch-action:none}
+.confirm{border:0;background:var(--tc,var(--accent));color:#fff;box-shadow:0 4px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.confirm:disabled,.wbtn:disabled{opacity:.35;box-shadow:none}
+.confirm:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 color-mix(in srgb,var(--tc,var(--accent)) 60%,#000)}
+.wbtn{border:3px solid var(--tc,var(--accent));background:var(--surface);color:var(--tc,var(--accent))}
+/* leva con il fulcro da spostare: il masso a sinistra, la forza a destra */
+.blk.big{width:clamp(60px,12vh,118px);height:clamp(60px,12vh,118px)}
+.stage.fulc .fulcrum{transition:left .35s ease}
+.fpos{position:absolute;top:50%;height:clamp(48px,9vh,80px);transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;cursor:pointer;touch-action:none;z-index:2}
+.fpos i{width:10px;height:10px;border-radius:50%;background:var(--wood2);box-shadow:0 0 0 3px rgba(255,255,255,.55)}
+.fpos span{position:absolute;bottom:calc(50% + 14px);font-weight:800;font-size:clamp(.7rem,1.5vh,.95rem);background:var(--surface);color:var(--ink);border-radius:999px;padding:0 6px;opacity:.9}
+.fpos.cur i{background:var(--accent);width:16px;height:16px}
+.fpos.cur span{background:var(--accent);color:#fff;opacity:1}
+
+/* registro di classe e verifica formativa (blocco comune a tutti i giochi) */
+.regf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.regf input{font:inherit;font-size:1.1rem;font-weight:800;width:7.5em;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--surface-2);color:var(--ink);text-transform:uppercase;-webkit-user-select:text;user-select:text}
+.regf .as{font-weight:800;color:var(--muted)}
+.regf .hint{flex-basis:100%;color:var(--muted);font-size:.85rem;font-weight:700}
+.regf a{color:var(--accent);font-weight:800}
+.regbox{display:flex;flex-direction:column;gap:12px;text-align:left}
+.regbox:empty{display:none}
+.regbox h3{font-size:1.3rem;margin:0}
+.regbox .rnote{color:var(--muted);font-weight:700;font-size:.92rem;margin:0}
+.regbox .rgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.regbox .rcard{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--surface-2)}
+.regbox .rcard h4{margin:0 0 8px;font-family:var(--font-title);font-size:1.05rem}
+.rbar{display:grid;grid-template-columns:minmax(90px,38%) 1fr 4.2em;align-items:center;gap:8px;margin:5px 0;font-weight:700;font-size:.92rem}
+.rbar .tr{height:12px;border-radius:6px;background:var(--surface);border:1px solid var(--line);overflow:hidden}
+.rbar .tr i{display:block;height:100%;border-radius:0 6px 6px 0}
+.rbar .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:800}
+.rbad{color:var(--bad)} .rok{color:var(--ok)}
+.rmiss{margin:0;padding-left:1.1em;font-size:.92rem}
+.rmiss li{margin:4px 0}
+.rmiss b{color:var(--ok)}
+.rrank{width:100%;border-collapse:collapse;font-size:.92rem}
+.rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
+.rrank tr.me td{font-weight:800;color:var(--accent)}
 </style>
 </head>
 <body>
@@ -192,7 +249,9 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <div class="row">
       <label class="field"><span>Squadra 1</span><input type="text" id="n1" maxlength="22" value="Squadra blu"></label>
       <label class="field"><span>Squadra 2</span><input type="text" id="n2" maxlength="22" value="Squadra arancione"></label>
+      <div class="field"><span>Classe</span><div id="regField"></div></div>
     </div>
+    <div class="field"><span>Tipo di sfide</span><div class="seg" id="mode"></div></div>
     <div class="field"><span>Livello</span><div class="seg" id="lvl"></div><p class="lvdesc" id="lvdesc"></p></div>
     <div class="row">
       <div class="field"><span>Sfide</span><div class="seg" id="num"></div></div>
@@ -253,10 +312,73 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
     <h1 class="result" id="res"></h1>
     <div class="finals" id="finals"></div>
     <div class="actions"><button class="start" id="again">Rivincita</button><button class="btn2" id="toSetup">Cambia impostazioni</button></div>
+    <div id="regBox"></div>
     <details><summary>Rivedi le sfide e una soluzione per ciascuna</summary><div class="tablewrap"><table id="recap"></table></div></details>
   </div>
 </section>
 
+<script>
+/* ---------- registro di classe (blocco comune a tutti i giochi) ----------
+   I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
+   Ogni partita: {id, data, anno 'aaaa/aa', classe, gioco, titolo, modo, livello, squadre:[{nome,punti}], items:[{t,l,ok,q,a}]} */
+window.REG = (function(){
+  const KEY = 'gm-registro', PK = 'gm-classe';
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plain = s => String(s == null ? '' : s).replace(/<sup>(.*?)<\/sup>/g, '^$1').replace(/<span class="frac"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g, '$1/$2').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const anno = (d = new Date()) => { const y = d.getFullYear(); return d.getMonth() >= 8 ? `${y}/${String(y+1).slice(2)}` : `${y-1}/${String(y).slice(2)}`; };
+  function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if(s && Array.isArray(s.partite)) return s; }catch(e){} return {v:1, partite:[]}; }
+  function store(db){ try{ localStorage.setItem(KEY, JSON.stringify(db)); return true; }catch(e){ return false; } }
+  const norm = c => String(c || '').toUpperCase().replace(/\s+/g, '').slice(0, 8);
+  function classe(){ try{ return norm(JSON.parse(localStorage.getItem(PK) || '{}').classe); }catch(e){ return ''; } }
+  function setClasse(c){ try{ localStorage.setItem(PK, JSON.stringify({classe:norm(c)})); }catch(e){} }
+  const classi = () => [...new Set(load().partite.map(p => p.classe).filter(Boolean))].sort();
+  function field(sel){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host) return;
+    host.innerHTML = `<div class="regf"><input type="text" id="regClasse" list="regList" maxlength="8" placeholder="es. 2B" aria-label="Classe"><datalist id="regList">${classi().map(c => `<option value="${esc(c)}">`).join('')}</datalist><span class="as">a.s. ${anno()}</span><span class="hint">I risultati restano solo su questo computer. Lascia vuoto per un allenamento non registrato. <a href="registro.html">Registro e statistiche</a></span></div>`;
+    const inp = host.querySelector('input'); inp.value = classe();
+    inp.addEventListener('input', () => setClasse(inp.value));
+  }
+  function save(rec){
+    const r = Object.assign({id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), data: new Date().toISOString(), anno: anno(), classe: classe()}, rec);
+    r.items = (r.items || []).map(it => { const o = {t: String(it.t || 'Altro').slice(0, 40), ok: !!it.ok}; if(it.l) o.l = it.l; if(!it.ok && it.q){ o.q = plain(it.q).slice(0, 140); if(it.a != null) o.a = plain(it.a).slice(0, 60); } return o; });
+    r.squadre = (r.squadre || []).map(s => ({nome: String(s.nome).slice(0, 22), punti: +s.punti || 0}));
+    if(!r.classe){ r.saved = false; return r; }
+    const db = load(); db.partite.push(r);
+    r.saved = store(db);
+    return r;
+  }
+  const pct = (ok, n) => n ? Math.round(100 * ok / n) : 0;
+  const col = p => p >= 75 ? 'var(--ok)' : p >= 50 ? 'var(--accent)' : 'var(--bad)';
+  const bar = (label, ok, n) => { const p = pct(ok, n); return `<div class="rbar" title="${esc(label)}: ${ok} giuste su ${n}"><span>${esc(label)}</span><span class="tr"><i style="width:${p}%;background:${col(p)}"></i></span><span class="v">${p}%</span></div>`; };
+  function byTopic(items){ const m = new Map(); items.forEach(it => { const k = it.t; const o = m.get(k) || {ok:0, n:0}; o.n++; if(it.ok) o.ok++; m.set(k, o); }); return [...m].map(([t, o]) => ({t, ...o, p: pct(o.ok, o.n)})).sort((a, b) => a.p - b.p || b.n - a.n); }
+  /* verifica formativa + classifica di classe nella schermata finale */
+  function report(sel, r){
+    const host = typeof sel === 'string' ? document.querySelector(sel) : sel; if(!host || !r) return;
+    host.className = 'regbox';
+    const items = r.items || [], tops = byTopic(items), ok = items.filter(i => i.ok).length;
+    if(!items.length){ host.innerHTML = ''; return; }
+    const weak = tops.filter(t => t.p < 60 && t.n >= 2);
+    const miss = items.filter(i => !i.ok && i.q).slice(0, 12);
+    let h = `<h3>Verifica formativa</h3><p class="rnote">Risposte giuste: <b>${ok} su ${items.length}</b> (${pct(ok, items.length)}%). ` +
+      (r.saved ? `Partita salvata nel registro della classe <b>${esc(r.classe)}</b> (a.s. ${esc(r.anno)}).` : r.classe ? 'Non sono riuscito a salvare la partita (memoria del browser piena o bloccata).' : 'Allenamento: la partita non è registrata (nessuna classe indicata).') + '</p>';
+    h += '<div class="rgrid">';
+    h += `<div class="rcard"><h4>Per argomento</h4>${tops.map(t => bar(t.t, t.ok, t.n)).join('')}` +
+      (weak.length ? `<p class="rnote rbad">Da riprendere: ${weak.map(t => esc(t.t)).join(', ')}.</p>` : `<p class="rnote rok">Nessun argomento sotto il 60%.</p>`) + '</div>';
+    if(miss.length) h += `<div class="rcard"><h4>Domande sbagliate o non risolte</h4><ol class="rmiss">${miss.map(i => `<li>${esc(i.q)}${i.a ? ` → <b>${esc(i.a)}</b>` : ''}</li>`).join('')}</ol></div>`;
+    /* classifica delle classi in questo gioco, anno scolastico in corso */
+    const all = load().partite.filter(p => p.gioco === r.gioco && p.anno === anno());
+    if(all.length){
+      const m = new Map();
+      all.forEach(p => { const o = m.get(p.classe) || {ok:0, n:0, g:0, best:0}; o.g++; (p.items || []).forEach(i => { o.n++; if(i.ok) o.ok++; }); o.best = Math.max(o.best, ...(p.squadre || []).map(s => s.punti), 0); m.set(p.classe, o); });
+      const rows = [...m].map(([c, o]) => ({c, ...o, p: pct(o.ok, o.n)})).sort((a, b) => b.p - a.p || b.best - a.best);
+      h += `<div class="rcard"><h4>Classifica delle classi · ${esc(r.titolo || r.gioco)} · a.s. ${anno()}</h4><table class="rrank"><tr><th>#</th><th>Classe</th><th>Giuste</th><th>Partite</th><th>Record</th></tr>${rows.map((x, i) => `<tr class="${x.c === r.classe ? 'me' : ''}"><td>${i+1}</td><td>${esc(x.c)}</td><td>${x.p}%</td><td>${x.g}</td><td>${x.best}</td></tr>`).join('')}</table><p class="rnote">La classifica usa la percentuale di risposte giuste; «Record» è il punteggio più alto di una squadra. <a href="registro.html">Statistiche complete</a></p></div>`;
+    }
+    h += '</div>';
+    host.innerHTML = h;
+  }
+  return {anno, load, store, classe, setClasse, classi, field, save, report, plain, byTopic, pct};
+})();
+</script>
 <script>
 (function(){
 "use strict";
@@ -267,6 +389,11 @@ const shuffle = arr => { const a = arr.slice(); for(let i=a.length-1;i>0;i--){ c
 const NF = new Intl.NumberFormat('it-IT', {maximumFractionDigits:2});
 const N = x => NF.format(x);
 const sum = a => a.reduce((s,v)=>s+v, 0);
+/* stelle disegnate in SVG (piene = guadagnate) */
+const STAR_D = 'M13 1L15.94 8.95L24.41 9.29L17.76 14.55L20.05 22.71L13 18L5.95 22.71L8.24 14.55L1.59 9.29L10.06 8.95Z';
+const starsSVG = n => `<svg class="stars" viewBox="0 0 78 26" role="img" aria-label="${n} ${n===1 ? 'stella' : 'stelle'} su 3">${[0,1,2].map(i=>`<path class="${i < n ? 'on' : 'off'}" transform="translate(${i*26} 0)" d="${STAR_D}"/>`).join('')}</svg>`;
+const STAR1 = `<svg class="stars" viewBox="0 0 26 26" aria-hidden="true"><path class="on" d="${STAR_D}"/></svg>`;
+const GOAL_LEFT = 45;   /* secondi che restano all'altra squadra quando una ha finito l'obiettivo */
 
 /* ---------- oggetti reali con una massa facile da ricordare ---------- */
 const OBJ = {
@@ -276,14 +403,16 @@ const OBJ = {
   4:{n:'pesetto (kettlebell)', s:'<svg viewBox="0 0 60 60"><path d="M19 29c-1-15 23-15 22 0" stroke="#2E333D" stroke-width="7" fill="none" stroke-linecap="round"/><circle cx="30" cy="40" r="17" fill="#4A505C" stroke="#2E333D" stroke-width="2"/><path d="M20 33a12 12 0 0 1 8-7" stroke="#fff" stroke-width="3" opacity=".35" fill="none" stroke-linecap="round"/><rect x="24" y="37" width="12" height="9" rx="2" fill="#E8801F"/></svg>'},
   5:{n:'anguria', s:'<svg viewBox="0 0 60 60"><ellipse cx="30" cy="37" rx="27" ry="19" fill="#2F8F3A" stroke="#1E5E26" stroke-width="2"/><path d="M6 32c10 5 38 5 48 0M8 42c10 5 34 5 44 0M13 24c9 4 25 4 34 0" stroke="#8ACB6F" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M29 18c0-3 1-5 3-6" stroke="#6B4A1F" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>'},
   10:{n:'secchio d\'acqua da 10 L', s:'<svg viewBox="0 0 60 60"><path d="M12 22h36l-5 34H17z" fill="#9AAEC2" stroke="#56687B" stroke-width="2" stroke-linejoin="round"/><path d="M15 34h30M16 44h28" stroke="#56687B" stroke-width="1.5" opacity=".6"/><ellipse cx="30" cy="22" rx="18" ry="5" fill="#5FB0EA" stroke="#56687B" stroke-width="2"/><path d="M12 22C12 4 48 4 48 22" stroke="#56687B" stroke-width="2.5" fill="none"/></svg>'},
+  rock:{n:'masso', s:'<svg viewBox="0 0 60 60"><path d="M6 52c-3-10 2-22 10-28 6-12 22-15 31-6 9 5 12 18 9 34z" fill="#9AA3AF" stroke="#5F6773" stroke-width="2" stroke-linejoin="round"/><path d="M18 30c4-4 9-6 14-5M38 22c4 1 7 4 8 8" stroke="#C9CED6" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M14 44c8 3 22 4 34 0" stroke="#5F6773" stroke-width="1.5" fill="none" opacity=".6"/></svg>'},
   mys:{n:'scatola misteriosa', s:'<svg viewBox="0 0 60 60"><path d="M8 20l6-8h32l6 8z" fill="#D9B47D" stroke="#8C6A3C" stroke-width="2" stroke-linejoin="round"/><rect x="8" y="20" width="44" height="36" rx="2" fill="#C9A26B" stroke="#8C6A3C" stroke-width="2"/><path d="M8 28h44" stroke="#8C6A3C" stroke-width="2"/><text x="30" y="51" text-anchor="middle" font-size="22" font-weight="800" font-family="Baloo 2, Nunito, sans-serif" fill="#5B3F1E">?</text></svg>'}
 };
-const blkHTML = (w, cls, extra) => `<div class="blk ${cls}" data-w="${w}" ${extra || ''}>${OBJ[w].s}<span class="kg">${w==='mys' ? '? kg' : w + ' kg'}</span></div>`;
+const blkHTML = (w, cls, extra, kg) => `<div class="blk ${cls}" data-w="${w}" ${extra || ''}>${OBJ[w].s}<span class="kg">${kg != null ? kg + ' kg' : w==='mys' ? '? kg' : w + ' kg'}</span></div>`;
 
 /* ---------- impostazioni ---------- */
-const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {lvl:1, num:8, aid:true, screen:'touch', layout:'side', timeC:90, timeT:45, sound:true, mode:'classic', n1:'Squadra blu', n2:'Squadra arancione'};
 try{ const s = JSON.parse(localStorage.getItem('leve-prefs')||'{}'); Object.keys(P).forEach(k=>{ if(s[k]!==undefined && typeof s[k]===typeof P[k]) P[k] = s[k]; }); }catch(e){}
 if(![0,1,2,3,4,5].includes(P.lvl)) P.lvl = 1;
+if(!['classic','goal'].includes(P.mode)) P.mode = 'classic';
 const save = ()=>{ try{ localStorage.setItem('leve-prefs', JSON.stringify(P)); }catch(e){} };
 const LVN = ['Crescente','Base','Medio','Avanzato','Esperto','Campione'];
 const LVD = {
@@ -294,6 +423,14 @@ const LVD = {
   4:'Esperto: usa tutti e soli gli oggetti dati, oppure esattamente 3 oggetti; a volte c\'è anche un oggetto fisso a destra.',
   5:'Campione: scatole misteriose. Porta la leva in equilibrio, poi scopri quanto pesa la scatola (a volte ci sono due scatole uguali, a volte gli oggetti sono obbligati).'
 };
+const GLD = {
+  0:'Crescente: gli obiettivi diventano più difficili uno dopo l\'altro, dalla bilancia a piatti fino alla leva con tre oggetti.',
+  1:'Obiettivi base (bilancia a piatti): equilibrare con il minor numero di oggetti, anche con un oggetto già sul piatto o con due soli tipi di oggetti; trovare il peso misterioso (da 1 a 7 kg) con il minor numero di pesate; sistemare la bilancia con il minor numero di mosse.',
+  2:'Obiettivi medi: equilibrare con la forza più piccola; solo oggetti tutti uguali; dove mettere il fulcro per sollevare un masso; il peso misterioso fino a 15 kg; il minor numero di mosse.',
+  3:'Obiettivi avanzati (due oggetti a sinistra): il minor numero di oggetti, la forza più piccola, solo oggetti uguali, il fulcro su un asse più lungo, il minor numero di mosse.',
+  4:'Obiettivi esperti: c\'è anche un oggetto fisso a destra; il fulcro con numeri più grandi; sistemare la leva in una o due mosse.',
+  5:'Obiettivi campione: tre oggetti a sinistra; il fulcro su un asse di 12 tacche; il peso misterioso fino a 31 kg; due mosse da trovare.'
+};
 function seg(id, key, items){
   const box = $(id);
   box.innerHTML = items.map(([v,t])=>`<button data-v="${v}" aria-pressed="${P[key]===v}">${t}</button>`).join('');
@@ -303,14 +440,21 @@ function syncSetup(){
   const lim = P.screen==='lim';
   $('#layoutF').classList.toggle('hide', lim);
   $('#timeCF').classList.toggle('hide', lim); $('#timeTF').classList.toggle('hide', !lim);
-  $('#lvdesc').textContent = LVD[P.lvl];
-  $('#rules').innerHTML = (lim
+  const goal = P.mode==='goal';
+  $('#lvdesc').textContent = (goal ? GLD : LVD)[P.lvl];
+  const stelle = `Le stelle diventano punti: ${starsSVG(3)} con il minimo possibile (oggetti, chili, mosse o pesate: lo calcola il gioco), ${starsSVG(2)} se ci andate vicino, ${starsSVG(1)} se l\'obiettivo è raggiunto ma in modo meno efficiente.`;
+  $('#rules').innerHTML = (goal ? (lim
+    ? `Sfide a obiettivo alla LIM: una squadra alla volta costruisce la soluzione e, quando è pronta, preme <b>«✓ Conferma»</b> (il gioco non controlla da solo). ${stelle} Una conferma sbagliata, il tempo scaduto o «Passa» danno all\'altra squadra la possibilità di <b>rubare</b> i punti, ripartendo da capo.`
+    : `Sfide a obiettivo in multitouch: le due squadre hanno lo stesso obiettivo e giocano insieme, ognuna sulla sua leva. Quando pensate di aver finito premete <b>«✓ Conferma»</b>: una conferma sbagliata blocca la squadra per 2 secondi. ${stelle} Se risolvono tutte e due le squadre, <b>chi finisce prima prende 1 punto in più</b>; quando una squadra ha finito, l\'altra ha ancora al massimo ${GOAL_LEFT} secondi.`)
+    : lim
     ? 'LIM a turni: una squadra alla volta porta la leva in equilibrio; se finisce il tempo (o preme «Passa»), l\'altra squadra può <b>rubare il punto</b> partendo da dove è rimasta la leva. Basta un tocco alla volta.'
     : 'Multitouch: le due squadre hanno la stessa sfida, ognuna sulla sua leva, e giocano insieme. Si trascinano gli oggetti dal vassoio sull\'asse, a destra del fulcro; un oggetto già sull\'asse si sposta trascinandolo, oppure si toglie con un tocco. Vince il punto chi mette per primo la leva in equilibrio.')
-    + ' La regola della leva: <b>F₁ · b₁ = F₂ · b₂</b> (forza per braccio a sinistra = forza per braccio a destra). Qui la forza è il peso degli oggetti, che dipende dalla loro massa in kg; il braccio è la distanza dal fulcro, in tacche. Nessun dato viene salvato o inviato.';
+    + ' La regola della leva: <b>F₁ · b₁ = F₂ · b₂</b> (forza per braccio a sinistra = forza per braccio a destra). Qui la forza è il peso degli oggetti, che dipende dalla loro massa in kg; il braccio è la distanza dal fulcro, in tacche. Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.';
 }
 function renderSetup(){
+  seg('#mode', 'mode', [['classic','Classiche (vince chi finisce prima)'],['goal','A obiettivo, con le stelle ★']]);
   seg('#lvl', 'lvl', [[1,'Base'],[2,'Medio'],[3,'Avanzato'],[4,'Esperto'],[5,'Campione'],[0,'Crescente']]);
+  REG.field('#regField');
   seg('#num', 'num', [[5,'5'],[8,'8'],[10,'10']]);
   seg('#aid', 'aid', [[true,'Sì'],[false,'No']]);
   seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
@@ -405,20 +549,153 @@ function makeChallenge(l){
   return makeChallenge(Math.max(1, l-1));
 }
 
+/* ---------- sfide a obiettivo, con le stelle ----------
+   kind: 'bal' (equilibrio con gli oggetti), 'fulc' (spostare il fulcro), 'weigh' (bilancia bloccata: si pesa con «Pesa»);
+   metric: 'n' oggetti messi a destra, 'kg' chili messi a destra, 'moves' mosse, 'weigh' pesate.
+   opt = minimo calcolato qui (3 stelle); s2 = limite per 2 stelle. Ogni obiettivo nasce da una soluzione trovata dal gioco, quindi è sempre risolvibile. */
+const gcd = (a,b) => b ? gcd(b, a % b) : a;
+const mom = st => sum(st.map(([w,d])=>w*d));
+function decomp(m, ws){ const out = []; let r = m; for(const w of ws.slice().sort((a,b)=>b-a)) while(r >= w){ out.push(w); r -= w; } return r===0 ? out : null; }
+function minCountK(M, tray, N, kmax){ for(let k=1; k<=kmax; k++){ const s = solsK(M, tray, N, k); if(s.length) return {k, s:pick(s)}; } return null; }
+const perTickOk = (s, N) => { for(let d=1; d<=N; d++) if(s.filter(o=>o[1]===d).length > 5) return false; return true; };
+/* le mosse possibili, come nel gioco: togliere un oggetto, spostarlo su un'altra tacca, aggiungerne uno dal vassoio (al massimo 5 per tacca) */
+function neighbors(st, tray, N){
+  const out = [], cnt = (list, d) => list.filter(o=>o[1]===d).length;
+  st.forEach(([w,d],i)=>{ const rest = st.filter((_,j)=>j!==i); out.push({s:rest, mv:{t:'del', w, d}}); for(let d2=1; d2<=N; d2++) if(d2!==d && cnt(rest, d2) < 5) out.push({s:[...rest, [w,d2]], mv:{t:'mov', w, d, d2}}); });
+  tray.forEach(w=>{ for(let d=1; d<=N; d++) if(cnt(st, d) < 5) out.push({s:[...st, [w,d]], mv:{t:'add', w, d}}); });
+  return out;
+}
+const stKey = st => st.map(o=>o.join(':')).sort().join(',');
+/* ricerca in ampiezza: il numero minimo di mosse per arrivare all'equilibrio (momento = target) */
+function bfsMoves(start, target, tray, N, maxD){
+  if(start.length && mom(start)===target) return {d:0, path:[]};
+  let front = [{s:start, path:[]}]; const seen = new Set([stKey(start)]);
+  for(let depth=1; depth<=maxD; depth++){
+    const next = [];
+    for(const f of front) for(const nb of neighbors(f.s, tray, N)){
+      const k = stKey(nb.s); if(seen.has(k)) continue; seen.add(k);
+      const path = [...f.path, nb.mv];
+      if(nb.s.length && mom(nb.s)===target) return {d:depth, path};
+      next.push({s:nb.s, path});
+    }
+    front = next;
+  }
+  return null;
+}
+const mvTxt = N => m => m.t==='del' ? `togli ${m.w} kg${N===1 ? '' : ` dalla tacca ${m.d}`}` : m.t==='mov' ? `sposta ${m.w} kg dalla tacca ${m.d} alla tacca ${m.d2}` : `aggiungi ${m.w} kg${N===1 ? '' : ` sulla tacca ${m.d}`}`;
+/* gli oggetti fissi a sinistra, secondo il livello */
+function goalLeft(l){
+  if(l===1){ const left = Array.from({length:rnd(2,3)}, ()=>({d:1, w:pick([1,2,3,4,5])})), M = loadM(left); return M >= 6 && M <= 14 ? {N:1, left} : null; }
+  if(l===2) return {N:4, left:[{d:rnd(1,4), w:pick([2,3,4,5,10])}]};
+  if(l<=4) return {N:5, left:twoLoads(l===3 ? [1,2,3,4,5] : W, 5)};
+  return {N:5, left:shuffle([1,2,3,4,5]).slice(0,3).map(d=>({d, w:pick(W)}))};
+}
+const LEVA = N => N===1 ? 'la bilancia' : 'la leva';
+const GL_TYPES = {1:['pochi','pochiR','due','pesata','mosse'], 2:['forza','solo','fulcro','pesata','mosse'], 3:['pochi','forza','solo','fulcro','mosse'], 4:['pochiR','forzaR','soloR','fulcro','mosse'], 5:['pochi','forza','fulcro','pesata','mosse']};
+function goalOf(ty, l){
+  if(ty==='fulcro'){
+    /* asse lungo L tacche: masso X kg a sinistra, forza Y kg a destra; il fulcro va a f tacche dal masso con X · f = Y · (L − f) */
+    const L = {2:6, 3:8, 4:10, 5:12}[l] || 8, f = rnd(1, L/2 - 1), g = gcd(f, L-f), a = (L-f)/g, bb = f/g, ks = [];
+    for(let k=1; k<=60; k++){ const Y = k*bb, X = k*a; if(Y >= 5 && Y <= 30 && X <= 120 && decomp(Y, W).length <= 3) ks.push(k); }
+    if(!ks.length) return null;
+    const k5 = ks.filter(k=>(k*bb) % 5===0), k = pick(k5.length ? k5 : ks), X = k*a, Y = k*bb;
+    return {kind:'fulc', N:0, left:[], M:0, L, X, Y, ans:f, f0:L/2, metric:'moves', opt:1, s2:3,
+      task:`Sollevate il masso di <b>${X} kg</b> con una forza di <b>${Y} kg</b>: toccate l'asse per spostare il fulcro. Ogni spostamento è una mossa: ${starsSVG(3)} se lo mettete al posto giusto al primo colpo!`,
+      sol:`fulcro a ${f} tacche dal masso e a ${L-f} dalla forza: ${X} · ${f} = ${Y} · ${L-f} = ${X*f}`,
+      exp:`I bracci stanno nel rapporto inverso delle forze: ${X} : ${Y} = ${L-f} : ${f}. Più il fulcro è vicino al carico, meno forza serve.`};
+  }
+  if(ty==='pesata'){
+    /* con la strategia migliore (dimezzare) bastano log₂(R + 1) pesate, contando quella finale in equilibrio */
+    const R = l===1 ? 7 : l===5 ? 31 : 15, m = rnd(1, R), opt = Math.round(Math.log2(R+1));
+    return {kind:'weigh', N:1, left:[{d:1, w:'mys', m}], M:m, tray:[1,2,5,10], R, metric:'weigh', opt, s2:opt+2,
+      task:`La scatola pesa un numero intero di kg, <b>da 1 a ${R}</b>. Scoprite quanto pesa <b>con il minor numero di pesate</b>: mettete i pesi e premete «⚖ Pesa»; quando è in equilibrio, «✓ Conferma».`,
+      sol:`la scatola pesa ${m} kg; strategia migliore: dimezzare ogni volta i valori possibili (prima pesata con ${(R+1)/2} kg), così bastano al massimo ${opt} pesate`,
+      exp:'Ogni pesata dice «più pesante», «più leggera» o «uguale»: scegliendo sempre il valore a metà, i casi possibili si dimezzano.'};
+  }
+  const g = goalLeft(l); if(!g) return null;
+  const {N, left} = g, M = loadM(left);
+  const rload = /R$/.test(ty) ? [{d:N===1 ? 1 : rnd(1,N), w:pick([1,2,3])}] : [], rest = M - loadM(rload);
+  if(rest <= 0) return null;
+  const fix = rload.length ? ' (a destra c\'è già un oggetto fisso)' : '', fixS = rload.length ? 'oltre all\'oggetto fisso, ' : '';
+  const base = {kind:'bal', N, left, M, rload};
+  if(ty==='pochi' || ty==='pochiR'){
+    const r = minCountK(rest, W, N, 5); if(!r || r.k < 2) return null;
+    return {...base, metric:'n', opt:r.k, s2:r.k+1, task:`Equilibrate ${LEVA(N)} con <b>il minor numero di oggetti</b>${fix}.`, sol:`${r.k} oggetti: ${fixS}${solTxt(r.s, N)}`,
+      exp: N===1 ? 'Sulla bilancia a piatti conta solo il totale dei chili: conviene partire dagli oggetti più pesanti.' : 'Oggetti pesanti e lontani dal fulcro: con pochi pezzi si ottiene lo stesso effetto (forza · braccio).'};
+  }
+  if(ty==='due'){
+    const pr = pick([[1,2],[1,3],[2,3],[1,4],[2,5],[3,4]]), r = minCountK(rest, pr, 1, 5); if(!r || r.k < 2) return null;
+    return {...base, tray:pr, metric:'n', opt:r.k, s2:r.k+1, task:`Equilibrate la bilancia usando <b>solo oggetti da ${pr[0]} kg e da ${pr[1]} kg</b>, il minor numero possibile.`, sol:`${r.k} oggetti: ${solTxt(r.s, 1)}`,
+      exp:'Conviene usare il più possibile gli oggetti più pesanti e completare con quelli leggeri.'};
+  }
+  if(ty==='solo' || ty==='soloR'){
+    const w = pick([2,3,4,5]); if(rest % w) return null;
+    const r = minCountK(rest, [w], N, 5); if(!r || r.k < 2) return null;
+    return {...base, tray:[w], metric:'n', opt:r.k, s2:r.k+1, task:`Equilibrate la leva usando <b>solo oggetti da ${w} kg</b>, il minor numero possibile${fix}.`, sol:`${r.k} oggetti: ${fixS}${solTxt(r.s, N)}`,
+      exp:`Con oggetti tutti uguali conviene metterli lontano dal fulcro: alla tacca ${N} un oggetto vale come ${N} oggetti alla tacca 1.`};
+  }
+  if(ty==='forza' || ty==='forzaR'){
+    /* il minimo è ⌈rest : N⌉ kg: tutto alla tacca più lontana, più 1 kg per il resto */
+    if(N===1 || rest <= N) return null;
+    const q = Math.floor(rest/N), rr = rest % N, opt = q + (rr ? 1 : 0), s = [...decomp(q, W).map(w=>[w, N]), ...(rr ? [[1, rr]] : [])];
+    return {...base, metric:'kg', opt, s2:opt + Math.max(2, Math.ceil(opt/4)), task:`Equilibrate la leva con <b>la forza più piccola</b>: il minor numero di chili in tutto${fix}.`, sol:`${opt} kg: ${fixS}${solTxt(s, N)}`,
+      exp:`Più il braccio è lungo, meno forza serve: alla tacca ${N} ogni chilo vale come ${N} chili alla tacca 1 (F₁ · b₁ = F₂ · b₂).`};
+  }
+  if(ty==='mosse'){
+    /* si parte da una soluzione e la si "rovina" con 1 o 2 mosse; poi la ricerca trova il vero minimo */
+    const k = N===1 ? rnd(2,3) : rnd(2, l >= 4 ? 4 : 3);
+    const sols = solsK(M, W, N, k).filter(s=>perTickOk(s, N)); if(!sols.length) return null;
+    let st = pick(sols).map(o=>o.slice()); const np = l <= 3 ? 1 : l===4 ? rnd(1,2) : 2;
+    for(let i=0; i<np; i++) st = pick(neighbors(st, W, N)).s;
+    if(!st.length || mom(st)===M) return null;
+    const r = bfsMoves(st, M, W, N, np); if(!r || !r.d) return null;
+    return {...base, start:st, metric:'moves', opt:r.d, s2:r.d+2,
+      task: N===1 ? 'La bilancia non è in equilibrio. Sistematela <b>con il minor numero di mosse</b> (togliere o aggiungere un oggetto = 1 mossa).' : 'La leva non è in equilibrio. Sistematela <b>con il minor numero di mosse</b> (spostare, togliere o aggiungere un oggetto = 1 mossa).',
+      sol:`${r.d} ${r.d===1 ? 'mossa' : 'mosse'}: ${r.path.map(mvTxt(N)).join(', poi ')}`,
+      exp: N===1 ? 'Prima calcolate la differenza tra i due piatti: poi basta togliere o aggiungere gli oggetti giusti.' : 'Prima di muovere calcolate quanto manca o quanto avanza (forza · braccio): spesso basta spostare un oggetto di qualche tacca.'};
+  }
+  return null;
+}
+function makeGoal(l){
+  const types = GL_TYPES[l] || GL_TYPES[1], def = {l, goal:true, tray:W, count:0, onlyD:0, limited:false, rload:[]};
+  for(let g=0; g<500; g++){
+    const ty = pick(types.filter(t=>t!==S.lastTy)), r = goalOf(ty, l);
+    if(r){ S.lastTy = ty; return {...def, ...r, gt:ty}; }
+  }
+  S.lastTy = 'pesata'; return {...def, ...goalOf('pesata', l), gt:'pesata'};
+}
+
 /* ---------- tabellone (una leva con il suo vassoio) ---------- */
 const BD = {};
 let K = 0;
 function mkBoard(id){
   const host = $('#bd'+id);
-  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"><div class="beamwrap"><div class="beam" id="bm${id}"></div></div><div class="fulcrum"></div></div><div class="calc" id="c${id}"></div><div class="ask" id="q${id}"></div><div class="tray" id="tr${id}"></div>`;
+  host.innerHTML = `<div class="task" id="k${id}"></div><div class="stage" id="st${id}"><div class="beamwrap"><div class="beam" id="bm${id}"></div></div><div class="fulcrum"></div></div><div class="calc" id="c${id}"></div><div class="ask" id="q${id}"></div><div class="gbar" id="gb${id}"></div><div class="tray" id="tr${id}"></div>`;
   BD[id] = {id, host, right:[], tray:null, phase:'build', lock:false};
   bindBoard(id);
 }
 const teamOf = id => id==='L' ? S.turn : id;
 function setupBoard(id){
   const C = S.ch, b = BD[id];
-  b.right = Array.from({length:C.N+1}, ()=>[]); b.tray = C.limited ? C.tray.map(w=>({k:++K, w})) : null; b.phase = 'build'; b.lock = false;
-  const st = $('#st'+id); st.classList.toggle('scale', C.N===1);
+  b.phase = 'build'; b.lock = false;
+  Object.assign(b, {moves:0, weighs:0, wres:null, wkey:'', hist:[], note:'', err:'', stars:0, f:C.f0 || 0});
+  const st = $('#st'+id), bm0 = $('#bm'+id);
+  st.classList.toggle('scale', C.N===1); st.classList.toggle('fulc', C.kind==='fulc');
+  bm0.style.transformOrigin = ''; st.querySelector('.fulcrum').style.left = '';
+  $('#gb'+id).innerHTML = '';
+  if(C.kind==='fulc'){
+    /* asse con il fulcro mobile: masso all'estremità sinistra, forza all'estremità destra, tacche 1..L−1 da toccare */
+    b.right = []; b.tray = null;
+    let hf = `<div class="slot end" style="left:0%;width:18%"><div class="stack">${blkHTML('rock', 'load big', '', C.X)}</div></div><div class="slot end" style="left:100%;width:18%"><div class="stack">${decomp(C.Y, W).map(w=>blkHTML(w, 'load')).join('')}</div></div>`;
+    for(let p=1; p<C.L; p++) hf += `<div class="fpos" data-p="${p}" style="left:${100*p/C.L}%;width:${100/C.L}%"><i></i><span>${p}</span></div>`;
+    bm0.innerHTML = hf;
+    $('#k'+id).innerHTML = C.task;
+    $('#q'+id).classList.remove('on'); $('#q'+id).innerHTML = '';
+    $('#tr'+id).innerHTML = '<span class="lab">Toccate un punto dell\'asse per spostare lì il fulcro (i numeri sono le tacche contate dal masso).</span>';
+    update(id); return;
+  }
+  b.right = Array.from({length:C.N+1}, ()=>[]); b.tray = C.limited ? C.tray.map(w=>({k:++K, w})) : null;
+  if(C.start) C.start.forEach(([w,d])=>b.right[d].push({k:++K, w}));
   let h = '';
   ['L','R'].forEach(side=>{ for(let d=1; d<=C.N; d++){ const x = C.N===1 ? 36 : 50*d/C.N; const w = C.N===1 ? 34 : Math.min(18, 84/C.N);
     h += `<div class="slot ${side}${C.N===1 ? ' pan' : ''}" data-side="${side}" data-d="${d}" style="left:${side==='L' ? 50-x : 50+x}%;width:${w}%">${C.N===1 ? '<svg class="strings" viewBox="0 0 100 100" preserveAspectRatio="none"><path d="M50 0L6 100M50 0L94 100" vector-effect="non-scaling-stroke"/></svg>' : ''}<div class="stack"></div>${C.N===1 ? '<div class="plate"></div>' : ''}<span class="tick">${d}</span></div>`; } });
@@ -433,22 +710,27 @@ const Mleft = () => S.ch.M;
 const Mright = id => BD[id].right.reduce((s,list,d)=>s + d*sum(list.map(o=>o.w)), 0) + loadM(S.ch.rload);
 function update(id){
   const C = S.ch, b = BD[id], team = teamOf(id);
+  if(C.kind==='fulc'){ fulcUpdate(id); return; }
   const bm = $('#bm'+id);
   b.right.forEach((list,d)=>{ if(!d) return; const st = bm.querySelector(`.slot.R[data-d="${d}"] .stack`); st.innerHTML = C.rload.filter(o=>o.d===d).map(o=>blkHTML(o.w, 'load')).join('') + list.map(o=>blkHTML(o.w, `mine c${team || 1}`, `data-k="${o.k}" data-d="${d}"`)).join(''); });
   const tr = $('#tr'+id);
   if(b.tray) tr.innerHTML = `<span class="lab">Da usare:</span>` + (b.tray.length ? b.tray.map(o=>blkHTML(o.w, `mine c${team || 1}`, `data-k="${o.k}"`)).join('') : '<span class="lab">tutti sull\'asse!</span>');
   else tr.innerHTML = `<span class="lab">Vassoio:</span>` + C.tray.map(w=>blkHTML(w, `mine c${team || 1}`, 'data-src="1"')).join('');
-  const Ml = Mleft(), Mr = Mright(id), diff = Mr - Ml;
-  const ang = diff===0 ? 0 : Math.sign(diff) * Math.min(13, 2.5 + Math.abs(diff)*0.7);
+  const Ml = Mleft(), Mr = Mright(id), diff = Mr - Ml, wm = C.kind==='weigh';
+  /* con le pesate la bilancia resta bloccata (in piano) finché non si preme «Pesa» */
+  const shown = wm ? (b.wkey && b.wkey===cfgKey(b) ? b.wres : null) : diff;
+  const ang = !shown ? 0 : Math.sign(shown) * (wm ? 9 : Math.min(13, 2.5 + Math.abs(diff)*0.7));
   $('#bm'+id).style.setProperty('--a', ang + 'deg');
   const pansel = bm.querySelectorAll('.slot.pan'); pansel.forEach(p=>p.style.setProperty('--a', ang + 'deg'));
   /* calcoli (aiuto) */
-  if(P.aid){
+  if(wm) $('#c'+id).innerHTML = weighTxt(id, Mr, shown);
+  else if(P.aid){
     const lt = C.N===1 ? `${C.left.map(o=>o.w).join(' + ')} = ${Ml} kg` : C.left.map(o=>`${o.w==='mys' ? '?' : o.w} · ${o.d}`).join(' + ') + (C.mys ? '' : ` = ${Ml}`);
     const rl = C.rload.map(o=>C.N===1 ? `${o.w}` : `${o.w} · ${o.d}`); b.right.forEach((list,d)=>list.forEach(o=>rl.push(C.N===1 ? `${o.w}` : `${o.w} · ${d}`)));
     const rt = rl.length ? rl.join(' + ') + ` = ${Mr}${C.N===1 ? ' kg' : ''}` : '0';
     $('#c'+id).innerHTML = `<span>Sinistra: ${lt}</span><span class="${diff===0 ? 'ok' : ''}">Destra: ${rt}</span>`;
   } else $('#c'+id).innerHTML = `<span>${diff===0 && Mr ? '⚖ In equilibrio' : diff > 0 ? 'Pende a destra' : Mr ? 'Pende a sinistra' : ''}</span>`;
+  if(C.goal){ goalBar(id); return; }    /* negli obiettivi niente controllo automatico: si preme «Conferma» */
   if(b.phase==='build' && diff===0 && Mr > 0 && S.playing && !S.paused){
     if(C.limited && b.tray.length){ $('#c'+id).insertAdjacentHTML('beforeend', '<span>In equilibrio, ma devi usare tutti gli oggetti!</span>'); return; }
     if(C.count){ const n = sum(b.right.map(l=>l.length)); if(n !== C.count){ $('#c'+id).insertAdjacentHTML('beforeend', `<span>In equilibrio, ma ${C.count===1 ? 'serve un solo oggetto' : `devi usare ${C.count} oggetti (ne hai ${n})`}!</span>`); return; } }
@@ -473,8 +755,122 @@ function askAnswer(id, bt){
   if(+bt.dataset.v === S.ch.mys.m){ bt.classList.add('right'); win(id); return; }
   bt.classList.add('wrong'); bt.disabled = true; beep([220], 0.15);
   if(id==='L'){ limFail('Risposta sbagliata!'); return; }
+  penalize(id);
+}
+/* blocco di 2 secondi dopo un errore (multitouch) */
+function penalize(id){
+  const b = BD[id];
   b.lock = true; $('#h'+id).classList.add('locked'); $('#h'+id).querySelector('.lock').textContent = 'Attendi…';
   setTimeout(()=>{ b.lock = false; if(!S.paused){ $('#h'+id).classList.remove('locked'); $('#h'+id).querySelector('.lock').textContent = 'Pausa'; } }, 2000);
+}
+
+/* ---------- obiettivi: contatori, «Pesa», «Conferma», stelle ---------- */
+const cfgKey = b => (b.right || []).map(l=>l.map(o=>o.w).sort((x,y)=>x-y).join('+')).join('|');
+const teamObjs = b => (b.right || []).reduce((s,l)=>s + l.length, 0);
+const GLAB = {n:'Oggetti a destra', kg:'Forza a destra', moves:'Mosse', weigh:'Pesate'};
+function goalTxt(C, v){ return C.metric==='kg' ? `${v} kg` : C.metric==='n' ? `${v} ${v===1 ? 'oggetto' : 'oggetti'}` : C.metric==='moves' ? `${v} ${v===1 ? 'mossa' : 'mosse'}` : `${v} ${v===1 ? 'pesata' : 'pesate'}`; }
+function metricOf(id){
+  const C = S.ch, b = BD[id];
+  return C.metric==='moves' ? b.moves : C.metric==='weigh' ? b.weighs : C.metric==='kg' ? b.right.reduce((s,l)=>s + sum(l.map(o=>o.w)), 0) : teamObjs(b);
+}
+const starsFor = (C, m) => m <= C.opt ? 3 : m <= C.s2 ? 2 : 1;
+function goalBar(id){
+  const C = S.ch, b = BD[id], m = metricOf(id);
+  let h = `<span class="chip">${GLAB[C.metric]}: <b>${C.metric==='kg' ? m + ' kg' : m}</b></span>`;
+  if(P.aid) h += `<span class="chip goal">${starsSVG(3)} con ${C.metric==='weigh' ? 'al massimo ' : ''}${goalTxt(C, C.opt)}</span>`;
+  if(b.err) h += `<span class="chip warn">${b.err}</span>`;
+  if(b.note) h += `<span class="chip warn">${b.note}</span>`;
+  if(b.phase==='done') h += `<span class="chip done">Fatto! ${starsSVG(b.stars)}</span>`;
+  else {
+    const empty = C.kind!=='fulc' && !teamObjs(b);
+    if(C.kind==='weigh') h += `<button class="wbtn" data-act="weigh"${empty ? ' disabled' : ''}>⚖ Pesa</button>`;
+    h += `<button class="confirm" data-act="ok"${empty ? ' disabled' : ''}>✓ Conferma</button>`;
+  }
+  $('#gb'+id).innerHTML = h;
+}
+function fulcUpdate(id){
+  const C = S.ch, b = BD[id], f = b.f, ml = C.X*f, mr = C.Y*(C.L-f), diff = mr - ml, bm = $('#bm'+id);
+  bm.style.transformOrigin = `${100*f/C.L}% 50%`;
+  $('#st'+id).querySelector('.fulcrum').style.left = `${5 + 90*f/C.L}%`;
+  bm.querySelectorAll('.fpos').forEach(el=>el.classList.toggle('cur', +el.dataset.p===f));
+  const ang = diff===0 ? 0 : Math.sign(diff) * Math.min(13, 3 + 10*Math.abs(diff)/Math.max(ml, mr));
+  bm.style.setProperty('--a', ang + 'deg');
+  $('#c'+id).innerHTML = P.aid
+    ? `<span>Masso: ${C.X} · ${f} = ${ml}</span><span class="${diff===0 ? 'ok' : ''}">Forza: ${C.Y} · ${C.L-f} = ${mr}</span>`
+    : `<span>Braccio del masso: ${f} · braccio della forza: ${C.L-f}</span><span>${diff===0 ? '⚖ In equilibrio' : diff > 0 ? 'Pende dalla parte della forza' : 'Pende dalla parte del masso'}</span>`;
+  goalBar(id);
+}
+function weighTxt(id, Mr, shown){
+  const b = BD[id], rl = []; b.right.forEach(list=>list.forEach(o=>rl.push(o.w)));
+  const now = !Mr ? 'Mettete dei pesi sul piatto di destra' : shown===null ? 'Bilancia bloccata: premete «⚖ Pesa»' : shown===0 ? '⚖ In equilibrio!' : shown > 0 ? 'Pende dalla parte dei pesi: la scatola pesa meno' : 'Pende dalla parte della scatola: pesa di più';
+  return `<span>Destra: ${rl.length ? `${rl.join(' + ')} = ${Mr} kg` : '0 kg'}</span><span>${now}</span>` + (b.hist.length ? `<span>Pesate: ${b.hist.map(x=>`scatola ${x.r===0 ? '=' : x.r > 0 ? '<' : '>'} ${x.v} kg`).join(' · ')}</span>` : '');
+}
+/* una pesata: si conta solo se i pesi sono cambiati dall'ultima */
+function doWeigh(id){
+  const b = BD[id], Mr = Mright(id); if(!Mr) return false;
+  const key = cfgKey(b); if(key===b.wkey) return true;
+  b.wkey = key; b.weighs++; b.wres = Math.sign(Mr - S.ch.M); b.hist.push({v:Mr, r:b.wres}); if(b.hist.length > 6) b.hist.shift();
+  beep(b.wres ? [440] : [520, 780], 0.08);
+  return true;
+}
+function weighBtn(id){ if(!S.ch.goal || S.ch.kind!=='weigh' || !canPlay(id)) return; BD[id].err = ''; if(doWeigh(id)) update(id); }
+function moveFulcrum(id, p){
+  const C = S.ch, b = BD[id]; if(C.kind!=='fulc' || !canPlay(id) || p===b.f || p < 1 || p >= C.L) return;
+  b.f = p; b.moves++; b.err = ''; beep([640], 0.04); update(id);
+}
+function goalWhy(id){
+  const C = S.ch, b = BD[id];
+  if(C.kind==='fulc') return b.f===C.ans ? '' : 'la leva non è in equilibrio';
+  if(C.kind==='weigh') return b.wres===0 ? '' : b.wres > 0 ? 'i pesi sono troppi' : 'i pesi non bastano';
+  return Mright(id)===C.M ? '' : C.N===1 ? 'i piatti non sono in equilibrio' : 'la leva non è in equilibrio';
+}
+function confirmGoal(id){
+  const C = S.ch, b = BD[id]; if(!C.goal || !canPlay(id)) return;
+  if(C.kind!=='fulc' && !teamObjs(b)) return;
+  if(C.kind==='weigh') doWeigh(id);          /* la conferma vale come pesata finale (se i pesi sono cambiati) */
+  const why = goalWhy(id);
+  if(!why){ goalDone(id); return; }
+  beep([220], 0.15);
+  if(id==='L'){ limFail(`Non ancora: ${why}.`); return; }
+  b.err = `Non ancora: ${why}`; penalize(id); update(id);
+}
+function goalDone(id){
+  const C = S.ch, b = BD[id], team = teamOf(id), r = S.log[S.i];
+  if(b.phase==='done') return;
+  const m = metricOf(id), st = starsFor(C, m);
+  b.phase = 'done'; b.stars = st; b.err = ''; r.st[team-1] = st; r.m[team-1] = m;
+  beep(st===3 ? [660, 880, 1100, 1320] : [660, 880, 1100], 0.1);
+  if(id==='L'){
+    S.playing = false; cancelAnimationFrame(S.raf); r.end = true; r.who = team;
+    S.score[team-1] += st; $('#ls'+team).textContent = S.score[team-1];
+    S.turn = 0; limSides(); update('L');
+    $('#lmsg').innerHTML = `${starsSVG(st)} <b>${nm(team)}</b>: +${st} (${goalTxt(C, m)}). Soluzione migliore: ${C.sol}`;
+    S.next = setTimeout(nextChallenge, 7500); return;
+  }
+  update(id);
+  if(!r.first){
+    r.first = team;
+    banner(team, `Fatto! ${starsSVG(st)}<small>${goalTxt(C, m)} · aspettate l'altra squadra</small>`, true);
+    const ob = BD[3-team];
+    if(ob.phase==='build'){
+      ob.note = `${nm(team)} ha finito: avete ancora al massimo ${GOAL_LEFT} secondi!`; update(3-team);
+      const now = performance.now(), rem = S.dur ? S.dur - (now - S.t0) : Infinity;
+      if(rem > GOAL_LEFT*1000){ S.t0 = now; S.dur = GOAL_LEFT*1000; runClock(); }
+      return;
+    }
+  }
+  endGoal();
+}
+/* fine di un obiettivo in multitouch: stelle = punti, +1 a chi ha finito prima se hanno risolto tutte e due */
+function endGoal(){
+  S.playing = false; cancelAnimationFrame(S.raf);
+  const C = S.ch, r = S.log[S.i]; r.end = true;
+  r.bonus = r.st[0] && r.st[1] ? r.first : 0; r.who = r.first;
+  const pts = [1,2].map(t=>r.st[t-1] + (r.bonus===t ? 1 : 0));
+  [1,2].forEach(t=>{ S.score[t-1] += pts[t-1]; $('#s'+t).textContent = S.score[t-1]; });
+  const line = t => `${nm(t)}: ${r.st[t-1] ? `${starsSVG(r.st[t-1])} ${goalTxt(C, r.m[t-1])}${r.bonus===t ? ' · +1 più veloce' : ''}` : 'non risolto'}`;
+  [1,2].forEach(t=>banner(t, `${pts[t-1] ? `+${pts[t-1]} ${pts[t-1]===1 ? 'punto' : 'punti'}` : 'Nessun punto'}<small>${line(1)}<br>${line(2)}<br>Soluzione migliore: ${C.sol}<br>${C.exp}</small>`, pts[t-1] > 0));
+  S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 9000);
 }
 
 /* trascinamento: ogni dito porta il suo oggetto */
@@ -483,6 +879,10 @@ function canPlay(id){ const b = BD[id]; return S.playing && !S.paused && b.phase
 function bindBoard(id){
   const host = $('#bd'+id);
   host.addEventListener('pointerdown', e=>{
+    const act = e.target.closest('[data-act]');
+    if(act){ e.preventDefault(); if(!act.disabled){ if(act.dataset.act==='ok') confirmGoal(id); else weighBtn(id); } return; }
+    const fp = e.target.closest('.fpos');
+    if(fp){ e.preventDefault(); moveFulcrum(id, +fp.dataset.p); return; }
     const el = e.target.closest('.blk'); if(!el || el.classList.contains('load') || !canPlay(id)) return;
     e.preventDefault();
     const b = BD[id], w = +el.dataset.w, k = el.dataset.k ? +el.dataset.k : null, fromSlot = el.dataset.d ? +el.dataset.d : null;
@@ -505,6 +905,7 @@ function bindBoard(id){
     drags.delete(e.pointerId); dr.gh.remove(); dr.el.classList.remove('lift'); if(dr.over) dr.over.classList.remove('over');
     if(![...drags.values()].some(x=>x.id===id)) host.classList.remove('hot');
     const b = BD[id]; if(!canPlay(id) || e.type==='pointercancel'){ update(id); return; }
+    const before = cfgKey(b);
     const sl = dr.moved ? slotAt(host, e.clientX, e.clientY) : null;
     /* togli l'oggetto dalla sua posizione di partenza */
     let obj = null;
@@ -515,6 +916,7 @@ function bindBoard(id){
       if(sl){ const d = +sl.dataset.d; if(b.right[d].length < 5){ b.right[d].push(obj); beep([640], 0.04); } else if(b.tray) b.tray.push(obj); }
       else if(b.tray) b.tray.push(obj);   /* toccato o lasciato fuori: torna nel vassoio (o sparisce) */
     }
+    if(S.ch.goal && cfgKey(b)!==before){ b.moves++; b.err = ''; }   /* una mossa = un cambiamento sull'asse */
     update(id);
   };
   host.addEventListener('pointerup', up);
@@ -525,7 +927,7 @@ function slotAt(host, x, y){
 }
 
 /* ---------- partita ---------- */
-const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false};
+const S = {i:-1, list:[], ch:null, score:[0,0], playing:false, paused:false, t0:0, dur:0, pauseAt:0, raf:0, next:0, log:[], turn:0, stolen:false, lastTy:''};
 const nm = t => t===1 ? P.n1 : P.n2;
 function show(id){ document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on', s.id===id)); }
 function stopAll(){ clearTimeout(S.next); cancelAnimationFrame(S.raf); S.playing = false; drags.forEach(d=>{ d.gh.remove(); d.el.classList.remove('lift'); }); drags.clear(); document.querySelectorAll('.board.hot').forEach(b=>b.classList.remove('hot')); }
@@ -550,16 +952,31 @@ function nextChallenge(){
   clearTimeout(S.next);
   S.i++;
   if(S.i >= S.list.length){ finish(); return; }
-  S.ch = makeChallenge(S.list[S.i]);
-  S.log.push({ch:S.ch, who:0});
+  S.ch = P.mode==='goal' ? makeGoal(S.list[S.i]) : makeChallenge(S.list[S.i]);
+  /* st = stelle per squadra, m = misura (oggetti, chili, mosse, pesate), first = chi ha finito prima, end = sfida conclusa */
+  S.log.push({ch:S.ch, who:0, st:[0,0], m:[0,0], first:0, bonus:0, end:false});
   if(P.screen==='lim') limChallenge(); else touchChallenge();
 }
+/* argomenti per il registro di classe */
+const TOPIC = ['Leve', 'Bilancia a piatti', 'Leve: un oggetto', 'Leve di 1° genere', 'Leve: oggetti obbligati', 'Peso misterioso (equazioni)'];
+const leftTxt = ch => ch.left.map(o=>o.w==='mys' ? `scatola ? a distanza ${o.d}` : ch.N===1 ? `${o.w} kg` : `${o.w} kg a distanza ${o.d}`).join(', ');
 function finish(){
   stopAll();
-  const [a,b] = S.score;
+  const [a,b] = S.score, goal = P.mode==='goal';
   $('#res').textContent = a===b ? 'Pareggio!' : `Vince ${a > b ? P.n1 : P.n2}!`;
-  $('#finals').innerHTML = `<div class="final t1"><b>${a}</b><span>${P.n1}</span></div><div class="final t2"><b>${b}</b><span>${P.n2}</span></div>`;
-  $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>A sinistra</th><th>Una soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.left.map(o=>o.w==='mys' ? `scatola ? a distanza ${o.d}` : r.ch.N===1 ? `${o.w} kg` : `${o.w} kg a distanza ${o.d}`).join(', ')}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  const stars = t => sum(S.log.map(r=>r.st[t-1]));
+  $('#finals').innerHTML = [1,2].map(t=>`<div class="final t${t}"><b>${S.score[t-1]}</b><span>${nm(t)}</span>${goal ? `<span class="fst">${STAR1} ${stars(t)} ${stars(t)===1 ? 'stella' : 'stelle'}</span>` : ''}</div>`).join('');
+  if(goal){
+    const cell = (r, t) => r.st[t-1] ? `${starsSVG(r.st[t-1])}<br><small>${goalTxt(r.ch, r.m[t-1])}${r.bonus===t ? ' · +1 più veloce' : ''}</small>` : '—';
+    $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>Obiettivo</th><th>Soluzione migliore</th><th>${P.n1}</th><th>${P.n2}</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${r.ch.task}${r.ch.kind==='bal' ? `<br><small>A sinistra: ${leftTxt(r.ch)}</small>` : ''}</td><td>${r.ch.sol}<br><small>${r.ch.exp}</small></td><td>${cell(r, 1)}</td><td>${cell(r, 2)}</td></tr>`).join('');
+  } else $('#recap').innerHTML = `<tr><th>#</th><th>Livello</th><th>A sinistra</th><th>Una soluzione</th><th>Punto</th></tr>` + S.log.map((r,i)=>`<tr><td>${i+1}</td><td>${LVN[r.ch.l]}</td><td>${leftTxt(r.ch)}</td><td>${r.ch.sol}</td><td>${r.who ? `<span class="dot" style="background:var(--t${r.who})"></span>${nm(r.who)}` : 'nessuno'}</td></tr>`).join('');
+  /* registro di classe: una voce per sfida conclusa (quella interrotta con «Fine» non conta) */
+  const GT = {pochi:'meno oggetti', pochiR:'meno oggetti', due:'due tipi di pesi', solo:'pesi tutti uguali', soloR:'pesi tutti uguali', forza:'forza minima', forzaR:'forza minima', fulcro:'dove va il fulcro', pesata:'peso misterioso', mosse:'meno mosse'};
+  const items = S.log.filter(r=>r.end).map(r=>({t:r.ch.goal ? 'Obiettivo: ' + (GT[r.ch.gt] || 'leve') : TOPIC[r.ch.l], l:r.ch.l, ok:r.ch.goal ? !!(r.st[0] || r.st[1]) : !!r.who,
+    q:r.ch.task + (r.ch.left.length && r.ch.kind!=='weigh' ? ` A sinistra: ${leftTxt(r.ch)}.` : ''), a:r.ch.sol}));
+  if(items.length) REG.report('#regBox', REG.save({gioco:'leve', titolo:'Leve e bilance', modo:`${P.screen==='lim' ? 'LIM a turni' : 'Multitouch'} · ${goal ? 'sfide a obiettivo' : 'sfide classiche'}`, livello:LVN[P.lvl],
+    squadre:[{nome:P.n1, punti:a}, {nome:P.n2, punti:b}], items}));
+  else $('#regBox').innerHTML = '';
   if(a!==b) beep([523, 659, 784, 1047], 0.13);
   show('end');
   try{ if(document.fullscreenElement) document.exitFullscreen().catch(()=>{}); }catch(e){}
@@ -568,7 +985,7 @@ function win(id){
   const team = teamOf(id);
   S.playing = false; cancelAnimationFrame(S.raf);
   BD[id].phase = 'done';
-  S.score[team-1]++; S.log[S.i].who = team;
+  S.score[team-1]++; S.log[S.i].who = team; S.log[S.i].end = true;
   beep([660, 880, 1100], 0.1);
   if(id==='L'){ $('#ls'+team).textContent = S.score[team-1]; $('#lmsg').innerHTML = `Equilibrio! Punto a <b>${nm(team)}</b>`; S.turn = 0; limSides(); S.next = setTimeout(nextChallenge, 3000); return; }
   $('#s'+team).textContent = S.score[team-1];
@@ -583,8 +1000,8 @@ function unbanner(){ [1,2].forEach(t=>$('#x'+t).classList.remove('show')); }
 function touchChallenge(){
   $('#rn').innerHTML = `<small>Sfida</small>${S.i+1} di ${S.list.length}<small>${LVN[S.ch.l]}</small>`;
   S.playing = false;
-  [1,2].forEach(t=>{ setupBoard(t); banner(t, `Sfida ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
-  setBar(1);
+  [1,2].forEach(t=>{ setupBoard(t); banner(t, `${S.ch.goal ? 'Obiettivo' : 'Sfida'} ${S.i+1}<small>Livello ${LVN[S.ch.l].toLowerCase()} · ${S.ch.task}</small>`); });
+  setBar(1); S.dur = P.timeC*1000;
   S.next = setTimeout(()=>{ unbanner(); S.playing = true; S.t0 = performance.now(); runClock(); beep([520, 780], 0.1); [1,2].forEach(update); }, 2200);
 }
 function setBar(f){
@@ -595,12 +1012,16 @@ function setBar(f){
 }
 function runClock(){
   cancelAnimationFrame(S.raf);
-  if(!P.timeC){ setBar(1); return; }
-  const dur = P.timeC*1000;
+  const dur = S.dur;      /* P.timeC in secondi, oppure il tempo che resta dopo che una squadra ha finito l'obiettivo */
+  if(!dur){ setBar(1); return; }
   const tick = now=>{
     if(!S.playing || S.paused) return;
     const f = Math.max(0, 1 - (now - S.t0)/dur); setBar(f);
-    if(f <= 0){ S.playing = false; beep([330, 262], 0.16); [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>Una soluzione: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, 4200); return; }
+    if(f <= 0){
+      beep([330, 262], 0.16);
+      if(S.ch.goal && S.log[S.i].first){ endGoal(); return; }
+      S.playing = false; S.log[S.i].end = true;
+      [1,2].forEach(t=>banner(t, `Tempo scaduto!<small>${S.ch.goal ? 'Soluzione migliore' : 'Una soluzione'}: ${S.ch.sol}</small>`)); S.next = setTimeout(()=>{ unbanner(); nextChallenge(); }, S.ch.goal ? 6000 : 4200); return; }
     S.raf = requestAnimationFrame(tick);
   };
   S.raf = requestAnimationFrame(tick);
@@ -616,7 +1037,7 @@ $('#pause').onclick = ()=>{
 $('#stop').onclick = ()=>{ stopAll(); finish(); };
 
 /* ---------- LIM: una leva, a turni, con rubapunto ---------- */
-function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#bdL').classList.toggle('dim', !S.turn); }
+function limSides(){ [1,2].forEach(t=>{ $('#L'+t).classList.toggle('turn', S.turn===t); $('#lf'+t).textContent = S.turn===t ? 'Tocca a voi!' : ''; }); $('#lim').classList.toggle('turn1', S.turn===1); $('#lim').classList.toggle('turn2', S.turn===2); $('#bdL').classList.toggle('dim', !S.turn); }
 function limChallenge(){
   $('#lrn').innerHTML = `Sfida ${S.i+1} di ${S.list.length} · ${LVN[S.ch.l]}`;
   S.turn = S.i % 2 + 1; S.stolen = false; S.playing = true;
@@ -644,15 +1065,16 @@ function limFail(why){
   beep([330, 262], 0.14);
   const b = BD.L;
   if(!S.stolen){
-    S.stolen = true; S.turn = 3 - S.turn; b.phase = 'build'; $('#q'+'L').classList.remove('on');
-    limSides(); update('L');
-    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>`;
+    S.stolen = true; S.turn = 3 - S.turn; limSides();
+    if(S.ch.goal) setupBoard('L');            /* negli obiettivi chi ruba riparte da capo (le stelle misurano il suo lavoro) */
+    else { b.phase = 'build'; $('#q'+'L').classList.remove('on'); update('L'); }
+    $('#lmsg').innerHTML = `${why} Rubapunto: tocca a <b>${nm(S.turn)}</b>${S.ch.goal ? ' (si riparte da capo)' : ''}`;
     limTimer(P.timeT ? Math.min(P.timeT, 30) : 0);
     return;
   }
-  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides();
-  $('#lmsg').innerHTML = `${why} Nessun punto. Una soluzione: ${S.ch.sol}`;
-  S.next = setTimeout(nextChallenge, 5000);
+  S.playing = false; cancelAnimationFrame(S.raf); S.turn = 0; limSides(); S.log[S.i].end = true;
+  $('#lmsg').innerHTML = `${why} Nessun punto. ${S.ch.goal ? 'Soluzione migliore' : 'Una soluzione'}: ${S.ch.sol}`;
+  S.next = setTimeout(nextChallenge, S.ch.goal ? 7000 : 5000);
 }
 $('#lpass').onclick = ()=>{ if(S.playing && !S.paused && BD.L.phase!=='done') limFail('Passo!'); };
 $('#lpause').onclick = ()=>{
@@ -671,7 +1093,7 @@ $('#go').onclick = start;
 $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
 renderSetup();
-window.__leveTest = {makeChallenge, solsK, loadM, P, S, BD, update};   // solo per le verifiche automatiche
+window.__leveTest = {makeChallenge, makeGoal, goalOf, bfsMoves, solsK, loadM, P, S, BD, update};   // solo per le verifiche automatiche
 })();
 </script>
 </body>
