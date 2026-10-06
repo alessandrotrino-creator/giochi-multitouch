@@ -69,6 +69,28 @@ header p{margin:2px 0 0;color:var(--muted);font-weight:700;font-size:1rem}
 .soon .item b{color:var(--ink);display:block;font-family:var(--font-title);font-size:1.1rem}
 .soon .item .ic{font-size:1.8rem;flex:none}
 footer{color:var(--muted);font-size:.92rem;line-height:1.5}
+/* schede: per materia, per argomento, per classe */
+.tabs{display:flex;flex-wrap:wrap;gap:8px;border-bottom:3px solid var(--line);padding-bottom:0}
+.tabs button{font:inherit;font-family:var(--font-title);font-weight:800;font-size:1.25rem;min-height:56px;padding:8px 22px;border:3px solid transparent;border-bottom:0;border-radius:16px 16px 0 0;background:transparent;color:var(--muted);cursor:pointer;margin-bottom:-3px}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--ink);border-color:var(--line);border-bottom:3px solid var(--surface)}
+.tabp{display:flex;flex-direction:column;gap:18px}
+.tabp.hide{display:none}
+.lead{margin:0;color:var(--muted);font-weight:700;font-size:1.05rem;line-height:1.5}
+.topics,.clsbtns{display:flex;flex-wrap:wrap;gap:10px}
+.topics button,.clsbtns button{font:inherit;font-weight:800;font-size:1.08rem;min-height:54px;padding:8px 18px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;border-left:8px solid var(--c)}
+.topics button[aria-pressed="true"],.clsbtns button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:#fff}
+.topics button small{font-size:.8rem;opacity:.75}
+.clsbtns button{font-family:var(--font-title);font-size:1.5rem;min-height:72px;padding:8px 34px}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:12px}
+.picks:empty{display:none}
+.picks h3{grid-column:1 / -1;font-size:1.4rem;display:flex;align-items:center;gap:10px}
+.pick{display:grid;grid-template-columns:96px 1fr;column-gap:12px;row-gap:2px;align-items:center;background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:10px;text-decoration:none;color:inherit;border-left:8px solid var(--c);transition:transform .12s,box-shadow .12s}
+.pick:hover,.pick:focus-visible{transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,30,60,.12);outline:none}
+.pick .art{grid-row:1 / 3;min-height:84px}
+.pick .art svg{transform:scale(.8)}
+.pick b{font-family:var(--font-title);font-size:1.2rem}
+.pick span{color:var(--muted);font-weight:700;font-size:.95rem;line-height:1.35}
+.pick span em{font-style:normal;color:var(--ink)}
 @media (max-width:520px){ .game{grid-template-columns:86px 1fr} .art{min-height:86px} .art svg{transform:scale(.8)} .regbtn{margin-left:0} }
 @media (prefers-reduced-motion: reduce){ *{transition:none!important} }
 </style>
@@ -84,6 +106,13 @@ footer{color:var(--muted);font-size:.92rem;line-height:1.5}
     <a class="regbtn" href="registro.html"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="8" y="6" width="48" height="54" rx="8" fill="#6A4CD8"/><rect x="16" y="38" width="7" height="14" rx="2" fill="#fff"/><rect x="28.5" y="28" width="7" height="24" rx="2" fill="#fff"/><rect x="41" y="18" width="7" height="34" rx="2" fill="#fff"/></svg><span>Registro e statistiche<small>classi, argomenti, classifiche</small></span></a>
   </header>
 
+  <nav class="tabs" role="tablist" aria-label="Come cercare un gioco">
+    <button role="tab" data-t="mat" aria-selected="true">🎲 Per materia</button>
+    <button role="tab" data-t="arg" aria-selected="false">📚 Per argomento di lezione</button>
+    <button role="tab" data-t="cls" aria-selected="false">🏫 Per classe</button>
+  </nav>
+
+  <div class="tabp" id="tab-mat">
   <nav class="filters" aria-label="Filtra i giochi per categoria">
     <button data-f="all" aria-pressed="true">Tutti <span>9</span></button>
     <button data-f="rip" style="--c:var(--c-rip)"><i></i>Ripasso a quiz <span>2</span></button>
@@ -163,10 +192,23 @@ footer{color:var(--muted);font-size:.92rem;line-height:1.5}
     </div>
   </section>
 
+  </div>
+
+  <div class="tabp hide" id="tab-arg">
+    <p class="lead">Che cosa fate oggi in classe? Tocca l'argomento: compaiono i giochi che lo trattano. Il gioco si apre <b>già impostato</b> su quell'argomento (poi si può cambiare tutto).</p>
+    <div class="topics" id="topics"></div>
+    <div class="picks" id="argPicks"></div>
+  </div>
+
+  <div class="tabp hide" id="tab-cls">
+    <p class="lead">Giochi e argomenti adatti a ogni anno, con il livello di partenza consigliato. Ogni gioco si apre già impostato.</p>
+    <div class="clsbtns" id="clsBtns"></div>
+    <div class="picks" id="clsPicks"></div>
+  </div>
+
   <section class="sec soon" data-s="soon" style="--c:var(--line)">
     <h2>In arrivo</h2>
     <div class="grid">
-      <div class="item"><span class="ic" aria-hidden="true">🔐</span><span><b>Escape room scientifica</b>enigmi in sequenza per uscire dal laboratorio</span></div>
       <div class="item"><span class="ic" aria-hidden="true">🫀</span><span><b>Il corpo umano</b>organi, ossa, il viaggio del cibo e del sangue</span></div>
       <div class="item"><span class="ic" aria-hidden="true">🧪</span><span><b>Laboratorio di chimica</b>miscugli, indicatori e reazioni</span></div>
       <div class="item"><span class="ic" aria-hidden="true">⏳</span><span><b>Linea del tempo</b>scoperte ed eventi da mettere in ordine</span></div>
@@ -187,6 +229,60 @@ footer{color:var(--muted);font-size:.92rem;line-height:1.5}
   let f = 'all'; try{ f = localStorage.getItem('gm-home-filtro') || 'all'; }catch(e){}
   if(!btns.some(b => b.dataset.f === f)) f = 'all';
   apply(f);
+
+  /* ---------- schede: per argomento e per classe ----------
+     ogni voce: [gioco, come trovarlo nel gioco, impostazioni passate nell'indirizzo (#chiave=valore)] */
+  const NAME = {duello:'Duello a squadre', coppie:'Caccia alle coppie', frazioni:'Frazioni da spezzare', geopiano:'Geopiano', tangram:'Tangram', zoo:'Lo zoo della classificazione', leve:'Leve e bilance', circuiti:'Circuiti elettrici', energia:"Città dell'energia"};
+  const COL = {duello:'var(--c-rip)', coppie:'var(--c-rip)', frazioni:'var(--c-mat)', geopiano:'var(--c-mat)', tangram:'var(--c-mat)', zoo:'var(--c-sci)', leve:'var(--c-sci)', circuiti:'var(--c-sci)', energia:'var(--c-sci)'};
+  const TOPICS = [
+    {n:'Calcolo e numeri', c:'mat', g:[['duello', 'argomento «Calcolo mentale»', 'cats=calc'], ['coppie', 'coppie «Operazioni e risultati»', 'cats=oper']]},
+    {n:'Potenze e radici', c:'mat', g:[['duello', 'argomento «Potenze e radici»', 'cats=pot'], ['coppie', 'coppie «Potenze e radici»', 'cats=pot']]},
+    {n:'Frazioni, decimali e percentuali', c:'mat', g:[['frazioni', 'tutti i tipi di sfida, anche la retta dei numeri', 'lvl=1'], ['duello', 'argomento «Frazioni e percentuali»', 'cats=fraz'], ['coppie', 'coppie «Frazioni, decimali, percentuali»', 'cats=fraz']]},
+    {n:'Misure ed equivalenze', c:'mat', g:[['duello', 'argomento «Equivalenze»', 'cats=equiv'], ['coppie', 'grandezze, unità e strumenti di misura', 'cats=equiv,unita,strum']]},
+    {n:'Figure piane, aree e perimetri', c:'mat', g:[['geopiano', 'aree, perimetri, poligoni (livelli Base–Avanzato)', 'lvl=2'], ['tangram', 'sagome, aree e frazioni del quadrato', 'lvl=1'], ['coppie', 'coppie «Figure piane»', 'cats=figure']]},
+    {n:'Teorema di Pitagora e di Pick', c:'mat', g:[['geopiano', 'livelli Esperto e Campione', 'lvl=4']]},
+    {n:'Equiscomposizione', c:'mat', g:[['tangram', 'livelli Esperto e Campione', 'lvl=4']]},
+    {n:'Solidi', c:'mat', g:[['duello', 'argomento «Solidi»', 'cats=solidi'], ['coppie', 'coppie «Solidi»', 'cats=solidi']]},
+    {n:'Equazioni', c:'mat', g:[['duello', 'argomento «Equazioni»', 'cats=equaz'], ['coppie', 'coppie «Equazioni e soluzioni»', 'cats=equaz'], ['leve', 'il peso misterioso (livello Campione)', 'lvl=5']]},
+    {n:'Forze, leve ed equilibrio', c:'sci', g:[['leve', 'bilance e leve, anche sfide con le stelle', 'lvl=1'], ['duello', 'argomento «Forze, peso e pressione»', 'cats=forze']]},
+    {n:'Moto e velocità', c:'sci', g:[['duello', 'argomento «Velocità e moto»', 'cats=moto'], ['coppie', 'coppie «Formule in azione»', 'cats=calc']]},
+    {n:'Densità e galleggiamento', c:'sci', g:[['duello', 'argomento «Densità e galleggiamento»', 'cats=dens']]},
+    {n:'Materia, calore e temperatura', c:'sci', g:[['duello', 'argomenti «Calore e temperatura» e «Materia ed elementi»', 'cats=calore,materia'], ['coppie', 'coppie «Materia ed elementi»', 'cats=materia']]},
+    {n:'Elettricità', c:'sci', g:[['circuiti', 'circuiti da costruire, anche con le stelle', 'lvl=1'], ['duello', 'argomento «Energia ed elettricità»', 'cats=energia'], ['coppie', 'coppie «Energia ed elettricità»', 'cats=energia']]},
+    {n:'Energia e ambiente', c:'sci', g:[['energia', 'partita di strategia', 'modo=partita'], ['energia', '15 sfide a obiettivo con le stelle', 'modo=sfida'], ['duello', 'argomento «Energia ed elettricità»', 'cats=energia']]},
+    {n:'Viventi e classificazione', c:'sci', g:[['zoo', 'smistamento: vertebrati e invertebrati, classi', 'mode=smista&topics=vi,cla'], ['zoo', 'identikit e chiave dicotomica', 'mode=ident'], ['duello', 'argomento «Viventi e corpo umano»', 'cats=viventi'], ['coppie', 'coppie «Viventi e corpo umano»', 'cats=viventi']]},
+    {n:'Ecosistemi e catene alimentari', c:'sci', g:[['zoo', 'modalità «Catena alimentare»', 'mode=catena']]},
+    {n:'Corpo umano', c:'sci', g:[['duello', 'argomento «Viventi e corpo umano»', 'cats=viventi'], ['coppie', 'coppie «Viventi e corpo umano»', 'cats=viventi']]},
+    {n:'Terra e Universo', c:'sci', g:[['duello', 'argomento «Terra e Universo»', 'cats=terra'], ['coppie', 'coppie «Terra e Universo»', 'cats=terra']]}
+  ];
+  const CLS = {
+    1:[['duello', 'calcolo, potenze, equivalenze, materia e calore · livello Base', 'cats=calc,pot,equiv,materia,calore&lvl=1'], ['frazioni', 'livelli Base e Medio', 'lvl=1'], ['coppie', 'operazioni, potenze, misure e strumenti', 'cats=oper,pot,equiv,unita,strum&lvl=1'], ['geopiano', 'perimetri e aree semplici', 'lvl=1'], ['tangram', 'comporre sagome', 'lvl=1'], ['zoo', 'vertebrati, invertebrati e classi', 'mode=smista&topics=vi,cla&level=1'], ['leve', 'bilancia a piatti', 'lvl=1']],
+    2:[['frazioni', 'livelli Avanzato ed Esperto', 'lvl=3'], ['duello', 'frazioni, forze, moto, densità, corpo umano · livello Medio', 'cats=fraz,forze,moto,dens,viventi&lvl=2'], ['geopiano', 'teorema di Pitagora e di Pick', 'lvl=4'], ['tangram', 'aree ed equiscomposizione', 'lvl=3'], ['leve', 'leve di 1° genere', 'lvl=3'], ['zoo', 'catene e reti alimentari', 'mode=catena&level=2'], ['coppie', 'frazioni, figure piane, formule', 'cats=fraz,figure,calc&lvl=2']],
+    3:[['duello', 'equazioni, solidi, elettricità, Terra e Universo · anche Countdown e Highlander', 'cats=equaz,solidi,energia,terra&lvl=3'], ['circuiti', 'serie, parallelo, legge di Ohm', 'lvl=3'], ['energia', 'sfide a obiettivo', 'modo=sfida'], ['leve', 'il peso misterioso (equazioni)', 'lvl=5'], ['coppie', 'solidi, equazioni, energia, universo', 'cats=solidi,equaz,energia,terra&lvl=3'], ['geopiano', 'livello Campione', 'lvl=5']]
+  };
+  const art = g => { const a = document.querySelector(`.game[href="${g}.html"] .art`); return a ? a.outerHTML : ''; };
+  const pick = ([g, how, h]) => `<a class="pick" style="--c:${COL[g]}" href="${g}.html${h ? '#' + h : ''}">${art(g)}<b>${NAME[g]}</b><span>${how}</span></a>`;
+  const S = {tab:'mat', arg:-1, cls:0};
+  try{ Object.assign(S, JSON.parse(localStorage.getItem('gm-home-scheda') || '{}')); }catch(e){}
+  const keep = () => { try{ localStorage.setItem('gm-home-scheda', JSON.stringify(S)); }catch(e){} };
+  function renderArg(){
+    document.getElementById('topics').innerHTML = TOPICS.map((t, i) => `<button data-i="${i}" style="--c:var(--c-${t.c})" aria-pressed="${S.arg === i}">${t.n}<small>${t.g.length}</small></button>`).join('');
+    document.querySelectorAll('#topics button').forEach(b => b.addEventListener('click', () => { S.arg = S.arg === +b.dataset.i ? -1 : +b.dataset.i; keep(); renderArg(); }));
+    const t = TOPICS[S.arg];
+    document.getElementById('argPicks').innerHTML = t ? `<h3>${t.n}</h3>` + t.g.map(pick).join('') : '';
+  }
+  function renderCls(){
+    document.getElementById('clsBtns').innerHTML = [1, 2, 3].map(c => `<button data-c="${c}" style="--c:var(--accent)" aria-pressed="${S.cls === c}">${['', 'Prima', 'Seconda', 'Terza'][c]}</button>`).join('');
+    document.querySelectorAll('#clsBtns button').forEach(b => b.addEventListener('click', () => { S.cls = S.cls === +b.dataset.c ? 0 : +b.dataset.c; keep(); renderCls(); }));
+    document.getElementById('clsPicks').innerHTML = CLS[S.cls] ? `<h3>Classe ${['', 'prima', 'seconda', 'terza'][S.cls]}</h3>` + CLS[S.cls].map(pick).join('') : '';
+  }
+  function tab(t){
+    S.tab = t; keep();
+    document.querySelectorAll('.tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.t === t)));
+    ['mat', 'arg', 'cls'].forEach(k => document.getElementById('tab-' + k).classList.toggle('hide', k !== t));
+  }
+  document.querySelectorAll('.tabs button').forEach(b => b.addEventListener('click', () => tab(b.dataset.t)));
+  renderArg(); renderCls(); tab(['mat', 'arg', 'cls'].includes(S.tab) ? S.tab : 'mat');
 })();
 </script>
 </body>

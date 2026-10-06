@@ -18,7 +18,14 @@ I giochi si aggiungono uno alla volta e si aprono tutti dalla pagina iniziale `i
 
 ## Giochi
 
-La pagina `index.html` è il **launcher**: i giochi sono divisi in tre categorie (**Ripasso a quiz**, **Matematica e geometria**, **Scienze e tecnologia**), con tessere compatte da toccare e pulsanti in alto per mostrare una sola categoria (la scelta resta memorizzata). In alto a destra c'è il **Registro e statistiche**, in fondo i giochi in arrivo. Ogni gioco ha in alto il link «← Tutti i giochi» per tornare lì.
+La pagina `index.html` è il **launcher**, con tre schede:
+- **Per materia**: i giochi divisi in **Ripasso a quiz**, **Matematica e geometria**, **Scienze e tecnologia**, con pulsanti per mostrare una sola categoria.
+- **Per argomento di lezione**: si tocca l'argomento del giorno (frazioni, Pitagora, forze, elettricità, catene alimentari…) e compaiono tutti i giochi che lo trattano.
+- **Per classe**: prima, seconda, terza, con i giochi e gli argomenti adatti e il livello di partenza consigliato.
+
+Dalle schede «per argomento» e «per classe» il gioco si apre **già impostato** (argomenti, livello o modalità), poi si può cambiare tutto. In alto a destra c'è il **Registro e statistiche**, in fondo i giochi in arrivo. Le ultime scelte (scheda, argomento, classe) restano memorizzate.
+
+Nelle **impostazioni di ogni gioco** restano in vista solo le scelte di gioco (argomenti, modalità, livello, numero di sfide); squadre e classe, schermo/tempi/aiuti/suoni e le istruzioni sono in riquadri che si aprono con un tocco e mostrano un riassunto delle scelte. Il pulsante per iniziare è sempre visibile in basso. Ogni gioco ha in alto il link «← Tutti i giochi» per tornare lì.
 
 | File | Gioco | Come si gioca |
 |---|---|---|

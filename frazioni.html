@@ -206,6 +206,18 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
 .rrank{width:100%;border-collapse:collapse;font-size:.92rem}
 .rrank td,.rrank th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:left}
 .rrank tr.me td{font-weight:800;color:var(--accent)}
+/* impostazioni ordinate: riquadri richiudibili e pulsante di avvio sempre visibile (blocco comune a tutti i giochi) */
+.sgrp{border:2px solid var(--line);border-radius:16px;background:var(--surface-2)}
+.sgrp > summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;padding:10px 16px;min-height:54px}
+.sgrp > summary::-webkit-details-marker{display:none}
+.sgrp > summary::before{content:'▸';color:var(--accent);font-size:1.1rem;transition:transform .15s}
+.sgrp[open] > summary::before{transform:rotate(90deg)}
+.sgrp > summary b{font-family:var(--font-title);font-size:1.1rem}
+.sgrp .sum{color:var(--muted);font-weight:700;font-size:.9rem;line-height:1.35}
+.sgrp .sbody{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;padding:4px 16px 16px}
+.sgrp .sbody > .wide{grid-column:1 / -1}
+.startbar{position:sticky;bottom:0;z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0 8px;background:var(--surface);border-top:2px solid var(--line);box-shadow:0 -10px 18px -12px rgba(20,30,60,.25)}
+.startbar .warn{margin:0}
 </style>
 </head>
 <body>
@@ -289,6 +301,72 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
   </div>
 </section>
 
+<script>
+/* ---------- impostazioni ordinate (blocco comune a tutti i giochi) ----------
+   SETUP.hash(P): impostazioni passate dalla pagina iniziale nell'indirizzo (es. duello.html#cats=fraz&lvl=2).
+   SETUP.organize(opt): sposta squadre/classe, schermo/tempi/suoni e istruzioni in riquadri richiudibili con un riassunto,
+   e tiene il pulsante di avvio sempre visibile in basso. opt.keep = id da lasciare in vista. */
+window.SETUP = (function(){
+  const GROUPS = [
+    {id:'gTeams', title:'Squadre e classe', ids:['n1', 'n2', 'nteams', 'regField'], plain:true},
+    {id:'gScreen', title:'Schermo, tempi, aiuti e suoni', ids:['screen', 'layout', 'limMode', 'timeC', 'timeT', 'timeR', 'timeM', 'time', 'speedT', 'aid', 'draw', 'sound']},
+    {id:'gInfo', title:'Come si gioca', ids:['howto', 'objs', 'parts', 'plist', 'rules'], info:true}
+  ];
+  const WIDE = ['howto', 'objs', 'parts', 'plist', 'rules'];
+  function hash(P){
+    try{
+      new URLSearchParams(location.hash.slice(1)).forEach((v, k) => {
+        if(!(k in P)) return; const c = P[k];
+        P[k] = Array.isArray(c) ? v.split(',').filter(Boolean) : typeof c === 'number' ? (Number.isFinite(+v) ? +v : c) : typeof c === 'boolean' ? (v === '1' || v === 'true') : v;
+      });
+    }catch(e){}
+  }
+  const fieldOf = id => { const el = document.getElementById(id); if(!el) return null; return el.closest('.field') || (el.matches('p.note') ? el : null); };
+  function organize(opt = {}){
+    const go = document.getElementById('go'); if(!go) return;
+    const card = go.closest('.card, .card0') || document.getElementById('setup'); if(!card || card.dataset.org) return;
+    card.dataset.org = '1';
+    const anchor = go.closest('.actions') || go;
+    GROUPS.forEach(g => {
+      const els = [];
+      g.ids.filter(id => !(opt.keep || []).includes(id)).forEach(id => { const f = fieldOf(id); if(f && !els.includes(f) && !f.closest('.sgrp')){ els.push(f); if(WIDE.includes(id)) f.classList.add('wide'); } });
+      if(!els.length) return;
+      const d = document.createElement('details'); d.className = 'sgrp'; d.id = g.id;
+      if(g.plain) d.dataset.plain = '1'; if(g.info) d.dataset.info = '1';
+      d.innerHTML = `<summary><b>${g.title}</b><span class="sum"></span></summary><div class="sbody"></div>`;
+      els.forEach(f => d.querySelector('.sbody').appendChild(f));
+      anchor.parentNode.insertBefore(d, anchor);
+    });
+    card.querySelectorAll('.row').forEach(r => { if(!r.children.length) r.remove(); });
+    const bar = document.createElement('div'); bar.className = 'startbar';
+    anchor.parentNode.insertBefore(bar, anchor);
+    const warn = document.getElementById('warn'); if(warn && card.contains(warn)) bar.appendChild(warn);
+    bar.appendChild(anchor);
+    const later = () => setTimeout(refresh, 0);
+    card.addEventListener('click', later); card.addEventListener('input', later);
+    new MutationObserver(later).observe(document.getElementById('setup'), {attributes:true, attributeFilter:['class']});   /* torna alle impostazioni: riassunti aggiornati */
+    refresh();
+  }
+  function refresh(){
+    document.querySelectorAll('#setup .sgrp').forEach(d => {
+      const sum = d.querySelector('.sum'); if(!sum) return;
+      if(d.dataset.info){ sum.textContent = 'regole e istruzioni'; return; }
+      const parts = [];
+      d.querySelectorAll('.sbody > .field').forEach(f => {
+        if(f.classList.contains('hide')) return;
+        const lab = (f.querySelector(':scope > span') || {}).textContent || '';
+        const inp = f.querySelector('input[type=text]');
+        const on = f.querySelector('[aria-pressed="true"]');
+        if(f.querySelector('#regClasse')){ const c = (inp.value || '').trim().toUpperCase(); parts.push(c ? `classe ${c}` : 'nessuna classe (allenamento)'); return; }
+        if(inp){ if(inp.value.trim()) parts.push(inp.value.trim()); return; }
+        if(on) parts.push(d.dataset.plain ? on.textContent.trim() : `${lab.replace(/:.*$/, '')}: ${on.textContent.trim()}`);
+      });
+      sum.textContent = parts.join(' · ');
+    });
+  }
+  return {hash, organize, refresh};
+})();
+</script>
 <script>
 /* ---------- registro di classe (blocco comune a tutti i giochi) ----------
    I risultati restano SOLO in questo browser (localStorage 'gm-registro'): niente nomi di alunni, niente invii.
@@ -1029,7 +1107,9 @@ document.addEventListener('contextmenu', e=>{ if($('#game').classList.contains('
 $('#go').onclick = start;
 $('#again').onclick = start;
 $('#toSetup').onclick = ()=>{ renderSetup(); show('setup'); };
+SETUP.hash(P);   // impostazioni passate dalla pagina iniziale
 renderSetup();
+SETUP.organize();
 window.__frazTest = {makeChallenge, classicChallenge, lineChallenge, placeTok, showLineSol, lineGeom, P, S, BD, check, update};   // solo per le verifiche automatiche
 })();
 </script>
