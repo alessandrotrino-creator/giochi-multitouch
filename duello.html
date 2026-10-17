@@ -301,6 +301,7 @@ th{color:var(--muted);font-size:.85rem;text-transform:uppercase}
       <div class="field" id="speedF"><span>Tempo per domanda</span><div class="seg" id="speedT"></div></div>
       <div class="field" id="rafF"><span>Durata della raffica</span><div class="seg" id="rafT"></div></div>
       <div class="field" id="cdF"><span>Durata del countdown</span><div class="seg" id="cdT"></div></div>
+      <div class="field" id="highF"><span>Tempo per domanda</span><div class="seg" id="highT"></div></div>
     </div>
     <div class="row">
       <div class="field"><span>Schermo</span><div class="seg" id="screen"></div></div>
@@ -1276,7 +1277,7 @@ function myQ(set, l, seen){
 
 /* ---------- impostazioni ---------- */
 const SCI = CATS.filter(c=>c.g==='sci').map(c=>c.k);
-const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, cdT:60, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
+const P = {cats:['calc','pot','fraz','equiv'], sfida:'classica', diff:'fissa', lvl:1, num:10, mix:[4,6,3,0,0], bonus:false, time:20, speedT:8, rafT:90, cdT:60, highT:10, screen:'touch', layout:'side', limMode:'turni', sound:true, n1:'Squadra blu', n2:'Squadra arancione'};
 try{
   const s = JSON.parse(localStorage.getItem('duello-prefs')||'{}');
   if(Array.isArray(s.cats) && s.cats.includes('scienze')) s.cats = s.cats.filter(k=>k!=='scienze').concat(SCI);   // vecchio argomento unico "Scienze"
@@ -1301,10 +1302,11 @@ const mixTot = ()=> P.mix.reduce((s,v)=>s+v, 0);
 const RULES = {
   count:'Countdown: domande una dopo l\'altra contro il tempo. Ogni risposta giusta vale 1 punto; <b>alla prima risposta sbagliata il countdown della squadra finisce</b>. Vince chi fa più punti.',
   countZero:'Countdown senza tempo: domande una dopo l\'altra, senza fretta; <b>alla prima risposta sbagliata la squadra ha finito</b>. Vince chi fa più punti.',
-  high:'Highlander: nessun tempo totale, ma <b>al massimo 10 secondi per domanda</b> (20 per la domanda ★). Si va avanti finché non si sbaglia o non scade il tempo di una domanda. Vince chi fa più punti.',
+  high:'Highlander: nessun tempo totale, ma <b>al massimo {T} secondi per domanda</b> ({T2} per la domanda ★). Si va avanti finché non si sbaglia o non scade il tempo di una domanda. Vince chi fa più punti.',
+  highZero:'Highlander senza timer: domande una dopo l\'altra, con tutto il tempo per pensare; <b>alla prima risposta sbagliata la squadra è fuori</b>. Vince chi fa più punti.',
   svTouch:'Le due squadre giocano insieme, ognuna nella sua metà, con <b>le stesse domande nello stesso ordine</b> (le risposte sono mescolate in modo diverso); quando una squadra sbaglia, l\'altra continua da sola.',
   svLim:'Alla LIM le squadre giocano <b>una dopo l\'altra</b>. Per non avvantaggiare chi gioca per secondo, le domande sono gemelle: stesso argomento e stessa difficoltà, ma con numeri o contenuti diversi.',
-  touch:'Multitouch: le due squadre rispondono <b>insieme</b>, ognuna nella sua metà dello schermo; vince il punto chi tocca per primo la risposta giusta. Una risposta sbagliata blocca la squadra per 2 secondi. Le risposte sono in ordine diverso nelle due metà, così non si copia.',
+  touch:'Multitouch: le due squadre rispondono <b>insieme</b>, ognuna nella sua metà dello schermo; vince il punto chi tocca per primo la risposta giusta. Chi dà una risposta sbagliata <b>deve aspettare la risposta della squadra avversaria</b> prima di poter riprovare. Le risposte sono in ordine diverso nelle due metà, così non si copia.',
   raffica:'Velocità (raffica): ogni squadra ha <b>le sue domande</b>, una dopo l\'altra, finché non scade il tempo. Ogni risposta giusta vale 1 punto; una sbagliata blocca la squadra per 1,5 secondi. Vince chi ne indovina di più.',
   turni:'LIM a turni: le squadre rispondono <b>una alla volta</b>, alternandosi. Se la squadra di turno sbaglia (o finisce il tempo), l\'altra può <b>rubare il punto</b>. Basta un tocco alla volta: va bene su qualsiasi LIM.',
   pren:'LIM con prenotazione: compare la domanda e le squadre si <b>prenotano</b> toccando il loro pulsante grande sulla LIM, oppure con la tastiera del PC: tasto <b>A</b> per la squadra di sinistra, tasto <b>L</b> per quella di destra (si possono usare due tastiere USB). Risponde chi si prenota per primo; se sbaglia, la risposta passa all\'altra squadra.'
@@ -1356,9 +1358,12 @@ function syncSetup(){
   $('#speedF').classList.toggle('hide', !(P.sfida==='veloce' && lim));
   $('#rafF').classList.toggle('hide', !raf);
   $('#cdF').classList.toggle('hide', P.sfida!=='count');
+  $('#highF').classList.toggle('hide', P.sfida!=='high');
   renderMix();
   if(sv){
-    $('#rules').innerHTML = [P.sfida==='count' && !P.cdT ? RULES.countZero : RULES[P.sfida], lim ? RULES.svLim : RULES.svTouch,
+    const svRule = P.sfida==='count' ? (P.cdT ? RULES.count : RULES.countZero)
+      : P.highT ? RULES.high.replace('{T}', P.highT).replace('{T2}', P.highT*2) : RULES.highZero;
+    $('#rules').innerHTML = [svRule,lim ? RULES.svLim : RULES.svTouch,
       P.diff==='scala' ? 'In scala: la difficoltà sale ogni 2 domande (base, base, medio, medio … campione, campione) e poi ricomincia.' : '',
       'Ogni 10 domande (la 10ª, la 20ª…) arriva una <b>domanda ★ di livello campione che vale 3 punti</b>.',
       'Nessun dato viene inviato: se indichi la classe, i risultati restano solo su questo computer.'].filter(Boolean).join(' ');
@@ -1397,6 +1402,7 @@ function renderSetup(){
   seg('#time', 'time', [[0,'Senza limite'],[15,'15 s'],[20,'20 s'],[30,'30 s'],[45,'45 s'],[60,'60 s']]);
   seg('#speedT', 'speedT', [[5,'5 s'],[8,'8 s'],[10,'10 s']]);
   seg('#cdT', 'cdT', [[30,'30 s'],[45,'45 s'],[60,'1 minuto'],[120,'2 minuti'],[0,'Senza tempo']]);
+  seg('#highT', 'highT', [[5,'5 s'],[10,'10 s'],[15,'15 s'],[20,'20 s'],[30,'30 s'],[0,'Senza timer']]);
   seg('#rafT', 'rafT', [[60,'1 minuto'],[90,'1 minuto e ½'],[120,'2 minuti']]);
   seg('#screen', 'screen', [['touch','Multitouch'],['lim','LIM']]);
   seg('#layout', 'layout', [['side','Affiancate (schermo a parete)'],['table','Una di fronte all\'altra (tavolo)']]);
@@ -1650,7 +1656,7 @@ function start(){
   $('#pause').textContent = 'Pausa';
   document.querySelectorAll('#game .lock').forEach(l=>l.textContent = 'Attendi…');
   const high = sv && P.sfida==='high';
-  [1,2].forEach(t=>$('#hb'+t).classList.toggle('hide', !high));
+  [1,2].forEach(t=>$('#hb'+t).classList.toggle('hide', !high || !P.highT));
   $('#timer').classList.toggle('hide', high || (sv && !P.cdT));
   show('game');
   try{ if(document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){}
@@ -1683,8 +1689,10 @@ function answer(t, btn){
     endQuestion();
   } else {
     btn.classList.add('wrong'); btn.disabled = true; beep([220], 0.18);
-    G.lock[t-1] = 1; $('#h'+t).classList.add('locked');
-    setTimeout(()=>{ G.lock[t-1] = 0; if(!G.paused) $('#h'+t).classList.remove('locked'); }, 2000);
+    /* chi sbaglia aspetta la risposta dell'avversario; quando l'avversario sbaglia, tocca di nuovo a lui */
+    const other = 3 - t;
+    G.lock[t-1] = 1; $('#h'+t).querySelector('.lock').textContent = `Aspettate la risposta di ${nm(other)}…`; $('#h'+t).classList.add('locked');
+    if(G.lock[other-1]){ G.lock[other-1] = 0; $('#h'+other).classList.remove('locked'); }
   }
 }
 function markRight(t){ $('#o'+t).querySelectorAll('.opt').forEach(b=>{ if(b.dataset.ok==='true') b.classList.add('right'); }); }
@@ -1715,8 +1723,11 @@ function runTimer(){
   G.timerRaf = requestAnimationFrame(tick);
 }
 function pauseLocks(){
-  [1,2].forEach(t=>$('#h'+t).classList.toggle('locked', G.paused));
-  document.querySelectorAll('#game .lock').forEach(l=>l.textContent = G.paused ? 'Pausa' : 'Attendi…');
+  [1,2].forEach(t=>{
+    const waiting = !R.on && G.lock[t-1];   // nella sfida classica chi ha sbagliato resta in attesa dell'avversario
+    $('#h'+t).classList.toggle('locked', G.paused || !!waiting);
+    $('#h'+t).querySelector('.lock').textContent = G.paused ? 'Pausa' : waiting ? `Aspettate la risposta di ${nm(3-t)}…` : 'Attendi…';
+  });
   $('#pause').textContent = G.paused ? 'Riprendi' : 'Pausa';
 }
 $('#pause').onclick = ()=>{
@@ -1782,7 +1793,8 @@ function rafClock(){
 /* ---------- countdown e highlander: ogni squadra va avanti finché non sbaglia ----------
    multitouch: le due squadre insieme, con la stessa sequenza di domande (SV.qs[0]);
    LIM: una squadra dopo l'altra, con domande "gemelle" (stesso argomento e livello, contenuto diverso). */
-const SCALA = [1,1,2,2,3,3,4,4,5,5], HIGH_T = 10;
+const SCALA = [1,1,2,2,3,3,4,4,5,5];
+const highTxt = () => P.highT ? `${P.highT} s a domanda` : 'senza timer';
 const SV = {on:false, phase:'', cur:0, qs:[[],[]], seen:new Set(), st:[], t0:0, pauseAt:0, tos:[]};
 function svDraw(l, ck){
   const ks = activeCats(); if(!ks.length) return null;
@@ -1824,9 +1836,9 @@ function svClock(){
           else { setBar(left/dur); $('#qn').innerHTML = `<small>Countdown</small>${txt}`; }
           if(left <= 0) teams.forEach(t=>svOut(t, 'Tempo finito', true));
         }
-      } else teams.forEach(t=>{
+      } else if(P.highT) teams.forEach(t=>{
         const s = SV.st[t-1]; if(s.busy || !s.q) return;
-        const f = Math.min(1, Math.max(0, 1 - (now - s.t0)/((s.q.bonus ? 2 : 1)*HIGH_T*1000)));
+        const f = Math.min(1, Math.max(0, 1 - (now - s.t0)/((s.q.bonus ? 2 : 1)*P.highT*1000)));
         svBar(lim ? $('#lbar') : $('#hi'+t), f);
         if(f <= 0) svOut(t, 'Tempo scaduto');
       });
@@ -1837,7 +1849,7 @@ function svClock(){
 }
 function svStart(){
   svReset(); SV.on = true; G.done = false;
-  $('#qn').innerHTML = P.sfida==='high' ? `<small>Highlander</small>${HIGH_T} s` : P.cdT ? '' : '<small>Countdown</small>senza tempo';
+  $('#qn').innerHTML = P.sfida==='high' ? `<small>Highlander</small>${P.highT ? P.highT + ' s' : 'senza timer'}` : P.cdT ? '' : '<small>Countdown</small>senza tempo';
   setBar(1);
   [1,2].forEach(t=>{ $('#h'+t).classList.remove('locked'); svNext(t); });
   SV.t0 = performance.now(); svClock(); beep([520, 780], 0.1);
@@ -1895,7 +1907,7 @@ function svSides(){
 }
 function svLimReady(){
   SV.phase = 'ready'; svSides();
-  $('#lqn').textContent = P.sfida==='count' ? `Countdown · ${P.cdT ? P.cdT + ' s' : 'senza tempo'}` : `Highlander · ${HIGH_T} s a domanda`;
+  $('#lqn').textContent = P.sfida==='count' ? `Countdown · ${P.cdT ? P.cdT + ' s' : 'senza tempo'}` : `Highlander · ${highTxt()}`;
   $('#lqb').classList.remove('bonus'); $('#lc').textContent = ''; putQ($('#lq'), `Pronti, ${nm(SV.cur)}?`);
   $('#lo').innerHTML = ''; $('#lbarW').classList.add('hide');
   $('#lmsg').innerHTML = '<button class="start" id="svGo">Via!</button>';
@@ -1904,7 +1916,7 @@ function svLimReady(){
 function svLimGo(){
   if(SV.phase!=='ready') return;
   SV.phase = 'play'; $('#lmsg').innerHTML = '';
-  $('#lbarW').classList.toggle('hide', P.sfida==='count' && !P.cdT); svBar($('#lbar'), 1);
+  $('#lbarW').classList.toggle('hide', P.sfida==='count' ? !P.cdT : !P.highT); svBar($('#lbar'), 1);
   beep([520, 780], 0.1);
   SV.t0 = performance.now(); svNext(SV.cur);
 }
